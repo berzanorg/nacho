@@ -1,3 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["nacho-database", "nacho-prover", "nacho-proc-macros"]
+members = [
+    "nacho-database",
+    "nacho-prover",
+    "nacho-proc-macros",
+    "nacho-server",
+]
