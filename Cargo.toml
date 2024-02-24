@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["nacho-database", "nacho-prover"]
+members = ["nacho-database", "nacho-prover", "nacho-proc-macros"]
