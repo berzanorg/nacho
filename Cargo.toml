@@ -5,4 +5,5 @@ members = [
     "nacho-prover",
     "nacho-proc-macros",
     "nacho-server",
+    "nacho-merkle-tree",
 ]
