@@ -1,5 +1,7 @@
-FROM rust:alpine
+FROM rust:bookworm
 
-RUN apk add \
+RUN apt update && apt install -y \
     git \
     fish
+
+RUN rustup component add rustfmt
