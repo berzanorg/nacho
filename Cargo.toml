@@ -6,5 +6,7 @@ members = [
     "nacho-proc-macros",
     "nacho-server",
     "nacho-merkle-tree",
-    "nacho-types",
+    "nacho-types", 
+    "nacho-poseidon-hash",
 ]
+
