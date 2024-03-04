@@ -4,7 +4,12 @@
     },
     "customizations": {
         "vscode": {
-            "extensions": ["rust-lang.rust-analyzer", "tamasfe.even-better-toml"],
+            "extensions": [
+                "rust-lang.rust-analyzer",
+                "tamasfe.even-better-toml",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode"
+            ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "fish",
                 "terminal.integrated.shellIntegration.decorationsEnabled": "never"
