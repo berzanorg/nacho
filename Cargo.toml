@@ -1,12 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-    "nacho-database",
-    "nacho-prover",
-    "nacho-proc-macros",
-    "nacho-server",
-    "nacho-merkle-tree",
-    "nacho-types", 
-    "nacho-poseidon-hash",
+    "client",
+    "common",
+    "prover",
+    "smart-contract",
+    "state-database",
+    "witness-database",
 ]
 
+[workspace.dependencies]

@@ -3,17 +3,25 @@
 version = 3
 
 [[package]]
-name = "nacho-database"
+name = "client"
 version = "0.1.0"
 
 [[package]]
-name = "nacho-proc-macros"
+name = "common"
 version = "0.1.0"
 
 [[package]]
-name = "nacho-prover"
+name = "prover"
 version = "0.1.0"
 
 [[package]]
-name = "nacho-server"
+name = "smart-contract"
+version = "0.1.0"
+
+[[package]]
+name = "state-database"
+version = "0.1.0"
+
+[[package]]
+name = "witness-database"
 version = "0.1.0"
