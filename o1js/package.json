@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "tsc && node --test build/*.test.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "o1js": "^0.16.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}
