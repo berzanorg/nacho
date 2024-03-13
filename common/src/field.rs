@@ -1,6 +1,8 @@
 use ark_ff::BigInteger256;
 use mina_curves::pasta::Fp;
 
+use crate::ToFields;
+
 /// An object that represents a field element.
 ///
 /// You can think of a field element as a the basic unit of data in zero knowledge proof programming.
@@ -12,13 +14,22 @@ use mina_curves::pasta::Fp;
 /// # Examples
 ///
 /// ```rs
-/// let field = Field::from_str("42").unwrap();
-/// let bytes = field_to_bytes(&field);
-/// let restored = field_from_bytes(&bytes);
-/// assert_eq!(field, restored);
+/// let field_from_str = "42".parse().unwrap();
+/// let field_from_num = Field::from(42);
+///
+/// let bytes = field_to_bytes(&field_from_num);
+/// let restored_field = field_from_bytes(&bytes);
+///
+/// assert_eq!(field_from_num, restored_field);
 /// ```
 ///
 pub type Field = Fp;
+
+impl ToFields<1> for Field {
+    fn to_fields(&self) -> [Field; 1] {
+        [*self]
+    }
+}
 
 /// Converts a field element to its byte representation.
 ///

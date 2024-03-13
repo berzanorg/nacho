@@ -1,4 +1,4 @@
-use crate::Field;
+use crate::{Field, ToFields};
 use std::ops::{Add, Div, Mul, Rem, Sub};
 use thiserror::Error;
 
@@ -22,7 +22,13 @@ use thiserror::Error;
 ///
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Uint64 {
-    value: Field,
+    pub value: Field,
+}
+
+impl ToFields<1> for Uint64 {
+    fn to_fields(&self) -> [Field; 1] {
+        [self.value]
+    }
 }
 
 /// The error type that represents the errors that can happen during arithmetic operations on `Uint64`.
