@@ -246,6 +246,7 @@ dependencies = [
  "ark-ff",
  "mina-curves",
  "mina-poseidon",
+ "thiserror",
 ]
 
 [[package]]
