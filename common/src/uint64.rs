@@ -1,4 +1,5 @@
 use crate::{Field, ToFields};
+use ark_ff::BigInteger256;
 use std::ops::{Add, Div, Mul, Rem, Sub};
 use thiserror::Error;
 
@@ -128,8 +129,13 @@ impl Div for Uint64 {
     type Output = Result<Uint64, Uint64Error>;
 
     fn div(self, rhs: Self) -> Self::Output {
-        // TODO: Fix the error that happens when `rhs` isn't a multiple of `self`.
-        let field = self.value / rhs.value;
+        let x: BigInteger256 = self.value.into();
+        let y: BigInteger256 = rhs.value.into();
+        let x = x.0[0];
+        let y = y.0[0];
+        let z = x / y;
+
+        let field = z.into();
 
         if Uint64::is_out_of_range(field) {
             Err(Uint64Error::OutOfRange)
