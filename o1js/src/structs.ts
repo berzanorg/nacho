@@ -71,3 +71,19 @@ export class Liqudity extends Struct({
         return [this.wdbIndex, this.baseTokenId, this.quoteTokenId, this.points.value]
     }
 }
+
+/**
+ * The data structure that represents a user's burn of a specific token.
+ */
+export class Burn extends Struct({
+    wdbIndex: Field,
+    tokenId: Field,
+    tokenAmount: UInt64,
+}) {
+    /**
+     * Returns `Field` representation of `Burn` data structure.
+     */
+    toFields(): [Field, Field, Field] {
+        return [this.wdbIndex, this.tokenId, this.tokenAmount.value]
+    }
+}

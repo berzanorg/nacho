@@ -1,4 +1,5 @@
 mod balance;
+mod burn;
 mod field;
 mod liquidity;
 mod pair;
@@ -8,6 +9,7 @@ mod to_fields;
 mod uint64;
 
 pub use balance::Balance;
+pub use burn::Burn;
 pub use field::{field_from_bytes, field_to_bytes, Field};
 pub use liquidity::Liquidity;
 pub use pair::Pair;
