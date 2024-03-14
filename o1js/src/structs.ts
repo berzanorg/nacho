@@ -16,7 +16,20 @@ export class Balance extends Struct({
     tokenId: Field,
     tokenAmount: UInt64,
     tokenOwner: PublicKey,
-}) {}
+}) {
+    /**
+     * Returns `Field` representation of `Balance` data structure.
+     */
+    toFields(): [Field, Field, Field, Field, Field] {
+        return [
+            this.wdbIndex,
+            this.tokenId,
+            this.tokenAmount.value,
+            this.tokenOwner.x,
+            Field(this.tokenOwner.isOdd.value),
+        ]
+    }
+}
 
 /**
  * The data structure that represents a pair of two specific tokens.
@@ -27,7 +40,20 @@ export class Pair extends Struct({
     quoteTokenId: Field,
     baseTokenAmount: UInt64,
     quoteTokenAmount: UInt64,
-}) {}
+}) {
+    /**
+     * Returns `Field` representation of `Pair` data structure.
+     */
+    toFields(): [Field, Field, Field, Field, Field] {
+        return [
+            this.wdbIndex,
+            this.baseTokenId,
+            this.quoteTokenId,
+            this.baseTokenAmount.value,
+            this.quoteTokenAmount.value,
+        ]
+    }
+}
 
 /**
  * The data structure that represents a user's liquidity in a pair of two specific tokens.
@@ -37,4 +63,11 @@ export class Liqudity extends Struct({
     baseTokenId: Field,
     quoteTokenId: Field,
     points: UInt64,
-}) {}
+}) {
+    /**
+     * Returns `Field` representation of `Liqudity` data structure.
+     */
+    toFields(): [Field, Field, Field, Field] {
+        return [this.wdbIndex, this.baseTokenId, this.quoteTokenId, this.points.value]
+    }
+}
