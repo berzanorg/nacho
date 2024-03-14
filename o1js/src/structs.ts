@@ -58,7 +58,7 @@ export class Pair extends Struct({
 /**
  * The data structure that represents a user's liquidity in a pair of two specific tokens.
  */
-export class Liqudity extends Struct({
+export class Liquidity extends Struct({
     wdbIndex: Field,
     baseTokenId: Field,
     quoteTokenId: Field,
