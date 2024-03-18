@@ -1,13 +1,6 @@
 [workspace]
 resolver = "2"
-members = [
-    "client",
-    "common",
-    "prover",
-    "smart-contract",
-    "state-database",
-    "witness-database",
-]
+members = [ "balances-db", "burns-db","data-structures", "db", "deposit-tree", "deque", "liquidities-db", "list", "mempool", "mempool-deque", "merkle-tree", "pools-db", "poseidon-hash", "proof-submitter", "proofpool", "proofpool-deque", "rollup", "rpc-server", "state-fetcher", "state-tree", "tx-status-list", "withdrawal-tree"]
 
 [workspace.dependencies]
 # Crates.io dependencies.
@@ -15,9 +8,11 @@ ark-ff = { version = "0.3.0" }
 thiserror = { version = "1.0" }
 tokio = { version = "1.36.0", features = ["full"] }
 
-# Git dependencies.
+# GitHub dependencies.
 mina-curves.git = "https://github.com/o1-labs/proof-systems"
 mina-poseidon.git = "https://github.com/o1-labs/proof-systems"
 
 # Local dependencies.
-common.path = "common"
+data-structures.path = "data-structures"
+poseidon-hash.path = "poseidon-hash"
+merkle-tree.path = "merkle-tree"

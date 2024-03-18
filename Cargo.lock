@@ -168,6 +168,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "balances-db"
+version = "0.1.0"
+
+[[package]]
 name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -205,6 +209,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea184aa71bb362a1157c896979544cc23974e08fd265f29ea96b59f0b4a555b"
 
 [[package]]
+name = "burns-db"
+version = "0.1.0"
+
+[[package]]
 name = "bytes"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -233,20 +241,6 @@ dependencies = [
  "num-traits",
  "serde",
  "windows-targets 0.52.4",
-]
-
-[[package]]
-name = "client"
-version = "0.1.0"
-
-[[package]]
-name = "common"
-version = "0.1.0"
-dependencies = [
- "ark-ff",
- "mina-curves",
- "mina-poseidon",
- "thiserror",
 ]
 
 [[package]]
@@ -333,6 +327,27 @@ dependencies = [
  "quote",
  "syn 2.0.52",
 ]
+
+[[package]]
+name = "data-structures"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "mina-curves",
+ "thiserror",
+]
+
+[[package]]
+name = "db"
+version = "0.1.0"
+
+[[package]]
+name = "deposit-tree"
+version = "0.1.0"
+
+[[package]]
+name = "deque"
+version = "0.1.0"
 
 [[package]]
 name = "deranged"
@@ -528,6 +543,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
+name = "liquidities-db"
+version = "0.1.0"
+
+[[package]]
+name = "list"
+version = "0.1.0"
+
+[[package]]
 name = "lock_api"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -548,6 +571,25 @@ name = "memchr"
 version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "523dc4f511e55ab87b694dc30d0f820d60906ef06413f93d4d7a1385599cc149"
+
+[[package]]
+name = "mempool"
+version = "0.1.0"
+
+[[package]]
+name = "mempool-deque"
+version = "0.1.0"
+
+[[package]]
+name = "merkle-tree"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "data-structures",
+ "poseidon-hash",
+ "thiserror",
+ "tokio",
+]
 
 [[package]]
 name = "mina-curves"
@@ -728,6 +770,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8afb450f006bf6385ca15ef45d71d2288452bc3683ce2e2cacc0d18e4be60b58"
 
 [[package]]
+name = "pools-db"
+version = "0.1.0"
+
+[[package]]
+name = "poseidon-hash"
+version = "0.1.0"
+dependencies = [
+ "data-structures",
+ "mina-poseidon",
+]
+
+[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -749,7 +803,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "prover"
+name = "proof-submitter"
+version = "0.1.0"
+
+[[package]]
+name = "proofpool"
+version = "0.1.0"
+
+[[package]]
+name = "proofpool-deque"
 version = "0.1.0"
 
 [[package]]
@@ -819,6 +881,14 @@ checksum = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa"
 dependencies = [
  "bitflags",
 ]
+
+[[package]]
+name = "rollup"
+version = "0.1.0"
+
+[[package]]
+name = "rpc-server"
+version = "0.1.0"
 
 [[package]]
 name = "rustc-demangle"
@@ -953,10 +1023,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
 
 [[package]]
-name = "smart-contract"
-version = "0.1.0"
-
-[[package]]
 name = "socket2"
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -967,7 +1033,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "state-database"
+name = "state-fetcher"
+version = "0.1.0"
+
+[[package]]
+name = "state-tree"
 version = "0.1.0"
 
 [[package]]
@@ -1078,6 +1148,10 @@ dependencies = [
  "quote",
  "syn 2.0.52",
 ]
+
+[[package]]
+name = "tx-status-list"
+version = "0.1.0"
 
 [[package]]
 name = "typenum"
@@ -1305,13 +1379,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32b752e52a2da0ddfbdbcc6fceadfeede4c939ed16d13e648833a61dfb611ed8"
 
 [[package]]
-name = "witness-database"
+name = "withdrawal-tree"
 version = "0.1.0"
-dependencies = [
- "common",
- "thiserror",
- "tokio",
-]
 
 [[package]]
 name = "zeroize"
