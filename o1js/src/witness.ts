@@ -1,4 +1,5 @@
 import { Field, UInt64, Provable, MerkleWitness, Struct, Poseidon } from "o1js"
+import { choose, isSibling, swap } from "./utils"
 
 /**
  * The provable data structure that represents a Merkle witness.
@@ -49,88 +50,58 @@ export class Witness extends Struct({
     40: Field,
     41: Field,
 }) {
-    /**
-     * The index of the leaf.
-     */
-    get index(): Field {
-        return this[0]
-    }
+    static calculateRootX1(witnessX1: Witness, valueX1: Field): Field {
+        let indexX1 = UInt64.from(witnessX1[0])
 
-    /**
-     * Calculates a Merkle root using the given value.
-     */
-    calculateRoot(value: Field): Field {
-        let index = UInt64.from(this[0])
-
-        let root = value
+        let rootX1 = valueX1
 
         for (let i = 1; i < 42; i++) {
-            const sibling = (this as unknown as Record<number, Field>)[i]
+            const siblingX1 = (witnessX1 as unknown as Array<Field>)[i]
 
-            const isLeft = index.mod(2).equals(UInt64.zero)
+            const isLeftX1 = indexX1.mod(2).equals(UInt64.zero)
 
-            let m = isLeft.toField().mul(root.sub(sibling))
-            const left = sibling.add(m)
-            const right = root.sub(m)
+            const leftAndRightX1 = swap(isLeftX1, siblingX1, rootX1)
+            rootX1 = Poseidon.hash(leftAndRightX1)
 
-            root = Poseidon.hash([left, right])
-
-            index = index.div(2)
+            indexX1 = indexX1.div(2)
         }
 
-        return root
-    }
-}
-
-function calculateRoot1(witness: Witness, value: Field): Field {
-    let index = UInt64.from(witness[0])
-
-    let root = value
-
-    for (let i = 1; i < 42; i++) {
-        const sibling = (witness as unknown as Record<number, Field>)[i]
-
-        const isLeft = index.mod(2).equals(UInt64.zero)
-
-        let m = isLeft.toField().mul(root.sub(sibling))
-        const left = sibling.add(m)
-        const right = root.sub(m)
-
-        root = Poseidon.hash([left, right])
-
-        index = index.div(2)
+        return rootX1
     }
 
-    return root
-}
+    static calculateRootX2(
+        witnessX1: Witness,
+        valueX1: Field,
+        witnessX2: Witness,
+        valueX2: Field,
+    ): Field {
+        let indexX1 = UInt64.from(witnessX1[0])
+        let indexX2 = UInt64.from(witnessX2[0])
 
-function calculateRoot2(witness1: Witness, value1: Field, witness2: Witness, value2: Field): Field {
-    // TODO: Implement the logic for calculating a single root using two witnesses.
-    return Field(0)
-}
+        let rootX1 = valueX1
+        let rootX2 = valueX2
 
-function calculateRoot3(
-    witness1: Witness,
-    value1: Field,
-    witness2: Witness,
-    value2: Field,
-    witness3: Witness,
-    value3: Field,
-): Field {
-    // TODO: Implement the logic for calculating a single root using two witnesses.
-    return Field(0)
-}
+        for (let i = 1; i < 42; i++) {
+            let siblingX1 = choose(
+                isSibling(indexX1, indexX2),
+                rootX2,
+                (witnessX1 as unknown as Array<Field>)[i],
+            )
+            const siblingX2 = (witnessX2 as unknown as Array<Field>)[i]
 
-function calculateRoot4(
-    witness1: Witness,
-    value1: Field,
-    witness2: Witness,
-    value2: Field,
-    witness3: Witness,
-    value3: Field,
-    witness4: Witness,
-    value4: Field,
-): Field {
-    // TODO: Implement the logic for calculating a single root using two witnesses.
-    return Field(0)
+            const isLeftX1 = indexX1.mod(2).equals(UInt64.zero)
+            const isLeftX2 = indexX2.mod(2).equals(UInt64.zero)
+
+            const leftAndRightX1 = swap(isLeftX1, siblingX1, rootX1)
+            rootX1 = Poseidon.hash(leftAndRightX1)
+
+            const leftAndRightX2 = swap(isLeftX2, siblingX2, rootX2)
+            rootX1 = Poseidon.hash(leftAndRightX2)
+
+            indexX1 = indexX1.div(2)
+            indexX2 = indexX2.div(2)
+        }
+
+        return rootX1
+    }
 }
