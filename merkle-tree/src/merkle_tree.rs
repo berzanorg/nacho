@@ -351,7 +351,7 @@ mod tests {
 
     #[tokio::test]
     async fn creates_merkle_tree() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/creates_merkle_tree";
+        let dir = "/tmp/nacho/tests/merkle_tree/creates_merkle_tree";
 
         let _ = MerkleTree::<2>::new(dir).await?;
 
@@ -360,7 +360,7 @@ mod tests {
 
     #[tokio::test]
     async fn sets_and_gets_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/sets_and_gets_values";
+        let dir = "/tmp/nacho/tests/merkle_tree/sets_and_gets_values";
 
         let mut tree = MerkleTree::<5>::new(dir).await?;
 
@@ -383,7 +383,7 @@ mod tests {
 
     #[tokio::test]
     async fn pushes_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/pushes_values";
+        let dir = "/tmp/nacho/tests/merkle_tree/pushes_values";
         let mut tree = MerkleTree::<4>::new(dir).await?;
 
         assert_eq!(tree.get(0).await?, Field::from(0));
@@ -401,7 +401,7 @@ mod tests {
 
     #[tokio::test]
     async fn updates_root() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/updates_root";
+        let dir = "/tmp/nacho/tests/merkle_tree/updates_root";
         let mut tree = MerkleTree::<6>::new(dir).await?;
 
         assert_eq!(
@@ -452,7 +452,7 @@ mod tests {
 
     #[tokio::test]
     async fn doesnt_set_unusable_index() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/doesnt_set_unusable_index";
+        let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_unusable_index";
 
         let mut tree = MerkleTree::<42>::new(dir).await?;
 
@@ -470,7 +470,7 @@ mod tests {
                 assert_eq!(given_index, unusable_index);
                 assert_eq!(usable_index, 0);
             }
-            _ => panic!("unexpected"),
+            _ => unreachable!(),
         }
 
         Ok(remove_dir_all(dir).await?)
@@ -479,7 +479,7 @@ mod tests {
     #[tokio::test]
     async fn doesnt_set_non_existent_index() -> std::result::Result<(), Box<dyn std::error::Error>>
     {
-        let dir = "/tmp/nacho/doesnt_set_non_existent_index";
+        let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_non_existent_index";
 
         let mut tree = MerkleTree::<42>::new(dir).await?;
 
@@ -497,7 +497,7 @@ mod tests {
                 assert_eq!(given_index, non_existent_index);
                 assert_eq!(highest_possible_index, 2_u64.pow(41) - 1);
             }
-            _ => panic!("unexpected"),
+            _ => unreachable!(),
         }
 
         Ok(remove_dir_all(dir).await?)
@@ -505,7 +505,7 @@ mod tests {
 
     #[tokio::test]
     async fn gets_witness() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/gets_witness";
+        let dir = "/tmp/nacho/tests/merkle_tree/gets_witness";
         let mut tree = MerkleTree::<5>::new(dir).await?;
 
         let witness = tree.witness(0).await?;

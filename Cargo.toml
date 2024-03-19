@@ -1,6 +1,27 @@
 [workspace]
 resolver = "2"
-members = [ "balances-db", "burns-db","data-structures", "db", "deposit-tree", "deque", "liquidities-db", "list", "mempool", "mempool-deque", "merkle-tree", "pools-db", "poseidon-hash", "proof-submitter", "proofpool", "proofpool-deque", "rollup", "rpc-server", "state-fetcher", "state-tree", "tx-status-list", "withdrawal-tree"]
+members = [
+    "balances-db",
+    "burns-db",
+    "data-structures",
+    "db",
+    "deposit-tree",
+    "queue",
+    "liquidities-db",
+    "list",
+    "mempool",
+    "merkle-tree",
+    "pools-db",
+    "poseidon-hash",
+    "proof-submitter",
+    "proofpool",
+    "rollup",
+    "rpc-server",
+    "state-fetcher",
+    "state-tree",
+    "tx-status-list",
+    "withdrawal-tree",
+]
 
 [workspace.dependencies]
 # Crates.io dependencies.

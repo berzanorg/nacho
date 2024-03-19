@@ -43,6 +43,7 @@ pub(crate) use is_sibling;
 /// ```rs
 /// let (three, six) = swap!(false, Field::from(3), Field::from(6));
 /// ```
+///
 macro_rules! swap {
     ($c:expr, $x:expr, $y:expr) => {{
         let m = Field::from($c as u8) * ($x - $y);
@@ -67,6 +68,7 @@ pub(crate) use swap;
 /// ```rs
 /// let six = choose!(false, Field::from(3), Field::from(6));
 /// ```
+///
 macro_rules! choose {
     ($c:expr, $x:expr, $y:expr) => {{
         let m = Field::from($c as u8);
