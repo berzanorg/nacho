@@ -1,7 +1,7 @@
 use crate::{Field, ToFields, Uint64};
 
 /// The data structure that represents a user's burn of a specific token.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Burn {
     pub wdb_index: Field,
     pub token_id: Field,

@@ -1,7 +1,6 @@
+use crate::ToFields;
 use ark_ff::BigInteger256;
 use mina_curves::pasta::Fp;
-
-use crate::ToFields;
 
 /// An object that represents a field element.
 ///
@@ -13,14 +12,46 @@ use crate::ToFields;
 ///
 /// # Examples
 ///
+/// Create a field from a string:
+///
 /// ```rs
-/// let field_from_str = "42".parse().unwrap();
-/// let field_from_num: Field = 42.into();
+/// let field = "42".parse().unwrap();
+/// ```
 ///
-/// let bytes = field_to_bytes(&field_from_num);
-/// let restored_field = field_from_bytes(&bytes);
+/// Create a field from a number:
 ///
-/// assert_eq!(field_from_num, restored_field);
+/// ```rs
+/// let field: Field = 42.into();
+/// ```
+///
+/// Create a field from a `BigInteger256`:
+///
+/// ```rs
+/// let field: Field = big_integer.into();
+/// ```
+///
+/// Creat a field from bytes:
+///
+/// ```rs
+/// let big_integer = BigInteger256([
+///     u64::from_le_bytes(bytes[0..8].try_into().unwrap()),
+///     u64::from_le_bytes(bytes[8..16].try_into().unwrap()),
+///     u64::from_le_bytes(bytes[16..24].try_into().unwrap()),
+///     u64::from_le_bytes(bytes[24..32].try_into().unwrap()),
+/// ])
+///
+/// let field: Field = big_integer.into();
+/// ```
+///
+/// Convert a field into bytes:
+///
+/// ```rs
+/// let big_integer = field.into_repr();
+/// let bytes = [0_u8; 32];
+/// bytes[0..8].copy_from_slice(&big_integer.0[0].to_le_bytes());
+/// bytes[8..16].copy_from_slice(&big_integer.0[1].to_le_bytes());
+/// bytes[16..24].copy_from_slice(&big_integer.0[2].to_le_bytes());
+/// bytes[24..32].copy_from_slice(&big_integer.0[3].to_le_bytes());
 /// ```
 ///
 pub type Field = Fp;

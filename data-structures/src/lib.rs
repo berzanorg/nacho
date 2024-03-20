@@ -6,7 +6,10 @@ mod liquidity;
 mod pair;
 mod public_key;
 mod to_fields;
+mod tx_status;
 mod uint64;
+
+pub use tx_status::TxStatus;
 
 pub use balance::Balance;
 pub use burn::Burn;

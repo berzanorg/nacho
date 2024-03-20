@@ -4,14 +4,21 @@ use crate::Field;
 ///
 /// # Examples
 ///
-/// ```rs
-/// pub struct PublicKey {
-///     pub values: (Field, Field),
-/// }
+/// Define a type to implement `ToFields`:
 ///
-/// impl ToFields<2> for PublicKey {
+/// ```rs
+/// pub struct User {
+///     pub age: Field,
+///     pub points: Field.
+/// }
+///```
+///
+/// Implement `ToFields`:
+///
+/// ```rs
+/// impl ToFields<2> for User {
 ///     fn to_fields(&self) -> [Field; 2] {
-///         [self.values.0, self.values.1]
+///         [self.age, self.points]
 ///     }
 /// }
 /// ```
@@ -20,6 +27,8 @@ pub trait ToFields<const N: usize> {
     /// Converts the data into `Field` elements.
     ///
     /// # Examples
+    ///
+    /// Convert a data into fields:
     ///
     /// ```rs
     /// let fields = data.to_fields();

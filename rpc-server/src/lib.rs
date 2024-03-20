@@ -1,14 +1,10 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod errors;
+mod rpc_method;
+mod rpc_response;
+mod start_rpc_server;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub(crate) use errors::RpcMethodError;
+pub use rpc_method::RpcMethod;
+pub(crate) use rpc_method::RPC_METHOD_SIZE_IN_BYTES;
+pub use rpc_response::RpcResponse;
+pub use start_rpc_server::start_rpc_server;

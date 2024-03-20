@@ -1,6 +1,9 @@
 use crate::{Field, ToFields, Uint64Error};
-use ark_ff::BigInteger256;
-use std::ops::{Add, Div, Mul, Rem, Sub};
+use ark_ff::{BigInteger256, PrimeField, ToConstraintField};
+use std::{
+    fmt::Debug,
+    ops::{Add, Div, Mul, Rem, Sub},
+};
 
 /// A wrapper around `Field` with bounds checking to act like a 64-bit unsigned integer.
 ///
@@ -20,7 +23,7 @@ use std::ops::{Add, Div, Mul, Rem, Sub};
 /// let num2 = (num7 % num5)?;
 /// ```
 ///
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Uint64 {
     pub value: Field,
 }
@@ -141,7 +144,7 @@ impl Rem for Uint64 {
     type Output = Result<Uint64, Uint64Error>;
 
     fn rem(self, rhs: Self) -> Self::Output {
-        let div = (self / rhs)?;
+        let div = (self.clone() / rhs.clone())?;
 
         let mul = (div * rhs)?;
 

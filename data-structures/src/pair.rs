@@ -1,7 +1,7 @@
 use crate::{Field, ToFields, Uint64};
 
 /// The data structure that represents a pair of two specific tokens.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Pair {
     pub wdb_index: Field,
     pub base_token_id: Field,

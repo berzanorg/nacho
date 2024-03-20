@@ -6,3 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Crates.io dependencies
+thiserror.workspace = true
+ark-ff.workspace = true
+tokio.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+http-body-util.workspace = true
+
+# GitHub dependencies.
+mina-signer.workspace = true
+
+# Local dependencies.
+data-structures.workspace = true
