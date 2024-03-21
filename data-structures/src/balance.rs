@@ -48,8 +48,8 @@ impl From<[u8; 81]> for Balance {
     }
 }
 
-impl From<Balance> for [u8; 81] {
-    fn from(value: Balance) -> Self {
+impl From<&Balance> for [u8; 81] {
+    fn from(value: &Balance) -> Self {
         let mut buf = [0_u8; 81];
 
         let value_token_owner_x = value.token_owner.x.into_repr();

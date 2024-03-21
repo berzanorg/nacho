@@ -1011,7 +1011,9 @@ name = "poseidon-hash"
 version = "0.1.0"
 dependencies = [
  "data-structures",
+ "mina-hasher",
  "mina-poseidon",
+ "mina-signer",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 use crate::{Field, ToFields, Uint64Error};
-use ark_ff::{BigInteger256, PrimeField, ToConstraintField};
+use ark_ff::BigInteger256;
 use std::{
     fmt::Debug,
     ops::{Add, Div, Mul, Rem, Sub},
