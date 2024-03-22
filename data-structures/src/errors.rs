@@ -6,3 +6,10 @@ pub enum Uint64Error {
     #[error("Uint64 is out of range")]
     OutOfRange,
 }
+
+/// The error type for `Group` related operations.
+#[derive(Error, Debug)]
+pub enum GroupError {
+    #[error("cannot create a group from a public key")]
+    CannotCreateFromPublicKey,
+}

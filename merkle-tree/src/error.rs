@@ -7,11 +7,12 @@ pub enum MerkleTreeError {
     Io(#[from] std::io::Error),
     #[error("this error was supposed to never happen")]
     Infallible,
-    #[error("index {} doesn't exist and highest possible index is {}", .given_index, .highest_possible_index)]
-    NonExistentIndex {
-        given_index: u64,
-        highest_possible_index: u64,
-    },
-    #[error("index {} must be used before index {}", .usable_index, .given_index)]
-    UnusableIndex { given_index: u64, usable_index: u64 },
+    #[error("highest possible index is {}", .0)]
+    NonExistentIndex(u64),
+    #[error("usable index is {}", .0)]
+    UnusableIndex(u64),
+    #[error("mistaken order for witness x3`")]
+    MistakenOrderX3,
+    #[error("mistaken order for witness x4`")]
+    MistakenOrderX4,
 }

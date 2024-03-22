@@ -1,60 +1,3 @@
-/// The macro that checkes whether two given indexes are sibling indexes in a Merkle tree or not.
-///
-/// # Examples
-///
-/// Check whether 0 and 1 are sibling indexes:
-/// ```rs
-/// let is_sibling = is_sibling!(0, 1); // true
-/// ```
-///
-/// Check whether 1 and 2 are sibling indexes:
-/// ```rs
-/// let is_sibling = is_sibling!(1, 2); // false
-/// ```
-///
-/// Check whether 44 and 45 are sibling indexes:
-/// ```rs
-///  let is_sibling = is_sibling!(44, 45); // true
-/// ```
-///
-/// Check whether 657 and 658 are sibling indexes:
-/// ```rs
-///  let is_sibling = is_sibling!(657, 658); // true
-/// ```
-///
-macro_rules! is_sibling {
-    ($x:expr, $y:expr) => {{
-        ($x % 2 == 0 && $y == $x + 1) || ($y % 2 == 0 && $x == $y + 1)
-    }};
-}
-
-pub(crate) use is_sibling;
-
-/// The macro that whether swaps two `Field` elements or not based on the given condition.
-///
-/// # Examples
-///
-/// Swap seven and two:
-/// ```rs
-/// let (seven, two) = swap!(true, Field::from(2), Field::from(7));
-/// ```
-///
-/// Don't swap three and six:
-/// ```rs
-/// let (three, six) = swap!(false, Field::from(3), Field::from(6));
-/// ```
-///
-macro_rules! swap {
-    ($c:expr, $x:expr, $y:expr) => {{
-        let m = Field::from($c as u8) * ($x - $y);
-        let a = $x - m;
-        let b = $y + m;
-        (a, b)
-    }};
-}
-
-pub(crate) use swap;
-
 /// The macro that chooses between two `Field` elements based on the given condition.
 ///
 /// # Examples
@@ -80,3 +23,52 @@ macro_rules! choose {
 }
 
 pub(crate) use choose;
+
+/// The macro that whether puts two `Field` elements in order based on the given condition.
+///
+/// # Examples
+///
+/// Put seven and two in order:
+/// ```rs
+/// let &[seven, two] = put_in_order!(true, Field::from(2), Field::from(7));
+/// ```
+///
+/// Don't put three and six in order:
+/// ```rs
+/// let &[three, six] = put_in_order!(false, Field::from(3), Field::from(6));
+/// ```
+///
+macro_rules! put_in_order {
+    ($c:expr, &[$x:expr, $y:expr]) => {{
+        let m = Field::from($c as u8) * ($x - $y);
+        let a = $x - m;
+        let b = $y + m;
+        &[a, b]
+    }};
+}
+
+pub(crate) use put_in_order;
+
+/// The macro that picks between two `u64` elements based on the given condition.
+///
+/// # Examples
+///
+/// Pick first element:
+/// ```rs
+/// let two = pick!(true, 2, 7);
+/// ```
+///
+/// Pick second element:
+/// ```rs
+/// let six = pick!(false, 3, 6);
+/// ```
+///
+macro_rules! pick {
+    ($c:expr, $x:expr, $y:expr) => {{
+        let m = $c as u64;
+
+        $x * m + $y * (1 - m)
+    }};
+}
+
+pub(crate) use pick;
