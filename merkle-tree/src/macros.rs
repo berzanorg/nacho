@@ -49,26 +49,30 @@ macro_rules! put_in_order {
 
 pub(crate) use put_in_order;
 
-/// The macro that picks between two `u64` elements based on the given condition.
+/// The macro that calculates the sibling index of the given index in a Merkle tree.
 ///
 /// # Examples
 ///
-/// Pick first element:
+/// Calculate sibling index of seven:
+///
 /// ```rs
-/// let two = pick!(true, 2, 7);
+/// let six = calculate_sibling_index!(7);
 /// ```
 ///
-/// Pick second element:
+/// Calculate sibling index of six:
+///
 /// ```rs
-/// let six = pick!(false, 3, 6);
+/// let seven = calculate_sibling_index!(6);
 /// ```
 ///
-macro_rules! pick {
-    ($c:expr, $x:expr, $y:expr) => {{
-        let m = $c as u64;
-
-        $x * m + $y * (1 - m)
+macro_rules! calculate_sibling_index {
+    ($x:expr) => {{
+        if $x % 2 == 0 {
+            $x + 1
+        } else {
+            $x - 1
+        }
     }};
 }
 
-pub(crate) use pick;
+pub(crate) use calculate_sibling_index;

@@ -8,7 +8,7 @@ mod witness_x3;
 mod witness_x4;
 
 pub use error::MerkleTreeError;
-pub(crate) use macros::{choose, pick, put_in_order};
+pub(crate) use macros::{calculate_sibling_index, choose, put_in_order};
 pub use merkle_tree::MerkleTree;
 pub use sibling::Sibling;
 pub use witness_x1::WitnessX1;

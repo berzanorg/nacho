@@ -1,4 +1,6 @@
-use crate::{pick, MerkleTreeError, Sibling, WitnessX1, WitnessX2, WitnessX3, WitnessX4};
+use crate::{
+    calculate_sibling_index, MerkleTreeError, Sibling, WitnessX1, WitnessX2, WitnessX3, WitnessX4,
+};
 use data_structures::{field_from_bytes, field_to_bytes, Field};
 use poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use std::{io::SeekFrom, path::Path};
@@ -13,16 +15,26 @@ type Result<T> = std::result::Result<T, MerkleTreeError>;
 ///
 /// The constant generic parameter `H` represents the height of the Merkle tree.
 ///
+/// The constant generic parameter `S` represents the number of siblings needed for a leaf's witness which must always be equal to `H - 1`.
+///
+/// The constant generic parameter `A` represents the size of a `WitnessX1` in bytes which must always be equal to `S * 33` for correct deserialization.
+///
+/// The constant generic parameter `B` represents the size of a `WitnessX2` in bytes which must always be equal to `S * 67` for correct deserialization.
+///
+/// The constant generic parameter `C` represents the size of a `WitnessX3` in bytes which must always be equal to `S * 101` for correct deserialization.
+///
+/// The constant generic parameter `D` represents the size of a `WitnessX4` in bytes which must always be equal to `S * 135` for correct deserialization.
+///
 /// Data of each height is represented by its own dedicated file.
 ///
 /// Hash of zeroes are calculated and cached during the initialization.
 ///
 /// # Examples
 ///
-/// Create an on disk Merkle tree at the given path with 42 as the height:
+/// Create an on disk Merkle tree at the given directory with 11 as the height:
 ///
 /// ```rs
-/// let tree = MerkleTree::<42>::new("/tmp/nacho/tree").await?;
+/// let tree = MerkleTree::<11, 10, 330, 670, 1010, 1350>::new("/nacho/tests/test_tree/").await?;
 /// ```
 ///
 /// Assign the value 42 to the leaf at the 7th index:
@@ -52,7 +64,25 @@ type Result<T> = std::result::Result<T, MerkleTreeError>;
 /// Get the witness of the leaf at the 7th index:
 ///
 /// ```rs
-/// let witness = tree.witness(7).await?;
+/// let witness_x1 = tree.get_witness_x1(7).await?;
+/// ```
+///
+/// Get the witness of the leaves at the 7th and 9th index:
+///
+/// ```rs
+/// let witness_x2 = tree.get_witness_x2(7, 9).await?;
+/// ```
+///
+/// Get the witness of the leaves at the 4th, 10th and 11th index:
+///
+/// ```rs
+/// let witness_x3 = tree.get_witness_x3(4, 10, 11).await?;
+/// ```
+///
+/// Get the witness of the leaves at the 3th, 4th, 8th and 9th index:
+///
+/// ```rs
+/// let witness_x4 = tree.get_witness_x4(3, 4, 8, 9).await?;
 /// ```
 ///
 pub struct MerkleTree<
@@ -87,14 +117,24 @@ impl<
     ///
     /// The constant generic parameter `H` is used to set the height of the Merkle tree.
     ///
+    /// The constant generic parameter `S` is used to set the number of siblings needed for a leaf's witness which must always be equal to `H - 1`.
+    ///
+    /// The constant generic parameter `A` is used to set the size of a `WitnessX1` in bytes which must always be equal to `S * 33`.
+    ///
+    /// The constant generic parameter `B` is used to set the size of a `WitnessX2` in bytes which must always be equal to `S * 67`.
+    ///
+    /// The constant generic parameter `C` is used to set the size of a `WitnessX3` in bytes which must always be equal to `S * 101`.
+    ///
+    /// The constant generic parameter `D` is used to set the size of a `WitnessX4` in bytes which must always be equal to `S * 135`.
+    ///
     /// All data is stored in files inside the folder at the given path and they shouldn't be edited manually.
     ///
     /// # Examples
     ///
-    /// Create a new Merkle tree with 42 as the height:
+    /// Create a new Merkle tree with 11 as the height:
     ///
     /// ```rs
-    /// let tree = MerkleTree::<42>::new().await?;
+    /// let tree = MerkleTree::<11, 10, 330, 670, 1010, 1350>::new("/nacho/tests/test_tree/").await?;
     /// ```
     ///
     pub async fn new(path: impl AsRef<Path>) -> Result<Self> {
@@ -323,10 +363,11 @@ impl<
         }
 
         for i in 0..S {
+            println!("{i}");
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
-            let sibling_index = pick!(index % 2 == 0, index + 1, index - 1);
+            let sibling_index = calculate_sibling_index!(index);
 
             let padding = sibling_index * 32;
 
@@ -386,8 +427,8 @@ impl<
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
-            let sibling_index_x1 = pick!(index_x1 % 2 == 0, index_x1 + 1, index_x1 - 1);
-            let sibling_index_x2 = pick!(index_x2 % 2 == 0, index_x2 + 1, index_x2 - 1);
+            let sibling_index_x1 = calculate_sibling_index!(index_x1);
+            let sibling_index_x2 = calculate_sibling_index!(index_x2);
 
             if sibling_index_x1 == index_x2 && !siblings_found {
                 siblings_found = true;
@@ -478,9 +519,9 @@ impl<
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
-            let sibling_index_x1 = pick!(index_x1 % 2 == 0, index_x1 + 1, index_x1 - 1);
-            let sibling_index_x2 = pick!(index_x2 % 2 == 0, index_x2 + 1, index_x2 - 1);
-            let sibling_index_x3 = pick!(index_x3 % 2 == 0, index_x3 + 1, index_x3 - 1);
+            let sibling_index_x1 = calculate_sibling_index!(index_x1);
+            let sibling_index_x2 = calculate_sibling_index!(index_x2);
+            let sibling_index_x3 = calculate_sibling_index!(index_x3);
 
             if sibling_index_x1 == index_x2 && siblings_found_height_x1_x2_x3 == S {
                 siblings_found_height_x1_x2_x3 = i;
@@ -603,10 +644,10 @@ impl<
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
-            let sibling_index_x1 = pick!(index_x1 % 2 == 0, index_x1 + 1, index_x1 - 1);
-            let sibling_index_x2 = pick!(index_x2 % 2 == 0, index_x2 + 1, index_x2 - 1);
-            let sibling_index_x3 = pick!(index_x3 % 2 == 0, index_x3 + 1, index_x3 - 1);
-            let sibling_index_x4 = pick!(index_x4 % 2 == 0, index_x4 + 1, index_x4 - 1);
+            let sibling_index_x1 = calculate_sibling_index!(index_x1);
+            let sibling_index_x2 = calculate_sibling_index!(index_x2);
+            let sibling_index_x3 = calculate_sibling_index!(index_x3);
+            let sibling_index_x4 = calculate_sibling_index!(index_x4);
 
             if sibling_index_x1 == index_x2 && siblings_found_height_x1_x2 == S {
                 siblings_found_height_x1_x2 = i;
@@ -710,7 +751,7 @@ mod tests {
     async fn creates_merkle_tree() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/creates_merkle_tree";
 
-        let _ = MerkleTree::<2>::new(dir).await?;
+        let _ = MerkleTree::<2, 0, 0, 0, 0, 0>::new(dir).await?;
 
         Ok(remove_dir_all(dir).await?)
     }
@@ -719,7 +760,7 @@ mod tests {
     async fn sets_and_gets_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/sets_and_gets_values";
 
-        let mut tree = MerkleTree::<5>::new(dir).await?;
+        let mut tree = MerkleTree::<5, 0, 0, 0, 0, 0>::new(dir).await?;
 
         assert_eq!(tree.get(0).await?, Field::from(0));
 
@@ -741,7 +782,7 @@ mod tests {
     #[tokio::test]
     async fn pushes_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/pushes_values";
-        let mut tree = MerkleTree::<4>::new(dir).await?;
+        let mut tree = MerkleTree::<4, 0, 0, 0, 0, 0>::new(dir).await?;
 
         assert_eq!(tree.get(0).await?, Field::from(0));
 
@@ -759,7 +800,7 @@ mod tests {
     #[tokio::test]
     async fn updates_root() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/updates_root";
-        let mut tree = MerkleTree::<6>::new(dir).await?;
+        let mut tree = MerkleTree::<6, 0, 0, 0, 0, 0>::new(dir).await?;
 
         assert_eq!(
             tree.root().await?,
@@ -811,7 +852,7 @@ mod tests {
     async fn doesnt_set_unusable_index() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_unusable_index";
 
-        let mut tree = MerkleTree::<42>::new(dir).await?;
+        let mut tree = MerkleTree::<42, 0, 0, 0, 0, 0>::new(dir).await?;
 
         let unusable_index = 1;
 
@@ -820,11 +861,7 @@ mod tests {
             .await
             .unwrap_err()
         {
-            MerkleTreeError::UnusableIndex {
-                given_index,
-                usable_index,
-            } => {
-                assert_eq!(given_index, unusable_index);
+            MerkleTreeError::UnusableIndex(usable_index) => {
                 assert_eq!(usable_index, 0);
             }
             _ => unreachable!(),
@@ -838,7 +875,7 @@ mod tests {
     {
         let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_non_existent_index";
 
-        let mut tree = MerkleTree::<42>::new(dir).await?;
+        let mut tree = MerkleTree::<42, 0, 0, 0, 0, 0>::new(dir).await?;
 
         let non_existent_index = 2_u64.pow(41);
 
@@ -847,11 +884,7 @@ mod tests {
             .await
             .unwrap_err()
         {
-            MerkleTreeError::NonExistentIndex {
-                given_index,
-                highest_possible_index,
-            } => {
-                assert_eq!(given_index, non_existent_index);
+            MerkleTreeError::NonExistentIndex(highest_possible_index) => {
                 assert_eq!(highest_possible_index, 2_u64.pow(41) - 1);
             }
             _ => unreachable!(),
@@ -863,14 +896,13 @@ mod tests {
     #[tokio::test]
     async fn gets_witness() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/gets_witness";
-        let mut tree = MerkleTree::<5>::new(dir).await?;
+        let mut tree = MerkleTree::<5, 4, 0, 0, 0, 0>::new(dir).await?;
 
-        let witness = tree.witness(0).await?;
+        let witness = tree.get_witness_x1(0).await?;
 
         assert_eq!(
-            witness.0,
+            witness.siblings.map(|sibling| sibling.value),
             [
-                "0".parse().unwrap(),
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
                     .parse()
@@ -886,12 +918,11 @@ mod tests {
 
         tree.set(0, "42".parse().unwrap()).await?;
 
-        let witness = tree.witness(1).await?;
+        let witness = tree.get_witness_x1(1).await?;
 
         assert_eq!(
-            witness.0,
+            witness.siblings.map(|sibling| sibling.value),
             [
-                "1".parse().unwrap(),
                 "42".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
                     .parse()
