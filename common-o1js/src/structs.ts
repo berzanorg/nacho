@@ -1,0 +1,109 @@
+import { Field, PublicKey, Struct, UInt64 } from "o1js"
+
+/**
+ * Each data structure is stored in the state database of the rollup.
+ *
+ * Witness database indexes are stored along with the data.
+ *
+ * Each data structure has a fixed size and can be used in provable code.
+ */
+
+/**
+ * The data structure that represents a user's balance for a specific token.
+ */
+export class Balance extends Struct({
+    wdbIndex: Field,
+    tokenId: Field,
+    tokenAmount: UInt64,
+    tokenOwner: PublicKey,
+}) {
+    /**
+     * Returns `Field` representation of `Balance` data structure.
+     */
+    toFields(): [Field, Field, Field, Field, Field] {
+        return [
+            this.wdbIndex,
+            this.tokenId,
+            this.tokenAmount.value,
+            this.tokenOwner.x,
+            Field(this.tokenOwner.isOdd.value),
+        ]
+    }
+}
+
+/**
+ * The data structure that represents a pair of two specific tokens.
+ */
+export class Pair extends Struct({
+    wdbIndex: Field,
+    baseTokenId: Field,
+    quoteTokenId: Field,
+    baseTokenAmount: UInt64,
+    quoteTokenAmount: UInt64,
+}) {
+    /**
+     * Returns `Field` representation of `Pair` data structure.
+     */
+    toFields(): [Field, Field, Field, Field, Field] {
+        return [
+            this.wdbIndex,
+            this.baseTokenId,
+            this.quoteTokenId,
+            this.baseTokenAmount.value,
+            this.quoteTokenAmount.value,
+        ]
+    }
+}
+
+/**
+ * The data structure that represents a user's liquidity in a pair of two specific tokens.
+ */
+export class Liquidity extends Struct({
+    wdbIndex: Field,
+    baseTokenId: Field,
+    quoteTokenId: Field,
+    points: UInt64,
+}) {
+    /**
+     * Returns `Field` representation of `Liqudity` data structure.
+     */
+    toFields(): [Field, Field, Field, Field] {
+        return [this.wdbIndex, this.baseTokenId, this.quoteTokenId, this.points.value]
+    }
+}
+
+/**
+ * The data structure that represents a user's burn of a specific token.
+ */
+export class Burn extends Struct({
+    tokenId: Field,
+    tokenAmount: UInt64,
+    address: PublicKey,
+}) {
+    /**
+     * Returns `Field` representation of `Burn` data structure.
+     */
+    toFields(): [Field, Field, Field, Field] {
+        return [
+            this.tokenId,
+            this.tokenAmount.value,
+            this.address.x,
+            Field(this.address.isOdd.value),
+        ]
+    }
+}
+
+export class Deposit extends Struct({
+    depositor: PublicKey,
+    tokenId: Field,
+    tokenAmount: UInt64,
+}) {
+    toFields(): [Field, Field, Field, Field] {
+        return [
+            this.depositor.x,
+            this.depositor.isOdd.toField(),
+            this.tokenId,
+            this.tokenAmount.value,
+        ]
+    }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "bridge-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
+    "build": "rm -rf build/ && tsc"
+  },
+  "dependencies": {
+    "common-o1js": "file:../common-o1js/build/common-o1js-0.1.0.tgz",
+    "o1js": "^0.17.0",
+    "token-contract": "file:../token-contract/build/token-contract-0.0.1.tgz"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}
