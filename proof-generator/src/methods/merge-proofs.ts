@@ -12,5 +12,5 @@ export const mergeProofs = (
     currentProof.verify()
     laterProof.verify()
 
-    return stateRoots
+    return laterProof.publicOutput
 }
