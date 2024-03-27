@@ -11,7 +11,7 @@ class SingleWitnessBase extends CircuitValue {
         return (this.constructor as any).siblingsCount
     }
 
-    public constructor(siblings: Array<Sibling>) {
+    constructor(siblings: Array<Sibling>) {
         super()
         if (this.siblingsCount() !== siblings.length) {
             throw Error(
@@ -24,7 +24,7 @@ class SingleWitnessBase extends CircuitValue {
         this.siblingIsLefts = siblings.map((sibling) => Bool(sibling.isLeft))
     }
 
-    public calculateRoot(value: Field): Field {
+    calculateRoot(value: Field): Field {
         let root = value
         const s = this.siblingsCount()
 
@@ -35,7 +35,7 @@ class SingleWitnessBase extends CircuitValue {
         return root
     }
 
-    public calculateIndex(): Field {
+    calculateIndex(): Field {
         let index = Field(0)
         let powerOfTwo = Field(1)
         const s = this.siblingsCount()

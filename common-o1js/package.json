@@ -1,13 +1,15 @@
 {
-  "name": "common-o1js",
-  "version": "0.1.0",
-  "private": true,
+  "name": "nacho-common-o1js",
+  "version": "0.1.6",
   "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "rm -rf build/ && tsc && node --test build/*.test.js",
-    "build": "rm -rf build/ && tsc && npm pack --pack-destination build/"
+    "build": "rm -rf build/ && tsc"
   },
   "dependencies": {
     "o1js": "^0.17.0"
