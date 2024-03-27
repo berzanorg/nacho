@@ -1,0 +1,22 @@
+{
+  "name": "nacho-proof-generator",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
+    "build": "rm -rf build/ && tsc"
+  },
+  "dependencies": {
+    "nacho-common-o1js": "^0.1.6",
+    "o1js": "^0.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}
