@@ -1,15 +1,22 @@
 {
-  "name": "bridge-contract",
-  "private": true,
+  "name": "nacho-bridge-contract",
+  "version": "0.1.0",
   "type": "module",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
     "build": "rm -rf build/ && tsc"
   },
   "dependencies": {
-    "common-o1js": "file:../common-o1js/build/common-o1js-0.1.0.tgz",
-    "o1js": "^0.17.0",
-    "token-contract": "file:../token-contract/build/token-contract-0.0.1.tgz"
+    "nacho-common-o1js": "^0.1.6",
+    "nacho-proof-generator": "^0.1.2",
+    "nacho-rollup-contract": "^0.1.2",
+    "nacho-token-contract": "^0.1.0",
+    "o1js": "^0.17.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",

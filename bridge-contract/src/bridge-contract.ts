@@ -1,7 +1,10 @@
 import {
+    AccountUpdate,
     Field,
+    MerkleMapWitness,
+    Nullifier,
+    Permissions,
     Poseidon,
-    Provable,
     PublicKey,
     Reducer,
     SmartContract,
@@ -10,8 +13,10 @@ import {
     method,
     state,
 } from "o1js"
-import { Deposit } from "common-o1js"
-import { TokenContract } from "token-contract"
+import { Burn, Deposit, SingleBurnWitness, SingleWithdrawWitness } from "nacho-common-o1js"
+import { RollupContract } from "nacho-rollup-contract"
+import { SafeContract } from "./safe-contract.js"
+import { TokenContract } from "nacho-token-contract"
 
 export class BridgeContract extends SmartContract {
     reducer = Reducer({
@@ -23,14 +28,37 @@ export class BridgeContract extends SmartContract {
 
     @state(Field) actionState = State<Field>()
     @state(Field) depositsMerkleListRoot = State<Field>()
+    @state(Field) withdrawsMerkleTreeRoot = State<Field>()
+    @state(PublicKey) rollupContractPublicKey = State<PublicKey>()
 
     init() {
         super.init()
+
+        this.account.permissions.set({
+            ...Permissions.allImpossible(),
+            access: Permissions.proof(),
+            editActionState: Permissions.proof(),
+            editState: Permissions.proof(),
+            incrementNonce: Permissions.proof(),
+            send: Permissions.proof(),
+            setPermissions: Permissions.proof(),
+        })
+
         this.actionState.set(Reducer.initialActionState)
         this.depositsMerkleListRoot.set(Field(0))
+        this.withdrawsMerkleTreeRoot.set(
+            Field(25436453236035485996795240493313170211557120058262356001829805101279552630634n),
+        )
+        this.rollupContractPublicKey.set(PublicKey.empty())
     }
 
-    @method depositTokens(tokenContractAddress: PublicKey, amount: UInt64) {
+    @method initRollupContractAddress(address: PublicKey) {
+        this.rollupContractPublicKey.getAndRequireEquals().assertEquals(PublicKey.empty())
+
+        this.rollupContractPublicKey.set(address)
+    }
+
+    @method addDeposit(tokenContractAddress: PublicKey, amount: UInt64) {
         const tokenContract = new TokenContract(tokenContractAddress)
 
         tokenContract.transfer(this.sender, this.address, amount)
@@ -41,18 +69,12 @@ export class BridgeContract extends SmartContract {
             tokenAmount: amount,
         })
 
+        this.reducer.dispatch(Poseidon.hash(deposit.toFields()))
+
         this.emitEvent("deposited", deposit)
-
-        Provable.log(this.network.timestamp.getAndRequireEquals())
-
-        const depositHash = Poseidon.hash(deposit.toFields())
-
-        this.reducer.dispatch(depositHash)
     }
 
-    @method withdrawTokens() {}
-
-    @method rollActions() {
+    @method applyDeposits() {
         const actionState = this.actionState.getAndRequireEquals()
         const depositsMerkleListRoot = this.depositsMerkleListRoot.getAndRequireEquals()
 
@@ -70,5 +92,32 @@ export class BridgeContract extends SmartContract {
 
         this.actionState.set(newActionState)
         this.depositsMerkleListRoot.set(newDepositsMerkleListRoot)
+    }
+
+    @method withdrawTokens(
+        singleWithdrawWitness: SingleWithdrawWitness,
+        singleBurnWitness: SingleBurnWitness,
+        tokenContractPublicKey: PublicKey,
+        amount: UInt64,
+    ) {
+        const tokenContract = new TokenContract(tokenContractPublicKey)
+        const tokenId = tokenContract.deriveTokenId()
+        const safeContract = new SafeContract(this.address, tokenId)
+
+        safeContract.checkAndSubBalance(
+            singleWithdrawWitness,
+            singleBurnWitness,
+            tokenContractPublicKey,
+            amount,
+        )
+
+        // NOTE: We don't have to check if this.sender is accurate because `SafeContract.checkAndSubBalance` already requires it to construct correct roots.
+        tokenContract.transfer(safeContract.self, this.sender, amount)
+
+        this.withdrawsMerkleTreeRoot.set(
+            singleWithdrawWitness.calculateRoot(
+                Poseidon.hash([...this.sender.toFields(), tokenId, amount.value]),
+            ),
+        )
     }
 }
