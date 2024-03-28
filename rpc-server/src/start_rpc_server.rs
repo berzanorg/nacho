@@ -1,4 +1,4 @@
-use crate::{RpcMethod, RpcResponse, RPC_METHOD_SIZE_IN_BYTES};
+use crate::{RpcMethod, RpcResponse};
 use http_body_util::BodyExt;
 use hyper::{body::Buf, server::conn::http1, service::service_fn};
 use hyper_util::rt::TokioIo;
@@ -56,11 +56,11 @@ where
                             Ok(body) => {
                                 let mut buf = body.aggregate();
 
-                                if buf.remaining() != RPC_METHOD_SIZE_IN_BYTES {
-                                    return RpcResponse::Mistake().into();
+                                if buf.remaining() != RpcMethod::SIZE_IN_BYTES {
+                                    return RpcResponse::UnknownMethod.into();
                                 }
 
-                                let mut body_bytes = [0_u8; RPC_METHOD_SIZE_IN_BYTES];
+                                let mut body_bytes = [0_u8; RpcMethod::SIZE_IN_BYTES];
                                 buf.copy_to_slice(body_bytes.as_mut_slice());
 
                                 let rpc_method: Result<RpcMethod, _> = body_bytes.try_into();
@@ -72,13 +72,13 @@ where
                                     }
                                     Err(err) => {
                                         eprintln!("{err}");
-                                        RpcResponse::Mistake().into()
+                                        RpcResponse::UnknownMethod.into()
                                     }
                                 }
                             }
                             Err(err) => {
                                 eprintln!("{err}");
-                                RpcResponse::Mistake().into()
+                                RpcResponse::UnknownMethod.into()
                             }
                         }
                     }),

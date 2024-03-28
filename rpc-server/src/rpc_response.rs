@@ -1,37 +1,38 @@
-use ark_ff::PrimeField;
-use data_structures::{Field, TxStatus};
+use data_structures::{ToBytes, TxStatus, U256};
 use http_body_util::Full;
 use hyper::{body::Bytes, Response};
 
 /// The alias that represents the type of token IDs.
-type TokenId = Field;
+type TokenId = U256;
 /// The alias that represents the type of token amounts.
 type TokenAmount = u64;
 /// The alias that represents the type of AMM liquidity points.
-type LiquidityPoints = u128;
+type LiquidityPoints = U256;
+/// The alias that represents the type of burn IDs.
+type BurnId = u64;
 
 /// The enum that represents RPC responses.
 ///
 /// It can be deserialized into bytes.
 pub enum RpcResponse {
-    /// The RPC response that is sent when a request causes an error.
-    Mistake(),
-    /// The RPC response that is sent when a transaction's status is requested.
+    /// Used for unknown RPC methods.
+    UnknownMethod,
+    /// Represents the total transaction count.
+    TotalTxCount(u64),
+    /// Represents the status of a transaction.
     TxStatus(TxStatus),
-    /// The RPC response that is sent when the balances of an address are requested.
+    /// Represents the balances of a user.
     Balances(Vec<(TokenId, TokenAmount)>),
-    /// The RPC response that is sent when all the AMM pools are requested.
-    GetPools(Vec<(TokenId, TokenId, TokenAmount, TokenAmount)>),
-    /// The RPC response that is sent when an AMM pool is requested.
-    GetPool((TokenId, TokenId, TokenAmount, TokenAmount)),
-    /// The RPC response that is sent when the liquidities of an address are requested.
-    GetLiquidities(Vec<(TokenId, TokenId, LiquidityPoints)>),
-    /// The RPC response that is sent when the burns of an address are requested.
-    GetBurns(Vec<(TokenId, TokenAmount)>),
-    GetStateWitness(),
-    GetBurnWitness(),
-    GetDepositWitness(),
-    // TODO: add transaction methods
+    /// Represents all the AMM pools.
+    Pools(Vec<(TokenId, TokenId, TokenAmount, TokenAmount, LiquidityPoints)>),
+    /// Represents the AMM liquidites of a user.
+    Liquidites(Vec<(TokenId, TokenId, LiquidityPoints)>),
+    /// Represents the burns of a user.
+    Burns(Vec<(TokenId, TokenAmount, BurnId)>),
+    /// Represents the witnesses needed to withdraw assets from the bridge.
+    BridgeWitnesses((bool, bool)),
+    /// Represents a transaction's ID. Used for the RPC methods that modify the state.
+    TxId(u64),
 }
 
 impl From<RpcResponse> for Result<Response<Full<Bytes>>, String> {
@@ -44,124 +45,92 @@ impl From<RpcResponse> for Result<Response<Full<Bytes>>, String> {
 impl From<RpcResponse> for Vec<u8> {
     fn from(value: RpcResponse) -> Self {
         match value {
-            RpcResponse::Mistake() => {
-                let mut buf = Vec::with_capacity(1);
-                buf.push(0);
+            RpcResponse::UnknownMethod => vec![0u8; 1],
+            RpcResponse::TotalTxCount(total_tx_count) => {
+                let mut bytes = Vec::with_capacity(1 + 8);
+                bytes[0] = 1;
 
-                buf
+                bytes.copy_from_slice(&total_tx_count.to_le_bytes());
+
+                bytes
             }
             RpcResponse::TxStatus(tx_status) => {
-                let mut buf = Vec::with_capacity(1 + 1);
-                buf.push(1);
+                let mut bytes = Vec::with_capacity(1 + 1);
+                bytes[0] = 2;
 
-                buf.push(tx_status as u8);
+                bytes.push(tx_status as u8);
 
-                buf
+                bytes
             }
             RpcResponse::Balances(balances) => {
-                let mut buf = Vec::with_capacity(1 + balances.len() * 40);
-                buf.push(2);
+                let mut bytes = Vec::with_capacity(1 + (40 * balances.len()));
+                bytes[0] = 3;
 
                 for (token_id, token_amount) in balances {
-                    let token_id = token_id.into_repr();
-                    buf.copy_from_slice(&token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&token_amount.to_le_bytes());
+                    bytes.copy_from_slice(&token_id.to_bytes());
+                    bytes.copy_from_slice(&token_amount.to_bytes());
                 }
 
-                buf
+                bytes
             }
-            RpcResponse::GetPools(pools) => {
-                let mut buf = Vec::with_capacity(1 + pools.len() * 80);
-                buf.push(3);
+            RpcResponse::Pools(pools) => {
+                let mut bytes = Vec::with_capacity(1 + (112 * pools.len()));
+                bytes[0] = 4;
 
-                for (base_token_id, quote_token_id, base_token_amount, quote_token_amount) in pools
+                for (
+                    base_token_id,
+                    quote_token_id,
+                    base_token_amount,
+                    quote_token_amount,
+                    total_liquidity_points,
+                ) in pools
                 {
-                    let base_token_id = base_token_id.into_repr();
-                    let quote_token_id = quote_token_id.into_repr();
-                    buf.copy_from_slice(&base_token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&base_token_amount.to_le_bytes());
-                    buf.copy_from_slice(&quote_token_amount.to_le_bytes());
+                    bytes.copy_from_slice(&base_token_id.to_bytes());
+                    bytes.copy_from_slice(&quote_token_id.to_bytes());
+                    bytes.copy_from_slice(&base_token_amount.to_bytes());
+                    bytes.copy_from_slice(&quote_token_amount.to_bytes());
+                    bytes.copy_from_slice(&total_liquidity_points.to_bytes());
                 }
 
-                buf
+                bytes
             }
-            RpcResponse::GetPool((
-                base_token_id,
-                quote_token_id,
-                base_token_amount,
-                quote_token_amount,
-            )) => {
-                let mut buf = Vec::with_capacity(1 + 80);
-                buf.push(4);
+            RpcResponse::Liquidites(liqudities) => {
+                let mut bytes = Vec::with_capacity(1 + (96 * liqudities.len()));
+                bytes[0] = 5;
 
-                let base_token_id = base_token_id.into_repr();
-                let quote_token_id = quote_token_id.into_repr();
-                buf.copy_from_slice(&base_token_id.0[0].to_le_bytes());
-                buf.copy_from_slice(&base_token_id.0[1].to_le_bytes());
-                buf.copy_from_slice(&base_token_id.0[2].to_le_bytes());
-                buf.copy_from_slice(&base_token_id.0[3].to_le_bytes());
-                buf.copy_from_slice(&quote_token_id.0[0].to_le_bytes());
-                buf.copy_from_slice(&quote_token_id.0[1].to_le_bytes());
-                buf.copy_from_slice(&quote_token_id.0[2].to_le_bytes());
-                buf.copy_from_slice(&quote_token_id.0[3].to_le_bytes());
-                buf.copy_from_slice(&base_token_amount.to_le_bytes());
-                buf.copy_from_slice(&quote_token_amount.to_le_bytes());
-
-                buf
-            }
-            RpcResponse::GetLiquidities(liquidities) => {
-                let mut buf = Vec::with_capacity(1 + liquidities.len() * 80);
-                buf.push(5);
-
-                for (base_token_id, quote_token_id, liquidity_points) in liquidities {
-                    let base_token_id = base_token_id.into_repr();
-                    let quote_token_id = quote_token_id.into_repr();
-                    buf.copy_from_slice(&base_token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&base_token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&quote_token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&liquidity_points.to_le_bytes());
+                for (base_token_id, quote_token_id, liquidity_points) in liqudities {
+                    bytes.copy_from_slice(&base_token_id.to_bytes());
+                    bytes.copy_from_slice(&quote_token_id.to_bytes());
+                    bytes.copy_from_slice(&liquidity_points.to_bytes());
                 }
 
-                buf
+                bytes
             }
-            RpcResponse::GetBurns(burns) => {
-                let mut buf = Vec::with_capacity(1 + burns.len() * 40);
-                buf.push(6);
+            RpcResponse::Burns(burns) => {
+                let mut bytes = Vec::with_capacity(1 + (48 * burns.len()));
+                bytes[0] = 6;
 
-                for (token_id, token_amount) in burns {
-                    let token_id = token_id.into_repr();
-                    buf.copy_from_slice(&token_id.0[0].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[1].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[2].to_le_bytes());
-                    buf.copy_from_slice(&token_id.0[3].to_le_bytes());
-                    buf.copy_from_slice(&token_amount.to_le_bytes());
+                for (token_id, token_amount, burn_id) in burns {
+                    bytes.copy_from_slice(&token_id.to_bytes());
+                    bytes.copy_from_slice(&token_amount.to_bytes());
+                    bytes.copy_from_slice(&burn_id.to_bytes());
                 }
 
-                buf
+                bytes
             }
-            RpcResponse::GetStateWitness() => {
-                todo!()
+            RpcResponse::BridgeWitnesses(_) => {
+                let mut bytes = Vec::with_capacity(1 + 69);
+                bytes[0] = 7;
+
+                bytes
             }
-            RpcResponse::GetBurnWitness() => {
-                todo!()
-            }
-            RpcResponse::GetDepositWitness() => {
-                todo!()
+            RpcResponse::TxId(tx_id) => {
+                let mut bytes = Vec::with_capacity(1 + 8);
+                bytes[0] = 8;
+
+                bytes.copy_from_slice(&tx_id.to_bytes());
+
+                bytes
             }
         }
     }
