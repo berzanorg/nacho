@@ -168,10 +168,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "balances-db"
-version = "0.1.0"
-
-[[package]]
 name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -237,10 +233,6 @@ name = "bumpalo"
 version = "3.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea184aa71bb362a1157c896979544cc23974e08fd265f29ea96b59f0b4a555b"
-
-[[package]]
-name = "burns-db"
-version = "0.1.0"
 
 [[package]]
 name = "bytes"
@@ -357,24 +349,6 @@ dependencies = [
  "quote",
  "syn 2.0.52",
 ]
-
-[[package]]
-name = "data-structures"
-version = "0.1.0"
-dependencies = [
- "ark-ff",
- "mina-curves",
- "mina-signer",
- "thiserror",
-]
-
-[[package]]
-name = "db"
-version = "0.1.0"
-
-[[package]]
-name = "deposit-tree"
-version = "0.1.0"
 
 [[package]]
 name = "deranged"
@@ -722,14 +696,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
-name = "liquidities-db"
-version = "0.1.0"
-
-[[package]]
-name = "list"
-version = "0.1.0"
-
-[[package]]
 name = "lock_api"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -750,21 +716,6 @@ name = "memchr"
 version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "523dc4f511e55ab87b694dc30d0f820d60906ef06413f93d4d7a1385599cc149"
-
-[[package]]
-name = "mempool"
-version = "0.1.0"
-
-[[package]]
-name = "merkle-tree"
-version = "0.1.0"
-dependencies = [
- "ark-ff",
- "data-structures",
- "poseidon-hash",
- "thiserror",
- "tokio",
-]
 
 [[package]]
 name = "mina-curves"
@@ -844,6 +795,134 @@ dependencies = [
  "wasi",
  "windows-sys 0.48.0",
 ]
+
+[[package]]
+name = "nacho-balances-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-list",
+ "nacho-merkle-tree",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-burns-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-list",
+ "nacho-merkle-tree",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-data-structures"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "mina-curves",
+ "mina-signer",
+ "thiserror",
+]
+
+[[package]]
+name = "nacho-dynamic-list"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-dynamic-queue"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-liquidities-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-list",
+ "nacho-merkle-tree",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-mempool"
+version = "0.1.0"
+
+[[package]]
+name = "nacho-merkle-tree"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "nacho-data-structures",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-pools-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-list",
+ "nacho-merkle-tree",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-poseidon-hash"
+version = "0.1.0"
+dependencies = [
+ "mina-poseidon",
+ "nacho-data-structures",
+]
+
+[[package]]
+name = "nacho-proofpool"
+version = "0.1.0"
+
+[[package]]
+name = "nacho-rpc-server"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "mina-signer",
+ "nacho-data-structures",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-transactions-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-withdrawals-db"
+version = "0.1.0"
 
 [[package]]
 name = "num-bigint"
@@ -1003,20 +1082,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
-name = "pools-db"
-version = "0.1.0"
-
-[[package]]
-name = "poseidon-hash"
-version = "0.1.0"
-dependencies = [
- "data-structures",
- "mina-hasher",
- "mina-poseidon",
- "mina-signer",
-]
-
-[[package]]
 name = "powerfmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1035,22 +1100,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2422ad645d89c99f8f3e6b88a9fdeca7fabeac836b1002371c4367c8f984aae"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "proof-submitter"
-version = "0.1.0"
-
-[[package]]
-name = "proofpool"
-version = "0.1.0"
-
-[[package]]
-name = "queue"
-version = "0.1.0"
-dependencies = [
- "thiserror",
- "tokio",
 ]
 
 [[package]]
@@ -1125,24 +1174,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa"
 dependencies = [
  "bitflags",
-]
-
-[[package]]
-name = "rollup"
-version = "0.1.0"
-
-[[package]]
-name = "rpc-server"
-version = "0.1.0"
-dependencies = [
- "ark-ff",
- "data-structures",
- "http-body-util",
- "hyper",
- "hyper-util",
- "mina-signer",
- "thiserror",
- "tokio",
 ]
 
 [[package]]
@@ -1295,14 +1326,6 @@ dependencies = [
  "libc",
  "windows-sys 0.52.0",
 ]
-
-[[package]]
-name = "state-fetcher"
-version = "0.1.0"
-
-[[package]]
-name = "state-tree"
-version = "0.1.0"
 
 [[package]]
 name = "strsim"
@@ -1507,10 +1530,6 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-
-[[package]]
-name = "tx-status-list"
-version = "0.1.0"
 
 [[package]]
 name = "typenum"
@@ -1745,10 +1764,6 @@ name = "windows_x86_64_msvc"
 version = "0.52.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32b752e52a2da0ddfbdbcc6fceadfeede4c939ed16d13e648833a61dfb611ed8"
-
-[[package]]
-name = "withdrawal-tree"
-version = "0.1.0"
 
 [[package]]
 name = "wyz"

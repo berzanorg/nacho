@@ -1,33 +1,29 @@
-use ark_ff::{BigInteger256, PrimeField};
-use data_structures::Field;
+use nacho_data_structures::{ToBytes, U256};
 
 /// The element that represents a sibling of a leaf or one that leaf's hashes.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Sibling {
-    pub value: Field,
+    pub value: U256,
     pub is_left: bool,
 }
 
 impl Default for Sibling {
     fn default() -> Self {
         Self {
-            value: Field::new(BigInteger256([0; 4])),
+            value: U256([0; 32]),
             is_left: false,
         }
     }
 }
 
-impl From<&Sibling> for [u8; 33] {
-    fn from(value: &Sibling) -> Self {
+impl ToBytes for Sibling {
+    type Bytes = [u8; 33];
+
+    fn to_bytes(&self) -> Self::Bytes {
         let mut buf = [0u8; 33];
 
-        let value_value = value.value.into_repr();
-
-        buf[0..8].copy_from_slice(&value_value.0[0].to_le_bytes());
-        buf[8..16].copy_from_slice(&value_value.0[1].to_le_bytes());
-        buf[16..24].copy_from_slice(&value_value.0[2].to_le_bytes());
-        buf[24..32].copy_from_slice(&value_value.0[3].to_le_bytes());
-        buf[32] = value.is_left as u8;
+        buf[0..32].copy_from_slice(&self.value.to_bytes());
+        buf[32] = self.is_left as u8;
 
         buf
     }

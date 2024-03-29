@@ -1,9 +1,9 @@
-use data_structures::Field;
 use mina_poseidon::{
     constants::PlonkSpongeConstantsKimchi,
     pasta::fp_kimchi,
     poseidon::{ArithmeticSponge, Sponge},
 };
+use nacho_data_structures::Field;
 
 /// The type for Poseidon hasher.
 ///

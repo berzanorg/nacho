@@ -1,4 +1,4 @@
-use data_structures::{Address, FromBytes, Signature, U256};
+use nacho_data_structures::{Address, FromBytes, Signature, U256};
 
 /// The enum that represents RPC methods.
 ///

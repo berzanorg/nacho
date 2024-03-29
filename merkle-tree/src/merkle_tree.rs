@@ -1,9 +1,10 @@
 use crate::{
-    calculate_sibling_index, MerkleTreeError, Sibling, WitnessX1, WitnessX2, WitnessX3, WitnessX4,
+    calculate_sibling_index, double_witness::DoubleWitness, single_witness::SingleWitness,
+    MerkleTreeError, Sibling,
 };
-use data_structures::{field_from_bytes, field_to_bytes, Field};
-use poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
-use std::{io::SeekFrom, path::Path};
+use nacho_data_structures::{Field, U256};
+use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
+use std::{array, borrow::Borrow, io::SeekFrom, path::Path};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
     io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -85,28 +86,13 @@ type Result<T> = std::result::Result<T, MerkleTreeError>;
 /// let witness_x4 = tree.get_witness_x4(3, 4, 8, 9).await?;
 /// ```
 ///
-pub struct MerkleTree<
-    const H: usize,
-    const S: usize,
-    const A: usize,
-    const B: usize,
-    const C: usize,
-    const D: usize,
-> {
+pub struct MerkleTree<const H: usize, const L: usize> {
     files: [File; H],
     zeroes: [Field; H],
     hasher: PoseidonHasher,
 }
 
-impl<
-        const H: usize,
-        const S: usize,
-        const A: usize,
-        const B: usize,
-        const C: usize,
-        const D: usize,
-    > MerkleTree<H, S, A, B, C, D>
-{
+impl<const H: usize, const L: usize> MerkleTree<H, L> {
     /// The maximum number of leaves in the Merkle tree.
     const MAX_NUMBER_OF_LEAVES: u64 = u64::pow(2, H as u32 - 1);
 
@@ -196,7 +182,9 @@ impl<
         root_file.seek(SeekFrom::Start(0)).await?;
         root_file.read_exact(&mut buf).await?;
 
-        Ok(field_from_bytes(&buf))
+        let u256 = U256(buf);
+
+        Ok(u256.borrow().into())
     }
 
     /// Returns the value of the leaf at the given index of the Merkle tree.
@@ -213,7 +201,7 @@ impl<
     ///
     pub async fn get(&mut self, index: u64) -> Result<Field> {
         if index >= Self::MAX_NUMBER_OF_LEAVES {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
+            return Err(MerkleTreeError::IndexDoesntExist);
         }
 
         let leaves_file = &mut self.files[0];
@@ -223,13 +211,16 @@ impl<
         let mut buf = [0; 32];
 
         if leaves_file_len <= padding {
-            return Ok(field_from_bytes(&buf));
+            let u256 = U256(buf);
+            return Ok(u256.borrow().into());
         }
 
         leaves_file.seek(SeekFrom::Start(padding)).await?;
         leaves_file.read_exact(&mut buf).await?;
 
-        Ok(field_from_bytes(&buf))
+        let u256 = U256(buf);
+
+        Ok(u256.borrow().into())
     }
 
     /// Assigns the given value to the leaf at the given index of the Merkle tree.
@@ -244,7 +235,7 @@ impl<
     ///
     pub async fn set(&mut self, index: u64, value: Field) -> Result<()> {
         if index > Self::MAX_INDEX {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
+            return Err(MerkleTreeError::IndexDoesntExist);
         }
 
         let leaves_file_len = {
@@ -255,7 +246,7 @@ impl<
         let padding = index * 32;
 
         if padding > leaves_file_len {
-            return Err(MerkleTreeError::UnusableIndex(leaves_file_len / 32));
+            return Err(MerkleTreeError::UnusableIndex);
         }
 
         let mut current_value = value;
@@ -285,7 +276,7 @@ impl<
                 let mut buf = [0_u8; 32];
                 current_file.seek(SeekFrom::Start(sibling_padding)).await?;
                 current_file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
+                U256(buf).borrow().into()
             };
 
             let (left, right) = if sibling_is_left {
@@ -297,7 +288,7 @@ impl<
             let parent_value = poseidon_hash(&mut self.hasher, &[left, right]);
 
             current_file.seek(SeekFrom::Start(current_padding)).await?;
-            current_file.write(&field_to_bytes(&current_value)).await?;
+            current_file.write(&U256::from(current_value).0).await?;
             current_file.flush().await?;
 
             let next_file = &mut self.files[j + 1];
@@ -305,7 +296,7 @@ impl<
             let next_padding = parent_index * 32;
 
             next_file.seek(SeekFrom::Start(next_padding)).await?;
-            next_file.write(&field_to_bytes(&parent_value)).await?;
+            next_file.write(&U256::from(parent_value).0).await?;
             next_file.flush().await?;
 
             current_value = parent_value;
@@ -355,15 +346,14 @@ impl<
     /// let root = witness_x1.calculate_root(&value);
     /// ```
     ///
-    pub async fn get_witness_x1(&mut self, mut index: u64) -> Result<WitnessX1<S, A>> {
-        let mut siblings: [Sibling; S] = [Sibling::default(); S];
+    pub async fn get_single_witness(&mut self, mut index: u64) -> Result<SingleWitness<L>> {
+        let mut siblings: [Sibling; L] = array::from_fn(|_| Sibling::default());
 
         if index > Self::MAX_INDEX {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
+            return Err(MerkleTreeError::IndexDoesntExist);
         }
 
-        for i in 0..S {
-            println!("{i}");
+        for i in 0..L {
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
@@ -372,12 +362,12 @@ impl<
             let padding = sibling_index * 32;
 
             let sibling = if file_len == 0 || padding > file_len - 32 {
-                self.zeroes[i]
+                self.zeroes[i].into()
             } else {
                 let mut buf = [0_u8; 32];
                 file.seek(SeekFrom::Start(padding)).await?;
                 file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
+                U256(buf)
             };
 
             siblings[i] = Sibling {
@@ -388,7 +378,7 @@ impl<
             index /= 2;
         }
 
-        Ok(WitnessX1 { siblings })
+        Ok(SingleWitness { siblings })
     }
 
     /// Returns the witness of two leaves at the given indexes of the Merkle tree.
@@ -409,21 +399,21 @@ impl<
     /// let root = witness_x2.calculate_root(&value_x1, &value_x2);
     /// ```
     ///
-    pub async fn get_witness_x2(
+    pub async fn get_double_witness(
         &mut self,
         mut index_x1: u64,
         mut index_x2: u64,
-    ) -> Result<WitnessX2<S, B>> {
-        let mut siblings_by_leaves: [[Sibling; S]; 2] =
-            [[Sibling::default(); S], [Sibling::default(); S]];
-        let mut siblings_at: [bool; S] = [false; S];
+    ) -> Result<DoubleWitness<L>> {
+        let mut siblings_x1: [Sibling; L] = array::from_fn(|_| Sibling::default());
+        let mut siblings_x2: [Sibling; L] = array::from_fn(|_| Sibling::default());
+        let mut siblings_at: [bool; L] = [false; L];
         let mut siblings_found = false;
 
         if index_x1 > Self::MAX_INDEX || index_x2 > Self::MAX_INDEX {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
+            return Err(MerkleTreeError::IndexDoesntExist);
         }
 
-        for i in 0..S {
+        for i in 0..L {
             let file = &mut self.files[i];
             let file_len = file.metadata().await?.len();
 
@@ -439,28 +429,28 @@ impl<
             let padding_x2 = sibling_index_x2 * 32;
 
             let sibling_x1 = if file_len == 0 || padding_x1 > file_len - 32 {
-                self.zeroes[i]
+                self.zeroes[i].into()
             } else {
                 let mut buf = [0_u8; 32];
                 file.seek(SeekFrom::Start(padding_x1)).await?;
                 file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
+                U256(buf)
             };
 
             let sibling_x2 = if file_len == 0 || padding_x2 > file_len - 32 {
-                self.zeroes[i]
+                self.zeroes[i].into()
             } else {
                 let mut buf = [0_u8; 32];
                 file.seek(SeekFrom::Start(padding_x2)).await?;
                 file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
+                U256(buf)
             };
 
-            siblings_by_leaves[0][i] = Sibling {
+            siblings_x1[i] = Sibling {
                 value: sibling_x1,
                 is_left: sibling_index_x1 % 2 == 0,
             };
-            siblings_by_leaves[1][i] = Sibling {
+            siblings_x2[i] = Sibling {
                 value: sibling_x2,
                 is_left: sibling_index_x2 % 2 == 0,
             };
@@ -469,276 +459,18 @@ impl<
             index_x2 /= 2;
         }
 
-        Ok(WitnessX2 {
-            siblings_by_leaves,
+        Ok(DoubleWitness {
+            siblings_x1,
+            siblings_x2,
             siblings_at,
         })
     }
 
-    /// Returns the witness of three leaves at the given indexes of the Merkle tree.
-    ///
-    /// It requires that 2nd and 3rd leaves to be siblings at an earlier height than 1st leave.
-    ///
-    /// # Examples
-    ///
-    /// Get the witness of the leaves at the 7th, 13th, 15th indexes:
-    ///
-    /// ```rs
-    /// let witness_x3 = tree.get_witness_x3(7, 13, 15).await?;
-    /// ```
-    ///
-    /// Calculate the root:
-    ///
-    /// ```rs
-    /// let value_x1 = Field::from(42);
-    /// let value_x2 = Field::from(85);
-    /// let value_x3 = Field::from(96);
-    /// let root = witness_x3.calculate_root(&value_x1, &value_x2, &value_x3);
-    /// ```
-    ///
-    pub async fn get_witness_x3(
-        &mut self,
-        mut index_x1: u64,
-        mut index_x2: u64,
-        mut index_x3: u64,
-    ) -> Result<WitnessX3<S, C>> {
-        let mut siblings_by_leaves: [[Sibling; S]; 3] = [
-            [Sibling::default(); S],
-            [Sibling::default(); S],
-            [Sibling::default(); S],
-        ];
-        let mut siblings_at_by_leaves: [[bool; S]; 2] = [[false; S], [false; S]];
-        let mut siblings_found_height_x1_x2_x3 = S;
-        let mut siblings_found_height_x2_x3 = S;
+    pub async fn get_new_single_witness(&mut self) -> Result<SingleWitness<L>> {
+        let leaves_file_len = self.files[0].metadata().await?.len();
 
-        if index_x1 > Self::MAX_INDEX || index_x2 > Self::MAX_INDEX || index_x3 > Self::MAX_INDEX {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
-        }
-
-        for i in 0..S {
-            let file = &mut self.files[i];
-            let file_len = file.metadata().await?.len();
-
-            let sibling_index_x1 = calculate_sibling_index!(index_x1);
-            let sibling_index_x2 = calculate_sibling_index!(index_x2);
-            let sibling_index_x3 = calculate_sibling_index!(index_x3);
-
-            if sibling_index_x1 == index_x2 && siblings_found_height_x1_x2_x3 == S {
-                siblings_found_height_x1_x2_x3 = i;
-                siblings_at_by_leaves[0][i] = true
-            }
-
-            if sibling_index_x2 == index_x3 && siblings_found_height_x2_x3 == S {
-                siblings_found_height_x2_x3 = i;
-                siblings_at_by_leaves[1][i] = true
-            }
-
-            let padding_x1 = sibling_index_x1 * 32;
-            let padding_x2 = sibling_index_x2 * 32;
-            let padding_x3 = sibling_index_x3 * 32;
-
-            let sibling_x1 = if file_len == 0 || padding_x1 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x1)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            let sibling_x2 = if file_len == 0 || padding_x2 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x2)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            let sibling_x3 = if file_len == 0 || padding_x3 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x3)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            siblings_by_leaves[0][i] = Sibling {
-                value: sibling_x1,
-                is_left: sibling_index_x1 % 2 == 0,
-            };
-            siblings_by_leaves[1][i] = Sibling {
-                value: sibling_x2,
-                is_left: sibling_index_x2 % 2 == 0,
-            };
-            siblings_by_leaves[2][i] = Sibling {
-                value: sibling_x3,
-                is_left: sibling_index_x3 % 2 == 0,
-            };
-
-            index_x1 /= 2;
-            index_x2 /= 2;
-            index_x3 /= 2;
-        }
-
-        if siblings_found_height_x1_x2_x3 > siblings_found_height_x2_x3 {
-            Err(MerkleTreeError::MistakenOrderX3)
-        } else {
-            Ok(WitnessX3 {
-                siblings_by_leaves,
-                siblings_at_by_leaves,
-            })
-        }
-    }
-
-    /// Returns the witness of four leaves at the given indexes of the Merkle tree.
-    ///
-    /// It requires that 1st and 2nd leaves to be siblings at an earlier height than other leaves, the same is also valid for 3rd and 4th leaves.
-    ///
-    /// # Examples
-    ///
-    /// Get the witness of the leaves at the 7th, 8th, 17th, 20th indexes:
-    ///
-    /// ```rs
-    /// let witness_x4 = tree.get_witness_x3(7, 8, 17, 20).await?;
-    /// ```
-    ///
-    /// Calculate the root:
-    ///
-    /// ```rs
-    /// let value_x1 = Field::from(42);
-    /// let value_x2 = Field::from(57);
-    /// let value_x3 = Field::from(63);
-    /// let value_x4 = Field::from(78);
-    /// let root = witness_x4.calculate_root(&value_x1, &value_x2, &value_x3, &value_x4);
-    /// ```
-    ///
-    pub async fn get_witness_x4(
-        &mut self,
-        mut index_x1: u64,
-        mut index_x2: u64,
-        mut index_x3: u64,
-        mut index_x4: u64,
-    ) -> Result<WitnessX4<S, D>> {
-        let mut siblings_by_leaves: [[Sibling; S]; 4] = [
-            [Sibling::default(); S],
-            [Sibling::default(); S],
-            [Sibling::default(); S],
-            [Sibling::default(); S],
-        ];
-        let mut siblings_at_by_leaves: [[bool; S]; 3] = [[false; S], [false; S], [false; S]];
-        let mut siblings_found_height_x1_x2_x3_x4 = S;
-        let mut siblings_found_height_x1_x2 = S;
-        let mut siblings_found_height_x3_x4 = S;
-
-        if index_x1 > Self::MAX_INDEX
-            || index_x2 > Self::MAX_INDEX
-            || index_x3 > Self::MAX_INDEX
-            || index_x4 > Self::MAX_INDEX
-        {
-            return Err(MerkleTreeError::NonExistentIndex(Self::MAX_INDEX));
-        }
-
-        for i in 0..S {
-            let file = &mut self.files[i];
-            let file_len = file.metadata().await?.len();
-
-            let sibling_index_x1 = calculate_sibling_index!(index_x1);
-            let sibling_index_x2 = calculate_sibling_index!(index_x2);
-            let sibling_index_x3 = calculate_sibling_index!(index_x3);
-            let sibling_index_x4 = calculate_sibling_index!(index_x4);
-
-            if sibling_index_x1 == index_x2 && siblings_found_height_x1_x2 == S {
-                siblings_found_height_x1_x2 = i;
-                siblings_at_by_leaves[0][i] = true
-            }
-
-            if sibling_index_x3 == index_x4 && siblings_found_height_x3_x4 == S {
-                siblings_found_height_x3_x4 = i;
-                siblings_at_by_leaves[1][i] = true
-            }
-
-            if sibling_index_x1 == index_x3 && siblings_found_height_x1_x2_x3_x4 == S {
-                siblings_found_height_x1_x2_x3_x4 = i;
-                siblings_at_by_leaves[2][i] = true
-            }
-
-            let padding_x1 = sibling_index_x1 * 32;
-            let padding_x2 = sibling_index_x2 * 32;
-            let padding_x3 = sibling_index_x3 * 32;
-            let padding_x4 = sibling_index_x4 * 32;
-
-            let sibling_x1 = if file_len == 0 || padding_x1 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x1)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            let sibling_x2 = if file_len == 0 || padding_x2 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x2)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            let sibling_x3 = if file_len == 0 || padding_x3 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x3)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            let sibling_x4 = if file_len == 0 || padding_x4 > file_len - 32 {
-                self.zeroes[i]
-            } else {
-                let mut buf = [0_u8; 32];
-                file.seek(SeekFrom::Start(padding_x4)).await?;
-                file.read_exact(&mut buf).await?;
-                field_from_bytes(&buf)
-            };
-
-            siblings_by_leaves[0][i] = Sibling {
-                value: sibling_x1,
-                is_left: sibling_index_x1 % 2 == 0,
-            };
-            siblings_by_leaves[1][i] = Sibling {
-                value: sibling_x2,
-                is_left: sibling_index_x2 % 2 == 0,
-            };
-            siblings_by_leaves[2][i] = Sibling {
-                value: sibling_x3,
-                is_left: sibling_index_x3 % 2 == 0,
-            };
-
-            siblings_by_leaves[3][i] = Sibling {
-                value: sibling_x4,
-                is_left: sibling_index_x4 % 2 == 0,
-            };
-
-            index_x1 /= 2;
-            index_x2 /= 2;
-            index_x3 /= 2;
-            index_x4 /= 2;
-        }
-
-        if siblings_found_height_x1_x2 > siblings_found_height_x1_x2_x3_x4
-            || siblings_found_height_x3_x4 > siblings_found_height_x1_x2_x3_x4
-        {
-            Err(MerkleTreeError::MistakenOrderX4)
-        } else {
-            Ok(WitnessX4 {
-                siblings_by_leaves,
-                siblings_at_by_leaves,
-            })
-        }
+        let index = leaves_file_len / 32;
+        self.get_single_witness(index).await
     }
 }
 
@@ -751,7 +483,7 @@ mod tests {
     async fn creates_merkle_tree() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/creates_merkle_tree";
 
-        let _ = MerkleTree::<2, 0, 0, 0, 0, 0>::new(dir).await?;
+        let _ = MerkleTree::<2, 1>::new(dir).await?;
 
         Ok(remove_dir_all(dir).await?)
     }
@@ -760,7 +492,7 @@ mod tests {
     async fn sets_and_gets_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/sets_and_gets_values";
 
-        let mut tree = MerkleTree::<5, 0, 0, 0, 0, 0>::new(dir).await?;
+        let mut tree = MerkleTree::<5, 4>::new(dir).await?;
 
         assert_eq!(tree.get(0).await?, Field::from(0));
 
@@ -782,7 +514,7 @@ mod tests {
     #[tokio::test]
     async fn pushes_values() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/pushes_values";
-        let mut tree = MerkleTree::<4, 0, 0, 0, 0, 0>::new(dir).await?;
+        let mut tree = MerkleTree::<4, 3>::new(dir).await?;
 
         assert_eq!(tree.get(0).await?, Field::from(0));
 
@@ -800,7 +532,7 @@ mod tests {
     #[tokio::test]
     async fn updates_root() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/updates_root";
-        let mut tree = MerkleTree::<6, 0, 0, 0, 0, 0>::new(dir).await?;
+        let mut tree = MerkleTree::<6, 5>::new(dir).await?;
 
         assert_eq!(
             tree.root().await?,
@@ -852,20 +584,13 @@ mod tests {
     async fn doesnt_set_unusable_index() -> std::result::Result<(), Box<dyn std::error::Error>> {
         let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_unusable_index";
 
-        let mut tree = MerkleTree::<42, 0, 0, 0, 0, 0>::new(dir).await?;
+        let mut tree = MerkleTree::<42, 41>::new(dir).await?;
 
         let unusable_index = 1;
 
-        match tree
-            .set(unusable_index, "42".parse().unwrap())
-            .await
-            .unwrap_err()
-        {
-            MerkleTreeError::UnusableIndex(usable_index) => {
-                assert_eq!(usable_index, 0);
-            }
-            _ => unreachable!(),
-        }
+        let result = tree.set(unusable_index, "42".parse().unwrap()).await;
+
+        assert!(matches!(result, Err(MerkleTreeError::UnusableIndex)));
 
         Ok(remove_dir_all(dir).await?)
     }
@@ -875,33 +600,29 @@ mod tests {
     {
         let dir = "/tmp/nacho/tests/merkle_tree/doesnt_set_non_existent_index";
 
-        let mut tree = MerkleTree::<42, 0, 0, 0, 0, 0>::new(dir).await?;
+        let mut tree = MerkleTree::<42, 41>::new(dir).await?;
 
         let non_existent_index = 2_u64.pow(41);
 
-        match tree
-            .set(non_existent_index, "42".parse().unwrap())
-            .await
-            .unwrap_err()
-        {
-            MerkleTreeError::NonExistentIndex(highest_possible_index) => {
-                assert_eq!(highest_possible_index, 2_u64.pow(41) - 1);
-            }
-            _ => unreachable!(),
-        }
+        let result = tree.set(non_existent_index, "42".parse().unwrap()).await;
+
+        assert!(matches!(result, Err(MerkleTreeError::IndexDoesntExist)));
 
         Ok(remove_dir_all(dir).await?)
     }
 
     #[tokio::test]
-    async fn gets_witness() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/merkle_tree/gets_witness";
-        let mut tree = MerkleTree::<5, 4, 0, 0, 0, 0>::new(dir).await?;
+    async fn gets_correct_single_witnesses() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = "/tmp/nacho/tests/merkle_tree/gets_correct_single_witnesses";
+        let mut tree = MerkleTree::<5, 4>::new(dir).await?;
 
-        let witness = tree.get_witness_x1(0).await?;
+        let single_witness = tree.get_single_witness(0).await?;
 
         assert_eq!(
-            witness.siblings.map(|sibling| sibling.value),
+            single_witness
+                .siblings
+                .map(|sibling| Field::from(&sibling.value)),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -918,10 +639,10 @@ mod tests {
 
         tree.set(0, "42".parse().unwrap()).await?;
 
-        let witness = tree.get_witness_x1(1).await?;
+        let witness = tree.get_single_witness(1).await?;
 
         assert_eq!(
-            witness.siblings.map(|sibling| sibling.value),
+            witness.siblings.map(|sibling| Field::from(&sibling.value)),
             [
                 "42".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -935,6 +656,97 @@ mod tests {
                     .unwrap(),
             ]
         );
+
+        Ok(remove_dir_all(dir).await?)
+    }
+
+    #[tokio::test]
+    async fn gets_correct_double_witnesses() -> std::result::Result<(), Box<dyn std::error::Error>>
+    {
+        let dir = "/tmp/nacho/tests/merkle_tree/gets_correct_double_witnesses";
+        let mut tree = MerkleTree::<5, 4>::new(dir).await?;
+
+        let double_witness = tree.get_double_witness(0, 1).await?;
+
+        assert_eq!(
+            double_witness
+                .siblings_x1
+                .map(|sibling| Field::from(&sibling.value)),
+            [
+                "0".parse().unwrap(),
+                "21565680844461314807147611702860246336805372493508489110556896454939225549736"
+                    .parse()
+                    .unwrap(),
+                "2447983280988565496525732146838829227220882878955914181821218085513143393976"
+                    .parse()
+                    .unwrap(),
+                "544619463418997333856881110951498501703454628897449993518845662251180546746"
+                    .parse()
+                    .unwrap(),
+            ]
+        );
+
+        assert_eq!(
+            double_witness
+                .siblings_x2
+                .map(|sibling| Field::from(&sibling.value)),
+            [
+                "0".parse().unwrap(),
+                "21565680844461314807147611702860246336805372493508489110556896454939225549736"
+                    .parse()
+                    .unwrap(),
+                "2447983280988565496525732146838829227220882878955914181821218085513143393976"
+                    .parse()
+                    .unwrap(),
+                "544619463418997333856881110951498501703454628897449993518845662251180546746"
+                    .parse()
+                    .unwrap(),
+            ]
+        );
+
+        assert_eq!(double_witness.siblings_at, [true, false, false, false]);
+
+        tree.set(0, "42".parse().unwrap()).await?;
+
+        let double_witness = tree.get_double_witness(0, 1).await?;
+
+        assert_eq!(
+            double_witness
+                .siblings_x1
+                .map(|sibling| Field::from(&sibling.value)),
+            [
+                "0".parse().unwrap(),
+                "21565680844461314807147611702860246336805372493508489110556896454939225549736"
+                    .parse()
+                    .unwrap(),
+                "2447983280988565496525732146838829227220882878955914181821218085513143393976"
+                    .parse()
+                    .unwrap(),
+                "544619463418997333856881110951498501703454628897449993518845662251180546746"
+                    .parse()
+                    .unwrap(),
+            ]
+        );
+
+        assert_eq!(
+            double_witness
+                .siblings_x2
+                .map(|sibling| Field::from(&sibling.value)),
+            [
+                "42".parse().unwrap(),
+                "21565680844461314807147611702860246336805372493508489110556896454939225549736"
+                    .parse()
+                    .unwrap(),
+                "2447983280988565496525732146838829227220882878955914181821218085513143393976"
+                    .parse()
+                    .unwrap(),
+                "544619463418997333856881110951498501703454628897449993518845662251180546746"
+                    .parse()
+                    .unwrap(),
+            ]
+        );
+
+        assert_eq!(double_witness.siblings_at, [true, false, false, false]);
 
         Ok(remove_dir_all(dir).await?)
     }

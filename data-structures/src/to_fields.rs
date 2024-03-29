@@ -1,5 +1,3 @@
-use crate::Field;
-
 /// The trait that is implemented for the data structures that can be converted to `Field` elements.
 ///
 /// # Examples
@@ -23,7 +21,8 @@ use crate::Field;
 /// }
 /// ```
 ///
-pub trait ToFields<const N: usize> {
+pub trait ToFields {
+    type Fields;
     /// Converts the data into `Field` elements.
     ///
     /// # Examples
@@ -34,5 +33,5 @@ pub trait ToFields<const N: usize> {
     /// let fields = data.to_fields();
     /// ```
     ///
-    fn to_fields(&self) -> [Field; N];
+    fn to_fields(&self) -> Self::Fields;
 }

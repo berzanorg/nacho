@@ -1,5 +1,5 @@
 [package]
-name = "rpc-server"
+name = "nacho-rpc-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -18,4 +18,4 @@ http-body-util.workspace = true
 mina-signer.workspace = true
 
 # Local dependencies.
-data-structures.workspace = true
+nacho-data-structures.workspace = true

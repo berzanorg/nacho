@@ -1,9 +1,12 @@
 {
-  "name": "token-contract",
-  "private": true,
+  "name": "nacho-token-contract",
+  "version": "0.1.0",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
     "build": "rm -rf build/ && tsc"

@@ -1,14 +1,10 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod constants;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod error;
+mod pools_db;
+mod single_pool_witness;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use constants::{POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT, POOL_SIZE_IN_BYTES};
+pub use error::PoolsDbError;
+pub use pools_db::PoolsDb;
+pub use single_pool_witness::SinglePoolWitness;

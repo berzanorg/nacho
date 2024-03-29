@@ -4,23 +4,17 @@ members = [
     "balances-db",
     "burns-db",
     "data-structures",
-    "db",
-    "deposit-tree",
-    "queue",
+    "dynamic-queue",
     "liquidities-db",
-    "list",
+    "dynamic-list",
     "mempool",
     "merkle-tree",
     "pools-db",
     "poseidon-hash",
-    "proof-submitter",
     "proofpool",
-    "rollup",
     "rpc-server",
-    "state-fetcher",
-    "state-tree",
-    "tx-status-list",
-    "withdrawal-tree",
+    "withdrawals-db",
+    "transactions-db",
 ]
 
 [workspace.dependencies]
@@ -39,6 +33,17 @@ mina-signer = { git = "https://github.com/o1-labs/proof-systems", branch = "mast
 mina-hasher = { git = "https://github.com/o1-labs/proof-systems", branch = "master" }
 
 # Local dependencies.
-data-structures.path = "data-structures"
-poseidon-hash.path = "poseidon-hash"
-merkle-tree.path = "merkle-tree"
+nacho-balances-db.path = "balances-db"
+nacho-burns-db.path = "burns-db"
+nacho-data-structures.path = "data-structures"
+nacho-dynamic-queue.path = "dynamic-queue"
+nacho-liquidities-db.path = "liquidities-db"
+nacho-dynamic-list.path = "dynamic-list"
+nacho-mempool.path = "mempool"
+nacho-merkle-tree.path = "merkle-tree"
+nacho-pools-db.path = "pools-db"
+nacho-poseidon-hash.path = "poseidon-hash"
+nacho-proofpool.path = "proofpool"
+nacho-rpc-server.path = "rpc-server"
+nacho-withdrawals-db.path = "withdrawals-db"
+nacho-transactions-db.path = "transactions-db"

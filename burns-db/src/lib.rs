@@ -1,14 +1,9 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod burns_db;
+mod constants;
+mod error;
+mod single_burn_witness;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use burns_db::BurnsDb;
+pub use constants::{BURNS_TREE_HEIGHT, BURNS_TREE_SIBLING_COUNT, BURN_SIZE_IN_BYTES};
+pub use error::BurnsDbError;
+pub use single_burn_witness::SingleBurnWitness;

@@ -1,6 +1,6 @@
-use data_structures::{ToBytes, TxStatus, U256};
 use http_body_util::Full;
 use hyper::{body::Bytes, Response};
+use nacho_data_structures::{ToBytes, TxStatus, U256};
 
 /// The alias that represents the type of token IDs.
 type TokenId = U256;

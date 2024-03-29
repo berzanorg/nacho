@@ -56,7 +56,9 @@ use mina_curves::pasta::Fp;
 ///
 pub type Field = Fp;
 
-impl ToFields<1> for Field {
+impl ToFields for Field {
+    type Fields = [Field; 1];
+
     fn to_fields(&self) -> [Field; 1] {
         [*self]
     }

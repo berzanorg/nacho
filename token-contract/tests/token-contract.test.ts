@@ -1,8 +1,15 @@
 import { describe, it } from "node:test"
-import { AccountUpdate, Mina, PrivateKey, UInt64 } from "o1js"
+import { AccountUpdate, Mina, PrivateKey, PublicKey, UInt64 } from "o1js"
 import { TokenContract } from "../src/token-contract.js"
 
 describe("token contract", async () => {
+    const privateKey = PrivateKey.random()
+
+    const pubkey = privateKey.toPublicKey()
+
+    console.log(pubkey.toBase58())
+
+    return
     const LocalBlockchain = Mina.LocalBlockchain({ proofsEnabled: false })
     Mina.setActiveInstance(LocalBlockchain)
 

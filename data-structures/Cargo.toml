@@ -1,5 +1,5 @@
 [package]
-name = "data-structures"
+name = "nacho-data-structures"
 version = "0.1.0"
 edition = "2021"
 

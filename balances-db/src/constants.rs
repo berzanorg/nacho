@@ -1,0 +1,3 @@
+pub const BALANCES_TREE_HEIGHT: usize = 23;
+pub const BALANCES_TREE_SIBLING_COUNT: usize = BALANCES_TREE_HEIGHT - 1;
+pub const BALANCE_SIZE_IN_BYTES: usize = 95;

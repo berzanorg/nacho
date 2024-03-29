@@ -1,5 +1,5 @@
 [package]
-name = "poseidon-hash"
+name = "nacho-poseidon-hash"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 # Local dependencies.
-data-structures.workspace = true
+nacho-data-structures.workspace = true
 
 # GitHub dependencies.
 mina-poseidon.workspace = true

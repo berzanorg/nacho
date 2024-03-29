@@ -28,7 +28,7 @@ describe("rollup contract", async () => {
         await tx.prove()
         await tx.send()
 
-        rollupContract.stateRoots.requireEquals(StateRoots.empty())
+        rollupContract.stateRoots.getAndRequireEquals().assertEquals(StateRoots.empty())
     })
 
     it("generates create genesis proof", async () => {
@@ -79,7 +79,7 @@ describe("rollup contract", async () => {
         await tx.send()
 
         stateUtil.setBalance(0n, john.publicKey, Field(0), UInt64.from(42))
-        rollupContract.stateRoots.requireEquals(stateUtil.stateRoots)
+        rollupContract.stateRoots.getAndRequireEquals().assertEquals(stateUtil.stateRoots)
     })
 
     it("doesn't settle old proofs to rollup contract", async () => {

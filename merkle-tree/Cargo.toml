@@ -1,5 +1,5 @@
 [package]
-name = "merkle-tree"
+name = "nacho-merkle-tree"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 # Local dependencies.
-data-structures.workspace = true
-poseidon-hash.workspace = true
+nacho-data-structures.workspace = true
+nacho-poseidon-hash.workspace = true
 
 # Crates.io dependencies.
 ark-ff.workspace = true
