@@ -1,6 +1,6 @@
 {
   "name": "nacho-bridge-contract",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "nacho-common-o1js": "^0.1.7",
-    "nacho-proof-generator": "^0.1.3",
+    "nacho-proof-generator": "^0.1.5",
     "nacho-rollup-contract": "^0.1.3",
     "nacho-token-contract": "^0.1.1",
     "o1js": "^0.17.0"

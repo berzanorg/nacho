@@ -1,4 +1,4 @@
-import { RPC_REQUEST_SIZE } from "../constants"
+import { RPC_REQUEST_SIZE } from "../constants.js"
 import { addressEncodeInto } from "../utils/address.js"
 import { signatureEncodeInto } from "../utils/signature.js"
 import { uint256EncodeInto } from "../utils/uint256.js"

@@ -53,6 +53,7 @@ export const proofGenerator = ZkProgram({
                 Field,
                 UInt64,
                 UInt64,
+                UInt64,
                 Signature,
             ],
             method: makeBurnTokens,

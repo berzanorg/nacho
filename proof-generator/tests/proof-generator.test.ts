@@ -49,9 +49,10 @@ describe("proof generator", async () => {
     })
 
     it("generates make burn tokens proof", async () => {
-        const burnAmount = UInt64.from(3_000_000)
+        const currentBurn = UInt64.from(0)
         const currentBalance = UInt64.from(45_000_000)
-        const userSignature = Signature.create(john.privateKey, [minaTokenId, burnAmount.value])
+        const amountToBurn = UInt64.from(3_000_000)
+        const userSignature = Signature.create(john.privateKey, [minaTokenId, amountToBurn.value])
 
         const proof = await proofGenerator.makeBurnTokens(
             stateUtil.stateRoots,
@@ -60,15 +61,16 @@ describe("proof generator", async () => {
             stateUtil.getSingleBurnWitness(0n),
             john.publicKey,
             minaTokenId,
-            burnAmount,
+            currentBurn,
             currentBalance,
+            amountToBurn,
             userSignature,
         )
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
 
-        stateUtil.setBalance(0n, john.publicKey, minaTokenId, currentBalance.sub(burnAmount))
-        stateUtil.setBurn(0n, john.publicKey, minaTokenId, burnAmount)
+        stateUtil.setBalance(0n, john.publicKey, minaTokenId, currentBalance.sub(amountToBurn))
+        stateUtil.setBurn(0n, john.publicKey, minaTokenId, amountToBurn)
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)

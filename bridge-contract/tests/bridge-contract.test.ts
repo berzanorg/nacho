@@ -271,11 +271,12 @@ describe("bridge contract", async () => {
     })
 
     it("generates make burn tokens proof", async () => {
-        const burnAmount = UInt64.from(10_000_000)
         const currentBalance = UInt64.from(10_000_000)
+        const currentBurn = UInt64.from(0)
+        const amountToBurn = UInt64.from(10_000_000)
         const userSignature = Signature.create(john.privateKey, [
             minaTokenContract.deriveTokenId(),
-            burnAmount.value,
+            amountToBurn.value,
         ])
 
         const proof = await proofGenerator.makeBurnTokens(
@@ -285,8 +286,9 @@ describe("bridge contract", async () => {
             stateUtil.getSingleBurnWitness(0n),
             john.publicKey,
             minaTokenContract.deriveTokenId(),
-            burnAmount,
+            currentBurn,
             currentBalance,
+            amountToBurn,
             userSignature,
         )
 
@@ -294,19 +296,20 @@ describe("bridge contract", async () => {
             0n,
             john.publicKey,
             minaTokenContract.deriveTokenId(),
-            currentBalance.sub(burnAmount),
+            currentBalance.sub(amountToBurn),
         )
-        stateUtil.setBurn(0n, john.publicKey, minaTokenContract.deriveTokenId(), burnAmount)
+        stateUtil.setBurn(0n, john.publicKey, minaTokenContract.deriveTokenId(), amountToBurn)
 
         stateUtil.pushProof(proof)
     })
 
     it("generates make burn tokens proof one more time", async () => {
-        const burnAmount = UInt64.from(100_000_000)
         const currentBalance = UInt64.from(100_000_000)
+        const currentBurn = UInt64.from(0)
+        const amountToBurn = UInt64.from(100_000_000)
         const userSignature = Signature.create(john.privateKey, [
             usdcTokenContract.deriveTokenId(),
-            burnAmount.value,
+            amountToBurn.value,
         ])
 
         const proof = await proofGenerator.makeBurnTokens(
@@ -316,8 +319,9 @@ describe("bridge contract", async () => {
             stateUtil.getSingleBurnWitness(1n),
             john.publicKey,
             usdcTokenContract.deriveTokenId(),
-            burnAmount,
+            currentBurn,
             currentBalance,
+            amountToBurn,
             userSignature,
         )
 
@@ -325,9 +329,9 @@ describe("bridge contract", async () => {
             1n,
             john.publicKey,
             usdcTokenContract.deriveTokenId(),
-            currentBalance.sub(burnAmount),
+            currentBalance.sub(amountToBurn),
         )
-        stateUtil.setBurn(1n, john.publicKey, usdcTokenContract.deriveTokenId(), burnAmount)
+        stateUtil.setBurn(1n, john.publicKey, usdcTokenContract.deriveTokenId(), amountToBurn)
 
         stateUtil.pushProof(proof)
     })
@@ -368,7 +372,8 @@ describe("bridge contract", async () => {
     })
 
     it("withdraws tokens", async () => {
-        const withdrawAmount = UInt64.from(10_000_000)
+        const totalWithdrawAmount = UInt64.from(0)
+        const totalBurnAmount = UInt64.from(10_000_000)
         const singleWithdrawalWitness = new SingleWithdrawalWitness(
             withdrawalsTree
                 .getWitness(0n)
@@ -380,7 +385,8 @@ describe("bridge contract", async () => {
                 singleWithdrawalWitness,
                 stateUtil.getSingleBurnWitness(0n),
                 minaTokenContractKeypair.publicKey,
-                withdrawAmount,
+                totalWithdrawAmount,
+                totalBurnAmount,
             )
         })
 
@@ -394,39 +400,7 @@ describe("bridge contract", async () => {
             Poseidon.hash([
                 ...john.publicKey.toFields(),
                 minaTokenContract.deriveTokenId(),
-                withdrawAmount.value,
-            ]),
-        )
-    })
-
-    it("withdraws tokens one more time", async () => {
-        const withdrawAmount = UInt64.from(100_000_000)
-        const singleWithdrawalWitness = new SingleWithdrawalWitness(
-            withdrawalsTree
-                .getWitness(1n)
-                .map((a) => ({ isLeft: !a.isLeft, value: a.sibling.toBigInt() })),
-        )
-
-        const tx = await Mina.transaction(john.publicKey, () => {
-            bridgeContract.withdrawTokens(
-                singleWithdrawalWitness,
-                stateUtil.getSingleBurnWitness(1n),
-                usdcTokenContractKeypair.publicKey,
-                withdrawAmount,
-            )
-        })
-
-        tx.sign([john.privateKey])
-
-        await tx.prove()
-        await tx.send()
-
-        withdrawalsTree.setLeaf(
-            1n,
-            Poseidon.hash([
-                ...john.publicKey.toFields(),
-                usdcTokenContract.deriveTokenId(),
-                withdrawAmount.value,
+                totalWithdrawAmount.value,
             ]),
         )
     })

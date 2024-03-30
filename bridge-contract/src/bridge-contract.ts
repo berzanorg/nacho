@@ -98,7 +98,8 @@ export class BridgeContract extends SmartContract {
         singleWithdrawWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         tokenContractPublicKey: PublicKey,
-        amount: UInt64,
+        totalWithdrawAmount: UInt64,
+        totalBurnAmount: UInt64,
     ) {
         const tokenContract = new TokenContract(tokenContractPublicKey)
         const tokenId = tokenContract.deriveTokenId()
@@ -108,8 +109,11 @@ export class BridgeContract extends SmartContract {
             singleWithdrawWitness,
             singleBurnWitness,
             tokenContractPublicKey,
-            amount,
+            totalWithdrawAmount,
+            totalBurnAmount,
         )
+
+        const amount = totalBurnAmount.sub(totalWithdrawAmount)
 
         // NOTE: We don't have to check if this.sender is accurate because `SafeContract.checkAndSubBalance` already requires it to construct correct roots.
         tokenContract.transfer(safeContract.self, this.sender, amount)
