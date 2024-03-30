@@ -1,5 +1,5 @@
 use crate::{put_in_order, Sibling};
-use nacho_data_structures::Field;
+use nacho_data_structures::{Field, ToBytes};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
 pub struct SingleWitness<const L: usize> {
@@ -21,6 +21,86 @@ impl<const L: usize> SingleWitness<L> {
         }
 
         root
+    }
+}
+
+impl ToBytes for SingleWitness<22> {
+    type Bytes = [u8; 726];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 726];
+
+        for (i, sibling) in self.siblings.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        buf
+    }
+}
+
+impl ToBytes for SingleWitness<21> {
+    type Bytes = [u8; 693];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 693];
+
+        for (i, sibling) in self.siblings.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        buf
+    }
+}
+
+impl ToBytes for SingleWitness<20> {
+    type Bytes = [u8; 660];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 660];
+
+        for (i, sibling) in self.siblings.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        buf
+    }
+}
+
+impl ToBytes for SingleWitness<19> {
+    type Bytes = [u8; 627];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 627];
+
+        for (i, sibling) in self.siblings.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        buf
+    }
+}
+
+impl ToBytes for SingleWitness<18> {
+    type Bytes = [u8; 594];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 594];
+
+        for (i, sibling) in self.siblings.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        buf
     }
 }
 

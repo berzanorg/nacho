@@ -13,7 +13,7 @@ import {
     method,
     state,
 } from "o1js"
-import { Burn, Deposit, SingleBurnWitness, SingleWithdrawWitness } from "nacho-common-o1js"
+import { Burn, Deposit, SingleBurnWitness, SingleWithdrawalWitness } from "nacho-common-o1js"
 import { RollupContract } from "nacho-rollup-contract"
 import { SafeContract } from "./safe-contract.js"
 import { TokenContract } from "nacho-token-contract"
@@ -28,7 +28,7 @@ export class BridgeContract extends SmartContract {
 
     @state(Field) actionState = State<Field>()
     @state(Field) depositsMerkleListRoot = State<Field>()
-    @state(Field) withdrawsMerkleTreeRoot = State<Field>()
+    @state(Field) withdrawalsMerkleTreeRoot = State<Field>()
     @state(PublicKey) rollupContractPublicKey = State<PublicKey>()
 
     init() {
@@ -46,7 +46,7 @@ export class BridgeContract extends SmartContract {
 
         this.actionState.set(Reducer.initialActionState)
         this.depositsMerkleListRoot.set(Field(0))
-        this.withdrawsMerkleTreeRoot.set(
+        this.withdrawalsMerkleTreeRoot.set(
             Field(25436453236035485996795240493313170211557120058262356001829805101279552630634n),
         )
         this.rollupContractPublicKey.set(PublicKey.empty())
@@ -95,7 +95,7 @@ export class BridgeContract extends SmartContract {
     }
 
     @method withdrawTokens(
-        singleWithdrawWitness: SingleWithdrawWitness,
+        singleWithdrawWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         tokenContractPublicKey: PublicKey,
         amount: UInt64,
@@ -114,7 +114,7 @@ export class BridgeContract extends SmartContract {
         // NOTE: We don't have to check if this.sender is accurate because `SafeContract.checkAndSubBalance` already requires it to construct correct roots.
         tokenContract.transfer(safeContract.self, this.sender, amount)
 
-        this.withdrawsMerkleTreeRoot.set(
+        this.withdrawalsMerkleTreeRoot.set(
             singleWithdrawWitness.calculateRoot(
                 Poseidon.hash([...this.sender.toFields(), tokenId, amount.value]),
             ),

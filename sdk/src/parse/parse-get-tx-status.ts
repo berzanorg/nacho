@@ -13,15 +13,18 @@ export const parseTxStatus = (buffer: ArrayBuffer): TxStatus => {
 
     switch (array[1]) {
         case 0: {
-            return TxStatus.Rejected
+            return TxStatus.Pending
         }
         case 1: {
-            return TxStatus.Executed
+            return TxStatus.Rejected
         }
         case 2: {
-            return TxStatus.Proved
+            return TxStatus.Executed
         }
         case 3: {
+            return TxStatus.Proved
+        }
+        case 4: {
             return TxStatus.Settled
         }
         default: {

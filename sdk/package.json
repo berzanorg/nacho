@@ -2,8 +2,8 @@
   "name": "nacho-sdk",
   "version": "0.1.0",
   "type": "module",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
     "build"
   ],

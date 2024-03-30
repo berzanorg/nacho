@@ -1,1 +1,8 @@
 export { Client } from "./client.js"
+export { Balance } from "./types/balance.js"
+export { BridgeWitnesses } from "./types/bridge-witnesses.js"
+export { Burn } from "./types/burn.js"
+export { Liquidity } from "./types/liquidity.js"
+export { Pool } from "./types/pool.js"
+export { Sibling } from "./types/siblings.js"
+export { TxStatus } from "./types/tx-status.js"

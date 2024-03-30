@@ -20,7 +20,7 @@ import { unparseGetBurns } from "./unparse/unparse-get-burns.js"
 import { unparseGetBridgeWitnesses } from "./unparse/unparse-get-bridge-witnesses.js"
 import { parseGetBridgeWitnesses } from "./parse/parse-get-bridge-witnesses.js"
 import { unparseBurnTokens } from "./unparse/unparse-burn-tokens.js"
-import { parseTxId } from "./parse/parse-transaction-id.js"
+import { parseTxId } from "./parse/parse-tx-id.js"
 import { unparseCreatePool } from "./unparse/unparse-create-pool.js"
 import { unparseProvideLiquidity } from "./unparse/unparse-provide-liquidity.js"
 import { unparseRemoveLiquidity } from "./unparse/unparse-remove-liquidity.js"
@@ -118,14 +118,21 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
     private async waitTransaction(txId: number): Promise<void> {
         let interval: number | undefined = undefined
 
-        await new Promise<void>((res) => {
+        await new Promise<void>((resolve, reject) => {
             interval = setInterval(async () => {
-                await this.getTxStatus(txId)
-                res()
+                const status = await this.getTxStatus(txId)
+
+                if (status === TxStatus.Rejected) {
+                    clearInterval(interval)
+                    reject()
+                }
+
+                if (status !== TxStatus.Pending) {
+                    clearInterval(interval)
+                    resolve()
+                }
             }, 250)
         })
-
-        clearInterval(interval)
     }
 
     public async getTotalTxCount(): Promise<number> {

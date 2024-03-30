@@ -1,34 +1,22 @@
-import {
-    Field,
-    MerkleMapWitness,
-    Nullifier,
-    Permissions,
-    Poseidon,
-    PublicKey,
-    Reducer,
-    SmartContract,
-    State,
-    UInt64,
-    method,
-    state,
-} from "o1js"
-import { Burn, Deposit, SingleBurnWitness, SingleWithdrawWitness } from "nacho-common-o1js"
+import { Field, Poseidon, PublicKey, SmartContract, UInt64, method } from "o1js"
+import { Burn, SingleBurnWitness, SingleWithdrawalWitness } from "nacho-common-o1js"
 import { RollupContract } from "nacho-rollup-contract"
 import { BridgeContract } from "./bridge-contract.js"
 import { TokenContract } from "nacho-token-contract"
 
 export class SafeContract extends SmartContract {
     @method checkAndSubBalance(
-        singleWithdrawWitness: SingleWithdrawWitness,
+        singleWithdrawalWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         tokenContractPublicKey: PublicKey,
         amount: UInt64,
     ) {
         // NOTE: We require that both burn and withdraw leaves point to the same index.
-        singleWithdrawWitness.calculateIndex().assertEquals(singleBurnWitness.calculateIndex())
+        singleWithdrawalWitness.calculateIndex().assertEquals(singleBurnWitness.calculateIndex())
 
         const bridgeContract = new BridgeContract(this.address)
-        const withdrawsMerkleTreeRoot = bridgeContract.withdrawsMerkleTreeRoot.getAndRequireEquals()
+        const withdrawalsMerkleTreeRoot =
+            bridgeContract.withdrawalsMerkleTreeRoot.getAndRequireEquals()
         const rollupContractPublicKey = bridgeContract.rollupContractPublicKey.getAndRequireEquals()
 
         const rollupContract = new RollupContract(rollupContractPublicKey)
@@ -45,7 +33,7 @@ export class SafeContract extends SmartContract {
         const burnHash = Poseidon.hash(burn.toFields())
 
         stateRoots.burns.assertEquals(singleBurnWitness.calculateRoot(burnHash))
-        withdrawsMerkleTreeRoot.assertEquals(singleWithdrawWitness.calculateRoot(Field(0)))
+        withdrawalsMerkleTreeRoot.assertEquals(singleWithdrawalWitness.calculateRoot(Field(0)))
 
         this.balance.subInPlace(amount)
     }

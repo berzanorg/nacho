@@ -1,24 +1,8 @@
 import { describe, it } from "node:test"
 import assert from "assert"
-import {
-    AccountUpdate,
-    Bool,
-    Field,
-    MerkleMap,
-    Mina,
-    Nullifier,
-    Poseidon,
-    PrivateKey,
-    Signature,
-    UInt64,
-    PublicKey,
-    method,
-    AccountUpdateForest,
-    Permissions,
-    MerkleTree,
-} from "o1js"
+import { AccountUpdate, Bool, Mina, Poseidon, Signature, UInt64, MerkleTree } from "o1js"
 import { BridgeContract } from "../src/bridge-contract.js"
-import { Deposit, SingleWithdrawWitness, WITHDRAWS_TREE_HEIGHT } from "nacho-common-o1js"
+import { Deposit, SingleWithdrawalWitness, WITHDRAWALS_TREE_HEIGHT } from "nacho-common-o1js"
 import { RollupContract } from "nacho-rollup-contract"
 import { createStateUtil, proofGenerator } from "nacho-proof-generator"
 import { generateKeypair } from "./utils.js"
@@ -55,7 +39,7 @@ describe("bridge contract", async () => {
     const stateUtil = createStateUtil()
     const john = LocalBlockchain.testAccounts[0]
     const depositsList: Array<Deposit> = []
-    const withdrawsTree = new MerkleTree(WITHDRAWS_TREE_HEIGHT)
+    const withdrawalsTree = new MerkleTree(WITHDRAWALS_TREE_HEIGHT)
 
     it("deploys mina and usdc token contracts", async () => {
         const tx = await Mina.transaction(john.publicKey, () => {
@@ -385,15 +369,15 @@ describe("bridge contract", async () => {
 
     it("withdraws tokens", async () => {
         const withdrawAmount = UInt64.from(10_000_000)
-        const singleWithdrawWitness = new SingleWithdrawWitness(
-            withdrawsTree
+        const singleWithdrawalWitness = new SingleWithdrawalWitness(
+            withdrawalsTree
                 .getWitness(0n)
                 .map((a) => ({ isLeft: !a.isLeft, value: a.sibling.toBigInt() })),
         )
 
         const tx = await Mina.transaction(john.publicKey, () => {
             bridgeContract.withdrawTokens(
-                singleWithdrawWitness,
+                singleWithdrawalWitness,
                 stateUtil.getSingleBurnWitness(0n),
                 minaTokenContractKeypair.publicKey,
                 withdrawAmount,
@@ -405,7 +389,7 @@ describe("bridge contract", async () => {
         await tx.prove()
         await tx.send()
 
-        withdrawsTree.setLeaf(
+        withdrawalsTree.setLeaf(
             0n,
             Poseidon.hash([
                 ...john.publicKey.toFields(),
@@ -417,15 +401,15 @@ describe("bridge contract", async () => {
 
     it("withdraws tokens one more time", async () => {
         const withdrawAmount = UInt64.from(100_000_000)
-        const singleWithdrawWitness = new SingleWithdrawWitness(
-            withdrawsTree
+        const singleWithdrawalWitness = new SingleWithdrawalWitness(
+            withdrawalsTree
                 .getWitness(1n)
                 .map((a) => ({ isLeft: !a.isLeft, value: a.sibling.toBigInt() })),
         )
 
         const tx = await Mina.transaction(john.publicKey, () => {
             bridgeContract.withdrawTokens(
-                singleWithdrawWitness,
+                singleWithdrawalWitness,
                 stateUtil.getSingleBurnWitness(1n),
                 usdcTokenContractKeypair.publicKey,
                 withdrawAmount,
@@ -437,7 +421,7 @@ describe("bridge contract", async () => {
         await tx.prove()
         await tx.send()
 
-        withdrawsTree.setLeaf(
+        withdrawalsTree.setLeaf(
             1n,
             Poseidon.hash([
                 ...john.publicKey.toFields(),

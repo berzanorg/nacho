@@ -906,7 +906,9 @@ dependencies = [
  "hyper",
  "hyper-util",
  "mina-signer",
+ "nacho-burns-db",
  "nacho-data-structures",
+ "nacho-withdrawals-db",
  "thiserror",
  "tokio",
 ]

@@ -19,3 +19,5 @@ mina-signer.workspace = true
 
 # Local dependencies.
 nacho-data-structures.workspace = true
+nacho-burns-db.workspace = true
+nacho-withdrawals-db.workspace = true

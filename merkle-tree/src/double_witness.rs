@@ -1,5 +1,5 @@
 use crate::{choose, put_in_order, Sibling};
-use nacho_data_structures::Field;
+use nacho_data_structures::{Field, ToBytes};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
 pub struct DoubleWitness<const L: usize> {
@@ -40,6 +40,34 @@ impl<const L: usize> DoubleWitness<L> {
         }
 
         root_x1
+    }
+}
+
+impl ToBytes for DoubleWitness<22> {
+    type Bytes = [u8; 1474];
+
+    fn to_bytes(&self) -> Self::Bytes {
+        let mut buf = [0u8; 1474];
+
+        for (i, sibling) in self.siblings_x1.iter().enumerate() {
+            let padding = i * 33;
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        for (i, sibling) in self.siblings_x2.iter().enumerate() {
+            let padding = (22 * 33) + (i * 33);
+            buf[padding..padding + 32].copy_from_slice(&sibling.value.to_bytes());
+            buf[padding + 32] = sibling.is_left as u8;
+        }
+
+        for (i, &siblings_at) in self.siblings_at.iter().enumerate() {
+            let padding = (44 * 33) + (i);
+
+            buf[padding] = siblings_at as u8;
+        }
+
+        buf
     }
 }
 

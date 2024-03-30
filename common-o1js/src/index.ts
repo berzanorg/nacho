@@ -10,8 +10,8 @@ export {
     SingleBurnWitness,
     SingleLiquidityWitness,
     SinglePoolWitness,
-    SingleWithdrawWitness,
-    WITHDRAWS_TREE_HEIGHT,
+    SingleWithdrawalWitness,
+    WITHDRAWALS_TREE_HEIGHT,
 } from "./witnesses.js"
 export { Balance } from "./structs/balance.js"
 export { Burn } from "./structs/burn.js"

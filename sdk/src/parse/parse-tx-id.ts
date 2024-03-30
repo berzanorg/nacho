@@ -1,4 +1,3 @@
-import { Burn } from "../types/burn.js"
 import { uint64DecodeFrom } from "../utils/uint64.js"
 
 export const parseTxId = (buffer: ArrayBuffer): number => {
