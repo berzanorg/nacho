@@ -2,7 +2,7 @@ use crate::{
     PoolsDbError, SinglePoolWitness, POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT,
     POOL_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, FromBytes, Pool, ToBytes, ToFields, U256};
+use nacho_data_structures::{FromBytes, Pool, ToBytes, ToFields, U256};
 use nacho_dynamic_list::DynamicList;
 use nacho_merkle_tree::MerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
@@ -67,7 +67,7 @@ impl PoolsDb {
         Ok(())
     }
 
-    pub async fn push_leaf(&mut self, pool: Pool) -> Result<()> {
+    pub async fn push_leaf(&mut self, pool: &Pool) -> Result<()> {
         let fields = pool.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
@@ -141,7 +141,12 @@ impl PoolsDb {
         Ok(())
     }
 
-    pub async fn update_leaf(&mut self, index: u64, pool: Pool) -> Result<()> {
+    pub async fn update_leaf(&mut self, pool: &Pool) -> Result<()> {
+        let &index = self
+            .indexes
+            .get(&(pool.base_token_id.clone(), pool.quote_token_id.clone()))
+            .ok_or(PoolsDbError::PoolDoesntExist)?;
+
         let fields = pool.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);

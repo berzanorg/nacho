@@ -52,35 +52,10 @@ where
                     service_fn(|req| async {
                         let body = req.collect().await;
 
-                        match body {
-                            Ok(body) => {
-                                let mut buf = body.aggregate();
+                        let rpc_method = parse_body(body);
 
-                                if buf.remaining() != RpcMethod::SIZE_IN_BYTES {
-                                    return RpcResponse::UnknownMethod.into();
-                                }
-
-                                let mut body_bytes = [0_u8; RpcMethod::SIZE_IN_BYTES];
-                                buf.copy_to_slice(body_bytes.as_mut_slice());
-
-                                let rpc_method: Result<RpcMethod, _> = body_bytes.try_into();
-
-                                match rpc_method {
-                                    Ok(rpc_method) => {
-                                        let rpc_response = rpc_method_handler(rpc_method).await;
-                                        rpc_response.into()
-                                    }
-                                    Err(err) => {
-                                        eprintln!("{err}");
-                                        RpcResponse::UnknownMethod.into()
-                                    }
-                                }
-                            }
-                            Err(err) => {
-                                eprintln!("{err}");
-                                RpcResponse::UnknownMethod.into()
-                            }
-                        }
+                        let rpc_response = rpc_method_handler(rpc_method).await;
+                        rpc_response.into()
                     }),
                 )
                 .await
@@ -89,4 +64,26 @@ where
             }
         });
     }
+}
+
+fn parse_body(
+    body: Result<http_body_util::Collected<hyper::body::Bytes>, hyper::Error>,
+) -> RpcMethod {
+    let body = match body {
+        Ok(body) => body,
+        Err(_) => return RpcMethod::Unknown,
+    };
+
+    let mut buf = body.aggregate();
+
+    if buf.remaining() != RpcMethod::SIZE_IN_BYTES {
+        return RpcMethod::Unknown;
+    }
+
+    let mut body_bytes = [0_u8; RpcMethod::SIZE_IN_BYTES];
+    buf.copy_to_slice(body_bytes.as_mut_slice());
+
+    let rpc_method = body_bytes.into();
+
+    rpc_method
 }

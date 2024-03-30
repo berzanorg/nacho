@@ -1,7 +1,7 @@
 use nacho_data_structures::{ToBytes, U256};
 
 /// The element that represents a sibling of a leaf or one that leaf's hashes.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Sibling {
     pub value: U256,
     pub is_left: bool,

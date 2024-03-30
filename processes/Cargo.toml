@@ -1,0 +1,20 @@
+[package]
+name = "nacho-processes"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thiserror.workspace = true
+tokio.workspace = true
+nacho-balances-db.workspace = true
+nacho-burns-db.workspace = true
+nacho-data-structures.workspace = true
+nacho-liquidities-db.workspace = true
+nacho-mempool.workspace = true
+nacho-pools-db.workspace = true
+nacho-proofpool.workspace = true
+nacho-rpc-server.workspace = true
+nacho-withdrawals-db.workspace = true
+nacho-transactions-db.workspace = true

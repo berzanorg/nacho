@@ -2,6 +2,7 @@ use crate::{put_in_order, Sibling};
 use nacho_data_structures::{Field, ToBytes};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
+#[derive(Debug)]
 pub struct SingleWitness<const L: usize> {
     pub siblings: [Sibling; L],
 }

@@ -18,7 +18,7 @@ type BurnId = u64;
 /// It can be deserialized into bytes.
 pub enum RpcResponse {
     /// Used for unknown RPC methods.
-    UnknownMethod,
+    ClientError,
     /// Represents the total transaction count.
     TotalTxCount(u64),
     /// Represents the status of a transaction.
@@ -35,6 +35,8 @@ pub enum RpcResponse {
     BridgeWitnesses((SingleBurnWitness, SingleWithdrawalWitness)),
     /// Represents a transaction's ID. Used for the RPC methods that modify the state.
     TxId(u64),
+    /// Used for unknown RPC methods.
+    ServerError,
 }
 
 impl From<RpcResponse> for Result<Response<Full<Bytes>>, String> {
@@ -47,7 +49,7 @@ impl From<RpcResponse> for Result<Response<Full<Bytes>>, String> {
 impl From<RpcResponse> for Vec<u8> {
     fn from(value: RpcResponse) -> Self {
         match value {
-            RpcResponse::UnknownMethod => vec![0u8; 1],
+            RpcResponse::ClientError => vec![0u8; 1],
             RpcResponse::TotalTxCount(total_tx_count) => {
                 let mut bytes = Vec::with_capacity(1 + 8);
                 bytes.push(1);
@@ -137,6 +139,7 @@ impl From<RpcResponse> for Vec<u8> {
 
                 bytes
             }
+            RpcResponse::ServerError => vec![9u8; 1],
         }
     }
 }

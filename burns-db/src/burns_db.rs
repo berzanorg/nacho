@@ -86,7 +86,7 @@ impl BurnsDb {
         Ok(())
     }
 
-    pub async fn push_leaf(&mut self, burn: Burn) -> Result<()> {
+    pub async fn push_leaf(&mut self, burn: &Burn) -> Result<()> {
         let fields = burn.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
@@ -177,7 +177,17 @@ impl BurnsDb {
         Ok(())
     }
 
-    pub async fn update_leaf(&mut self, index: u64, burn: Burn) -> Result<()> {
+    pub async fn update_leaf(&mut self, burn: &Burn) -> Result<()> {
+        let indexes = self
+            .indexes
+            .get(&burn.burner)
+            .ok_or(BurnsDbError::BurnDoesntExist)?;
+
+        let &(index, _) = indexes
+            .iter()
+            .find(|(_, f_token_id)| f_token_id == &burn.token_id)
+            .ok_or(BurnsDbError::BurnDoesntExist)?;
+
         let fields = burn.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);

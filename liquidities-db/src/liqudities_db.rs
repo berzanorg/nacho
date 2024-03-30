@@ -102,7 +102,7 @@ impl LiquiditiesDb {
         Ok(())
     }
 
-    pub async fn push_leaf(&mut self, liquidity: Liquidity) -> Result<()> {
+    pub async fn push_leaf(&mut self, liquidity: &Liquidity) -> Result<()> {
         let fields = liquidity.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
@@ -206,7 +206,20 @@ impl LiquiditiesDb {
         Ok(())
     }
 
-    pub async fn update_leaf(&mut self, index: u64, liquidity: Liquidity) -> Result<()> {
+    pub async fn update_leaf(&mut self, liquidity: &Liquidity) -> Result<()> {
+        let indexes = self
+            .indexes
+            .get(&liquidity.provider)
+            .ok_or(LiquiditiesDbError::LiquidityDoesntExist)?;
+
+        let &(index, _, _) = indexes
+            .iter()
+            .find(|(_, f_base_token_id, f_quote_token_id)| {
+                f_base_token_id == &liquidity.base_token_id
+                    && f_quote_token_id == &liquidity.quote_token_id
+            })
+            .ok_or(LiquiditiesDbError::LiquidityDoesntExist)?;
+
         let fields = liquidity.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);

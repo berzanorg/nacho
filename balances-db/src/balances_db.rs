@@ -88,7 +88,7 @@ impl BalancesDb {
         Ok(())
     }
 
-    pub async fn push_leaf(&mut self, balance: Balance) -> Result<()> {
+    pub async fn push_leaf(&mut self, balance: &Balance) -> Result<()> {
         let fields = balance.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
@@ -211,7 +211,17 @@ impl BalancesDb {
         Ok(())
     }
 
-    pub async fn update_leaf(&mut self, index: u64, balance: Balance) -> Result<()> {
+    pub async fn update_leaf(&mut self, balance: &Balance) -> Result<()> {
+        let indexes = self
+            .indexes
+            .get(&balance.owner)
+            .ok_or(BalancesDbError::BalanceDoesntExist)?;
+
+        let &(index, _) = indexes
+            .iter()
+            .find(|(_, f_token_id)| f_token_id == &balance.token_id)
+            .ok_or(BalancesDbError::BalanceDoesntExist)?;
+
         let fields = balance.to_fields();
 
         let hash = poseidon_hash(&mut self.hasher, &fields);

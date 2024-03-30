@@ -13,8 +13,10 @@ members = [
     "poseidon-hash",
     "proofpool",
     "rpc-server",
+    "rollup",
     "withdrawals-db",
     "transactions-db",
+    "processes",
 ]
 
 [workspace.dependencies]
@@ -43,6 +45,7 @@ nacho-mempool.path = "mempool"
 nacho-merkle-tree.path = "merkle-tree"
 nacho-pools-db.path = "pools-db"
 nacho-poseidon-hash.path = "poseidon-hash"
+nacho-processes.path = "processes"
 nacho-proofpool.path = "proofpool"
 nacho-rpc-server.path = "rpc-server"
 nacho-withdrawals-db.path = "withdrawals-db"
