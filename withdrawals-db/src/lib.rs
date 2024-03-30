@@ -1,14 +1,8 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod constants;
+mod error;
+mod single_withdrawal_witness;
+mod withdrawals_db;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use constants::{WITHDRAWALS_TREE_HEIGHT, WITHDRAWALS_TREE_SIBLING_COUNT};
+pub use error::WithdrawalsDbError;
+pub use withdrawals_db::WithdrawalsDb;

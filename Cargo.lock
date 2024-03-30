@@ -923,6 +923,13 @@ dependencies = [
 [[package]]
 name = "nacho-withdrawals-db"
 version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-merkle-tree",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
 
 [[package]]
 name = "num-bigint"
