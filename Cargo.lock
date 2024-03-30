@@ -861,6 +861,11 @@ dependencies = [
 [[package]]
 name = "nacho-mempool"
 version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-queue",
+ "thiserror",
+]
 
 [[package]]
 name = "nacho-merkle-tree"
@@ -914,6 +919,11 @@ dependencies = [
 [[package]]
 name = "nacho-proofpool"
 version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-dynamic-queue",
+ "thiserror",
+]
 
 [[package]]
 name = "nacho-rollup"

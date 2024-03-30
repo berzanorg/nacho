@@ -1,11 +1,11 @@
-use crate::error::QueueError;
+use crate::error::DynamicQueueError;
 use std::{io::SeekFrom, marker::PhantomData, path::Path};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
     io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
 
-type Result<T> = std::result::Result<T, QueueError>;
+type Result<T> = std::result::Result<T, DynamicQueueError>;
 
 /// An on-disk FIFO (first in, first out) queue optimized for constant memory usage, high performance, and low disk usage.
 ///
@@ -78,14 +78,14 @@ where
 
         let parent_dir_path = path
             .parent()
-            .ok_or(QueueError::NoParentDirectorySpecified {
+            .ok_or(DynamicQueueError::NoParentDirectorySpecified {
                 path: path.to_string_lossy().to_string(),
             })?
             .to_string_lossy()
             .to_string();
 
         if parent_dir_path.is_empty() {
-            return Err(QueueError::NoParentDirectorySpecified {
+            return Err(DynamicQueueError::NoParentDirectorySpecified {
                 path: path.to_string_lossy().to_string(),
             });
         }
@@ -387,7 +387,7 @@ mod tests {
         let dir = "doesnt_create_queue_when_parent_dir_not_given";
 
         match DynamicQueue::<4, T>::new(dir).await {
-            Err(QueueError::NoParentDirectorySpecified { path }) => {
+            Err(DynamicQueueError::NoParentDirectorySpecified { path }) => {
                 assert_eq!(path, dir)
             }
             _ => unreachable!(),

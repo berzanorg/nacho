@@ -1,6 +1,7 @@
 use crate::{FromBytes, ToBytes};
 
 /// Byte representation of base 58 encoded signatures.
+#[derive(Clone, Debug)]
 pub struct Signature([u8; 96]);
 
 impl Signature {

@@ -9,6 +9,7 @@ mod pool;
 mod signature;
 mod to_bytes;
 mod to_fields;
+mod transaction;
 mod tx_status;
 mod u256;
 
@@ -22,5 +23,6 @@ pub use pool::Pool;
 pub use signature::Signature;
 pub use to_bytes::ToBytes;
 pub use to_fields::ToFields;
+pub use transaction::Transaction;
 pub use tx_status::TxStatus;
 pub use u256::U256;

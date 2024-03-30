@@ -5,7 +5,9 @@ async fn main() {
     let balances = nacho_processes::balances::process("/tmp/nacho/balances");
     let burns = nacho_processes::burns::process("/tmp/nacho/burns");
     let liquidities = nacho_processes::liquidities::process("/tmp/nacho/liquidities");
+    let mempool = nacho_processes::mempool::process("/tmp/nacho/mempool");
     let pools = nacho_processes::pools::process("/tmp/nacho/pools");
+    let proofpool = nacho_processes::proofpool::process("/tmp/nacho/proofpool");
     let transactions = nacho_processes::transactions::process("/tmp/nacho/transactions");
     let withdrawals = nacho_processes::withdrawals::process("/tmp/nacho/withdrawals");
 
