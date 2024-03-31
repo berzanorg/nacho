@@ -9,6 +9,7 @@ edition = "2021"
 # Crates.io dependencies.
 ark-ff.workspace = true
 thiserror.workspace = true
+primitive-types.workspace = true
 
 # GitHub dependencies.
 mina-curves.workspace = true

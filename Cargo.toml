@@ -17,6 +17,7 @@ members = [
     "withdrawals-db",
     "transactions-db",
     "processes",
+    "executor",
 ]
 
 [workspace.dependencies]
@@ -27,7 +28,7 @@ tokio = { version = "1.36.0", features = ["full"] }
 hyper = { version = "1.2.0", features = ["full"] }
 hyper-util = { version = "0.1.0", features = ["full"] }
 http-body-util = { version = "0.1.1" }
-
+primitive-types = { version = "0.12.2" }
 # GitHub dependencies.
 mina-curves = { git = "https://github.com/o1-labs/proof-systems", branch = "master" }
 mina-poseidon = { git = "https://github.com/o1-labs/proof-systems", branch = "master" }
@@ -41,6 +42,7 @@ nacho-data-structures.path = "data-structures"
 nacho-dynamic-queue.path = "dynamic-queue"
 nacho-liquidities-db.path = "liquidities-db"
 nacho-dynamic-list.path = "dynamic-list"
+nacho-executor.path = "executor"
 nacho-mempool.path = "mempool"
 nacho-merkle-tree.path = "merkle-tree"
 nacho-pools-db.path = "pools-db"
