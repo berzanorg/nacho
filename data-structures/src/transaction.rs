@@ -3,7 +3,7 @@ use crate::{Address, FromBytes, Signature, ToBytes, U256};
 /// The enum that represents transaction types.
 #[derive(Clone, Debug)]
 pub enum Transaction {
-    BurnToken {
+    BurnTokens {
         address: Address,
         signature: Signature,
         token_id: U256,
@@ -55,7 +55,7 @@ pub enum Transaction {
 impl From<[u8; 264]> for Transaction {
     fn from(value: [u8; 264]) -> Self {
         match value[0] {
-            0 => Self::BurnToken {
+            0 => Self::BurnTokens {
                 address: Address::from_bytes(value[1..56].try_into().unwrap()),
                 signature: Signature::from_bytes(value[56..152].try_into().unwrap()),
                 token_id: U256::from_bytes(value[152..184].try_into().unwrap()),
@@ -111,7 +111,7 @@ impl From<&Transaction> for [u8; 264] {
         let mut buf = [0u8; 264];
 
         match value {
-            Transaction::BurnToken {
+            Transaction::BurnTokens {
                 address,
                 signature,
                 token_id,

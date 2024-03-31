@@ -1,0 +1,20 @@
+{
+    "name": "nacho-authenticator",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "files": [
+        "build"
+    ],
+    "scripts": {
+        "build": "rm -rf build/ && npx esbuild --bundle src/index.ts --outfile=build/index.mjs --platform=node --format=esm  --packages=external"
+    },
+    "dependencies": {
+        "o1js": "^0.17.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.24",
+        "typescript": "^5.3.3",
+        "esbuild": "^0.20.2"
+    }
+}

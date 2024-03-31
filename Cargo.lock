@@ -970,6 +970,7 @@ dependencies = [
  "nacho-balances-db",
  "nacho-burns-db",
  "nacho-data-structures",
+ "nacho-executor",
  "nacho-liquidities-db",
  "nacho-mempool",
  "nacho-pools-db",

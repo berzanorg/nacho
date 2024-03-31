@@ -1,3 +1,4 @@
+pub mod authenticator;
 pub mod balances;
 pub mod burns;
 pub mod executor;

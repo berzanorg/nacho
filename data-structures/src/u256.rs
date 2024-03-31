@@ -129,8 +129,6 @@ impl From<&PU256> for U256 {
 
 impl From<&U256> for PU256 {
     fn from(value: &U256) -> Self {
-        let mut buf = [0; 32];
-
         let u64s: [u64; 4] = [
             u64::from_le_bytes(value.0[0..8].try_into().unwrap()),
             u64::from_le_bytes(value.0[8..16].try_into().unwrap()),
