@@ -10,8 +10,16 @@ async fn main() {
     let proofpool = nacho_processes::proofpool::process("/tmp/nacho/proofpool");
     let transactions = nacho_processes::transactions::process("/tmp/nacho/transactions");
     let withdrawals = nacho_processes::withdrawals::process("/tmp/nacho/withdrawals");
-    let executor =
-        nacho_processes::executor::process(mempool, proofpool, balances, pools, liquidities, burns);
+    let authenticator = nacho_processes::authenticator::process("/tmp/nacho/authenticator.mjs");
+    let executor = nacho_processes::executor::process(
+        authenticator,
+        mempool,
+        proofpool,
+        balances,
+        pools,
+        liquidities,
+        burns,
+    );
 
     start_rpc_server("127.0.0.1:2345", move |method| async move {
         match method {

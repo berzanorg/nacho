@@ -1,63 +1,38 @@
-use nacho_data_structures::U256;
+use nacho_data_structures::{Pool, U256};
 use nacho_pools_db::SinglePoolWitness;
 use tokio::sync::oneshot;
 
-/// The alias that represents the type of token IDs.
-type TokenId = U256;
-/// The alias that represents the type of token amounts.
-type TokenAmount = u64;
-/// The alias that represents the type of AMM liquidity points.
-type LiquidityPoints = U256;
-
 pub enum Request {
     GetPool {
-        sender: oneshot::Sender<Option<(TokenAmount, TokenAmount, LiquidityPoints)>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
+        sender: oneshot::Sender<Option<Pool>>,
+        base_token_id: U256,
+        quote_token_id: U256,
     },
     GetPools {
-        sender: oneshot::Sender<
-            Option<Vec<(TokenId, TokenId, TokenAmount, TokenAmount, LiquidityPoints)>>,
-        >,
+        sender: oneshot::Sender<Option<Vec<Pool>>>,
     },
     GetWitness {
         sender: oneshot::Sender<Option<SinglePoolWitness>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
+        base_token_id: U256,
+        quote_token_id: U256,
     },
     GetNewWitness {
         sender: oneshot::Sender<Option<SinglePoolWitness>>,
     },
     PushPool {
         sender: oneshot::Sender<Option<()>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
-        base_token_amount: TokenAmount,
-        quote_token_amount: TokenAmount,
-        total_liqudity_points: LiquidityPoints,
+        pool: Pool,
     },
     UpdatePool {
         sender: oneshot::Sender<Option<()>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
-        base_token_amount: TokenAmount,
-        quote_token_amount: TokenAmount,
-        total_liqudity_points: LiquidityPoints,
+        pool: Pool,
     },
     PushLeaf {
         sender: oneshot::Sender<Option<()>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
-        base_token_amount: TokenAmount,
-        quote_token_amount: TokenAmount,
-        total_liqudity_points: LiquidityPoints,
+        pool: Pool,
     },
     UpdateLeaf {
         sender: oneshot::Sender<Option<()>>,
-        base_token_id: TokenId,
-        quote_token_id: TokenId,
-        base_token_amount: TokenAmount,
-        quote_token_amount: TokenAmount,
-        total_liqudity_points: LiquidityPoints,
+        pool: Pool,
     },
 }

@@ -1,20 +1,15 @@
 use nacho_balances_db::{DoubleBalanceWitness, SingleBalanceWitness};
-use nacho_data_structures::{Address, U256};
+use nacho_data_structures::{Address, Balance, U256};
 use tokio::sync::oneshot;
 
-/// The alias that represents the type of token IDs.
-type TokenId = U256;
-/// The alias that represents the type of token amounts.
-type TokenAmount = u64;
-
 pub enum Request {
-    GetTokenAmount {
-        sender: oneshot::Sender<Option<TokenAmount>>,
+    GetBalance {
+        sender: oneshot::Sender<Option<Balance>>,
         owner: Address,
         token_id: U256,
     },
     GetBalances {
-        sender: oneshot::Sender<Option<Vec<(TokenId, TokenAmount)>>>,
+        sender: oneshot::Sender<Option<Vec<Balance>>>,
         owner: Address,
     },
     GetSingleWitness {
@@ -33,26 +28,18 @@ pub enum Request {
     },
     PushBalance {
         sender: oneshot::Sender<Option<()>>,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
+        balance: Balance,
     },
     UpdateBalance {
         sender: oneshot::Sender<Option<()>>,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
+        balance: Balance,
     },
     PushLeaf {
         sender: oneshot::Sender<Option<()>>,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
+        balance: Balance,
     },
     UpdateLeaf {
         sender: oneshot::Sender<Option<()>>,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
+        balance: Balance,
     },
 }

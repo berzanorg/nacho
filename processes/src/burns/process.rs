@@ -1,5 +1,4 @@
 use nacho_burns_db::BurnsDb;
-use nacho_data_structures::Burn;
 use tokio::sync::mpsc;
 
 use super::{Processor, Request};
@@ -19,20 +18,12 @@ pub fn process(path: &str) -> Processor {
                     burner,
                     token_id,
                 } => {
-                    let burn = burns_db
-                        .get(&burner, &token_id)
-                        .await
-                        .map(|burn| burn.token_amount);
+                    let burn = burns_db.get(&burner, &token_id).await;
 
                     sender.send(burn.ok()).unwrap();
                 }
                 Request::GetBurns { sender, burner } => {
-                    let burns = burns_db.get_many(&burner).await.map(|burns| {
-                        burns
-                            .into_iter()
-                            .map(|burns| (burns.token_id, burns.token_amount))
-                            .collect()
-                    });
+                    let burns = burns_db.get_many(&burner).await;
 
                     sender.send(burns.ok()).unwrap();
                 }
@@ -50,67 +41,23 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(new_witness.ok()).unwrap();
                 }
-                Request::PushBurn {
-                    sender,
-                    burner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = burns_db
-                        .push(&Burn {
-                            burner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::PushBurn { sender, burn } => {
+                    let result = burns_db.push(&burn).await;
 
                     sender.send(result.ok()).unwrap()
                 }
-                Request::UpdateBurn {
-                    sender,
-                    burner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = burns_db
-                        .update(&Burn {
-                            burner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::UpdateBurn { sender, burn } => {
+                    let result = burns_db.update(&burn).await;
 
                     sender.send(result.ok()).unwrap()
                 }
-                Request::PushLeaf {
-                    sender,
-                    burner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = burns_db
-                        .push_leaf(&Burn {
-                            burner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::PushLeaf { sender, burn } => {
+                    let result = burns_db.push_leaf(&burn).await;
 
                     sender.send(result.ok()).unwrap()
                 }
-                Request::UpdateLeaf {
-                    sender,
-                    burner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = burns_db
-                        .update_leaf(&Burn {
-                            burner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::UpdateLeaf { sender, burn } => {
+                    let result = burns_db.update_leaf(&burn).await;
 
                     sender.send(result.ok()).unwrap()
                 }

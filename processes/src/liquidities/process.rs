@@ -14,32 +14,20 @@ pub fn process(path: &str) -> Processor {
 
         while let Some(request) = receiver.recv().await {
             match request {
-                Request::GetLiquidityPoints {
+                Request::GetLiquidity {
                     sender,
                     provider,
                     base_token_id,
                     quote_token_id,
                 } => {
-                    let liquidity_points = liquidities_db
+                    let liquidity = liquidities_db
                         .get(&provider, &base_token_id, &quote_token_id)
-                        .await
-                        .map(|liquidity| liquidity.points);
+                        .await;
 
-                    sender.send(liquidity_points.ok()).unwrap();
+                    sender.send(liquidity.ok()).unwrap();
                 }
                 Request::GetLiquidities { sender, provider } => {
-                    let liquidities = liquidities_db.get_many(&provider).await.map(|liquidities| {
-                        liquidities
-                            .into_iter()
-                            .map(|liquidities| {
-                                (
-                                    liquidities.base_token_id,
-                                    liquidities.quote_token_id,
-                                    liquidities.points,
-                                )
-                            })
-                            .collect()
-                    });
+                    let liquidities = liquidities_db.get_many(&provider).await;
 
                     sender.send(liquidities.ok()).unwrap();
                 }
@@ -60,75 +48,23 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(new_witness.ok()).unwrap();
                 }
-                Request::PushLiquidity {
-                    sender,
-                    provider,
-                    base_token_id,
-                    quote_token_id,
-                    points,
-                } => {
-                    let result = liquidities_db
-                        .push(&Liquidity {
-                            provider,
-                            base_token_id,
-                            quote_token_id,
-                            points,
-                        })
-                        .await;
+                Request::PushLiquidity { sender, liquidity } => {
+                    let result = liquidities_db.push(&liquidity).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdateLiquidity {
-                    sender,
-                    provider,
-                    base_token_id,
-                    quote_token_id,
-                    points,
-                } => {
-                    let result = liquidities_db
-                        .update(&Liquidity {
-                            provider,
-                            base_token_id,
-                            quote_token_id,
-                            points,
-                        })
-                        .await;
+                Request::UpdateLiquidity { sender, liquidity } => {
+                    let result = liquidities_db.update(&liquidity).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::PushLeaf {
-                    sender,
-                    provider,
-                    base_token_id,
-                    quote_token_id,
-                    points,
-                } => {
-                    let result = liquidities_db
-                        .push_leaf(&Liquidity {
-                            provider,
-                            base_token_id,
-                            quote_token_id,
-                            points,
-                        })
-                        .await;
+                Request::PushLeaf { sender, liquidity } => {
+                    let result = liquidities_db.push_leaf(&liquidity).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdateLeaf {
-                    sender,
-                    provider,
-                    base_token_id,
-                    quote_token_id,
-                    points,
-                } => {
-                    let result = liquidities_db
-                        .update_leaf(&Liquidity {
-                            provider,
-                            base_token_id,
-                            quote_token_id,
-                            points,
-                        })
-                        .await;
+                Request::UpdateLeaf { sender, liquidity } => {
+                    let result = liquidities_db.update_leaf(&liquidity).await;
 
                     sender.send(result.ok()).unwrap();
                 }

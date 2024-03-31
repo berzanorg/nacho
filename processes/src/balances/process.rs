@@ -1,5 +1,4 @@
 use nacho_balances_db::BalancesDb;
-use nacho_data_structures::Balance;
 use tokio::sync::mpsc;
 
 use super::{Processor, Request};
@@ -14,25 +13,17 @@ pub fn process(path: &str) -> Processor {
 
         while let Some(request) = receiver.recv().await {
             match request {
-                Request::GetTokenAmount {
+                Request::GetBalance {
                     sender,
                     owner,
                     token_id,
                 } => {
-                    let balance = balances_db
-                        .get(&owner, &token_id)
-                        .await
-                        .map(|balance| balance.token_amount);
+                    let balance = balances_db.get(&owner, &token_id).await;
 
                     sender.send(balance.ok()).unwrap();
                 }
                 Request::GetBalances { sender, owner } => {
-                    let balances = balances_db.get_many(&owner).await.map(|balances| {
-                        balances
-                            .into_iter()
-                            .map(|balance| (balance.token_id, balance.token_amount))
-                            .collect()
-                    });
+                    let balances = balances_db.get_many(&owner).await;
 
                     sender.send(balances.ok()).unwrap();
                 }
@@ -62,67 +53,23 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(new_witness.ok()).unwrap();
                 }
-                Request::PushBalance {
-                    sender,
-                    owner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = balances_db
-                        .push(&Balance {
-                            owner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::PushBalance { sender, balance } => {
+                    let result = balances_db.push(&balance).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdateBalance {
-                    sender,
-                    owner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = balances_db
-                        .update(&Balance {
-                            owner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::UpdateBalance { sender, balance } => {
+                    let result = balances_db.update(&balance).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::PushLeaf {
-                    sender,
-                    owner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = balances_db
-                        .push_leaf(&Balance {
-                            owner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::PushLeaf { sender, balance } => {
+                    let result = balances_db.push_leaf(&balance).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdateLeaf {
-                    sender,
-                    owner,
-                    token_id,
-                    token_amount,
-                } => {
-                    let result = balances_db
-                        .update_leaf(&Balance {
-                            owner,
-                            token_id,
-                            token_amount,
-                        })
-                        .await;
+                Request::UpdateLeaf { sender, balance } => {
+                    let result = balances_db.update_leaf(&balance).await;
 
                     sender.send(result.ok()).unwrap();
                 }

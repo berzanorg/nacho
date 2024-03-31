@@ -1,5 +1,5 @@
 use nacho_burns_db::SingleBurnWitness;
-use nacho_data_structures::{Address, U256};
+use nacho_data_structures::{Address, Burn, U256};
 use tokio::sync::{mpsc, oneshot};
 
 use super::Request;
@@ -10,7 +10,7 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_burn(&self, burner: Address, token_id: U256) -> Option<u64> {
+    pub async fn get_burn_token_amount(&self, burner: Address, token_id: U256) -> Option<Burn> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -27,7 +27,7 @@ impl Processor {
         burn
     }
 
-    pub async fn get_burns(&self, burner: Address) -> Option<Vec<(U256, u64)>> {
+    pub async fn get_burns(&self, burner: Address) -> Option<Vec<Burn>> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -75,20 +75,13 @@ impl Processor {
         single_witness
     }
 
-    pub async fn push_burn(
-        &self,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn push_burn(&self, burn: Burn) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushBurn {
                 sender: oneshot_sender,
-                burner,
-                token_id,
-                token_amount,
+                burn,
             })
             .await
             .ok()?;
@@ -98,20 +91,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_burn(
-        &self,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn update_burn(&self, burn: Burn) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateBurn {
                 sender: oneshot_sender,
-                burner,
-                token_id,
-                token_amount,
+                burn,
             })
             .await
             .ok()?;
@@ -121,20 +107,13 @@ impl Processor {
         result
     }
 
-    pub async fn push_leaf(
-        &self,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn push_leaf(&self, burn: Burn) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
                 sender: oneshot_sender,
-                burner,
-                token_id,
-                token_amount,
+                burn,
             })
             .await
             .ok()?;
@@ -144,20 +123,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_leaf(
-        &self,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn update_leaf(&self, burn: Burn) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
                 sender: oneshot_sender,
-                burner,
-                token_id,
-                token_amount,
+                burn,
             })
             .await
             .ok()?;

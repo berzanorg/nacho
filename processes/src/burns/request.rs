@@ -1,20 +1,15 @@
 use nacho_burns_db::SingleBurnWitness;
-use nacho_data_structures::{Address, U256};
+use nacho_data_structures::{Address, Burn, U256};
 use tokio::sync::oneshot;
-
-/// The alias that represents the type of token IDs.
-type TokenId = U256;
-/// The alias that represents the type of token amounts.
-type TokenAmount = u64;
 
 pub enum Request {
     GetBurn {
-        sender: oneshot::Sender<Option<TokenAmount>>,
+        sender: oneshot::Sender<Option<Burn>>,
         burner: Address,
         token_id: U256,
     },
     GetBurns {
-        sender: oneshot::Sender<Option<Vec<(TokenId, TokenAmount)>>>,
+        sender: oneshot::Sender<Option<Vec<Burn>>>,
         burner: Address,
     },
     GetWitness {
@@ -27,26 +22,18 @@ pub enum Request {
     },
     PushBurn {
         sender: oneshot::Sender<Option<()>>,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
+        burn: Burn,
     },
     UpdateBurn {
         sender: oneshot::Sender<Option<()>>,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
+        burn: Burn,
     },
     PushLeaf {
         sender: oneshot::Sender<Option<()>>,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
+        burn: Burn,
     },
     UpdateLeaf {
         sender: oneshot::Sender<Option<()>>,
-        burner: Address,
-        token_id: U256,
-        token_amount: u64,
+        burn: Burn,
     },
 }

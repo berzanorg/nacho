@@ -1,4 +1,4 @@
-use nacho_data_structures::{Address, U256};
+use nacho_data_structures::{Address, Liquidity, U256};
 use nacho_liquidities_db::SingleLiquidityWitness;
 use tokio::sync::{mpsc, oneshot};
 
@@ -10,16 +10,16 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_liquidity_points(
+    pub async fn get_liquidity(
         &self,
         provider: Address,
         base_token_id: U256,
         quote_token_id: U256,
-    ) -> Option<U256> {
+    ) -> Option<Liquidity> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
-            .send(Request::GetLiquidityPoints {
+            .send(Request::GetLiquidity {
                 sender: oneshot_sender,
                 provider,
                 base_token_id,
@@ -33,7 +33,7 @@ impl Processor {
         liquidity_points
     }
 
-    pub async fn get_liquidities(&self, provider: Address) -> Option<Vec<(U256, U256, U256)>> {
+    pub async fn get_liquidities(&self, provider: Address) -> Option<Vec<Liquidity>> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -87,22 +87,13 @@ impl Processor {
         single_witness
     }
 
-    pub async fn push_liquidity(
-        &self,
-        provider: Address,
-        base_token_id: U256,
-        quote_token_id: U256,
-        points: U256,
-    ) -> Option<()> {
+    pub async fn push_liquidity(&self, liquidity: Liquidity) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLiquidity {
                 sender: oneshot_sender,
-                provider,
-                base_token_id,
-                quote_token_id,
-                points,
+                liquidity,
             })
             .await
             .ok()?;
@@ -112,22 +103,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_liquidity(
-        &self,
-        provider: Address,
-        base_token_id: U256,
-        quote_token_id: U256,
-        points: U256,
-    ) -> Option<()> {
+    pub async fn update_liquidity(&self, liquidity: Liquidity) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLiquidity {
                 sender: oneshot_sender,
-                provider,
-                base_token_id,
-                quote_token_id,
-                points,
+                liquidity,
             })
             .await
             .ok()?;
@@ -137,22 +119,13 @@ impl Processor {
         result
     }
 
-    pub async fn push_leaf(
-        &self,
-        provider: Address,
-        base_token_id: U256,
-        quote_token_id: U256,
-        points: U256,
-    ) -> Option<()> {
+    pub async fn push_leaf(&self, liquidity: Liquidity) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
                 sender: oneshot_sender,
-                provider,
-                base_token_id,
-                quote_token_id,
-                points,
+                liquidity,
             })
             .await
             .ok()?;
@@ -162,22 +135,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_leaf(
-        &self,
-        provider: Address,
-        base_token_id: U256,
-        quote_token_id: U256,
-        points: U256,
-    ) -> Option<()> {
+    pub async fn update_leaf(&self, liquidity: Liquidity) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
                 sender: oneshot_sender,
-                provider,
-                base_token_id,
-                quote_token_id,
-                points,
+                liquidity,
             })
             .await
             .ok()?;

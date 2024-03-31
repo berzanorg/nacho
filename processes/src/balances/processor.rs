@@ -1,5 +1,5 @@
 use nacho_balances_db::{DoubleBalanceWitness, SingleBalanceWitness};
-use nacho_data_structures::{Address, U256};
+use nacho_data_structures::{Address, Balance, U256};
 use tokio::sync::{mpsc, oneshot};
 
 use super::Request;
@@ -10,11 +10,11 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_token_amount(&self, address: Address, token_id: U256) -> Option<u64> {
+    pub async fn get_balance(&self, address: Address, token_id: U256) -> Option<Balance> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
-            .send(Request::GetTokenAmount {
+            .send(Request::GetBalance {
                 sender: oneshot_sender,
                 owner: address,
                 token_id,
@@ -27,7 +27,7 @@ impl Processor {
         balance
     }
 
-    pub async fn get_balances(&self, address: Address) -> Option<Vec<(U256, u64)>> {
+    pub async fn get_balances(&self, address: Address) -> Option<Vec<Balance>> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -102,20 +102,13 @@ impl Processor {
         single_witness
     }
 
-    pub async fn push_balance(
-        &self,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn push_balance(&self, balance: Balance) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushBalance {
                 sender: oneshot_sender,
-                owner,
-                token_id,
-                token_amount,
+                balance,
             })
             .await
             .ok()?;
@@ -125,20 +118,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_balance(
-        &self,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn update_balance(&self, balance: Balance) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateBalance {
                 sender: oneshot_sender,
-                owner,
-                token_id,
-                token_amount,
+                balance,
             })
             .await
             .ok()?;
@@ -148,15 +134,13 @@ impl Processor {
         result
     }
 
-    pub async fn push_leaf(&self, owner: Address, token_id: U256, token_amount: u64) -> Option<()> {
+    pub async fn push_leaf(&self, balance: Balance) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
                 sender: oneshot_sender,
-                owner,
-                token_id,
-                token_amount,
+                balance,
             })
             .await
             .ok()?;
@@ -166,20 +150,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_leaf(
-        &self,
-        owner: Address,
-        token_id: U256,
-        token_amount: u64,
-    ) -> Option<()> {
+    pub async fn update_leaf(&self, balance: Balance) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
                 sender: oneshot_sender,
-                owner,
-                token_id,
-                token_amount,
+                balance,
             })
             .await
             .ok()?;

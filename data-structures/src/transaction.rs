@@ -32,7 +32,7 @@ pub enum Transaction {
         quote_token_id: U256,
         base_token_amount_limit: u64,
         quote_token_amount_limit: u64,
-        liquidity_point_amount: U256,
+        points: U256,
     },
     BuyTokens {
         address: Address,
@@ -84,7 +84,7 @@ impl From<[u8; 264]> for Transaction {
                 quote_token_id: U256::from_bytes(value[184..216].try_into().unwrap()),
                 base_token_amount_limit: u64::from_le_bytes(value[216..224].try_into().unwrap()),
                 quote_token_amount_limit: u64::from_le_bytes(value[224..232].try_into().unwrap()),
-                liquidity_point_amount: U256::from_bytes(value[232..264].try_into().unwrap()),
+                points: U256::from_bytes(value[232..264].try_into().unwrap()),
             },
             4 => Self::BuyTokens {
                 address: Address::from_bytes(value[1..56].try_into().unwrap()),
@@ -162,7 +162,7 @@ impl From<&Transaction> for [u8; 264] {
                 quote_token_id,
                 base_token_amount_limit,
                 quote_token_amount_limit,
-                liquidity_point_amount,
+                points: liquidity_point_amount,
             } => {
                 buf[0] = 3;
                 buf[1..56].copy_from_slice(&address.to_bytes());

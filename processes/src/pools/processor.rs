@@ -1,4 +1,4 @@
-use nacho_data_structures::U256;
+use nacho_data_structures::{Pool, U256};
 use nacho_pools_db::SinglePoolWitness;
 use tokio::sync::{mpsc, oneshot};
 
@@ -10,11 +10,7 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_pool(
-        &self,
-        base_token_id: U256,
-        quote_token_id: U256,
-    ) -> Option<(u64, u64, U256)> {
+    pub async fn get_pool(&self, base_token_id: U256, quote_token_id: U256) -> Option<Pool> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -31,7 +27,7 @@ impl Processor {
         pool
     }
 
-    pub async fn get_pools(&self) -> Option<Vec<(U256, U256, u64, u64, U256)>> {
+    pub async fn get_pools(&self) -> Option<Vec<Pool>> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
@@ -82,24 +78,13 @@ impl Processor {
         new_witness
     }
 
-    pub async fn push_pool(
-        &self,
-        base_token_id: U256,
-        quote_token_id: U256,
-        base_token_amount: u64,
-        quote_token_amount: u64,
-        total_liqudity_points: U256,
-    ) -> Option<()> {
+    pub async fn push_pool(&self, pool: Pool) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushPool {
                 sender: oneshot_sender,
-                base_token_id,
-                quote_token_id,
-                base_token_amount,
-                quote_token_amount,
-                total_liqudity_points,
+                pool,
             })
             .await
             .ok()?;
@@ -109,24 +94,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_pool(
-        &self,
-        base_token_id: U256,
-        quote_token_id: U256,
-        base_token_amount: u64,
-        quote_token_amount: u64,
-        total_liqudity_points: U256,
-    ) -> Option<()> {
+    pub async fn update_pool(&self, pool: Pool) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdatePool {
                 sender: oneshot_sender,
-                base_token_id,
-                quote_token_id,
-                base_token_amount,
-                quote_token_amount,
-                total_liqudity_points,
+                pool,
             })
             .await
             .ok()?;
@@ -136,24 +110,13 @@ impl Processor {
         result
     }
 
-    pub async fn push_leaf(
-        &self,
-        base_token_id: U256,
-        quote_token_id: U256,
-        base_token_amount: u64,
-        quote_token_amount: u64,
-        total_liqudity_points: U256,
-    ) -> Option<()> {
+    pub async fn push_leaf(&self, pool: Pool) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
                 sender: oneshot_sender,
-                base_token_id,
-                quote_token_id,
-                base_token_amount,
-                quote_token_amount,
-                total_liqudity_points,
+                pool,
             })
             .await
             .ok()?;
@@ -163,24 +126,13 @@ impl Processor {
         result
     }
 
-    pub async fn update_leaf(
-        &self,
-        base_token_id: U256,
-        quote_token_id: U256,
-        base_token_amount: u64,
-        quote_token_amount: u64,
-        total_liqudity_points: U256,
-    ) -> Option<()> {
+    pub async fn update_leaf(&self, pool: Pool) -> Option<()> {
         let (oneshot_sender, oneshor_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
                 sender: oneshot_sender,
-                base_token_id,
-                quote_token_id,
-                base_token_amount,
-                quote_token_amount,
-                total_liqudity_points,
+                pool,
             })
             .await
             .ok()?;

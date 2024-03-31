@@ -19,34 +19,12 @@ pub fn process(path: &str) -> Processor {
                     base_token_id,
                     quote_token_id,
                 } => {
-                    let pool = pools_db
-                        .get(&base_token_id, &quote_token_id)
-                        .await
-                        .map(|pool| {
-                            (
-                                pool.base_token_amount,
-                                pool.quote_token_amount,
-                                pool.total_liqudity_points,
-                            )
-                        });
+                    let pool = pools_db.get(&base_token_id, &quote_token_id).await;
 
                     sender.send(pool.ok()).unwrap();
                 }
                 Request::GetPools { sender } => {
-                    let pools = pools_db.get_many().await.map(|pools| {
-                        pools
-                            .into_iter()
-                            .map(|pool| {
-                                (
-                                    pool.base_token_id,
-                                    pool.quote_token_id,
-                                    pool.base_token_amount,
-                                    pool.quote_token_amount,
-                                    pool.total_liqudity_points,
-                                )
-                            })
-                            .collect()
-                    });
+                    let pools = pools_db.get_many().await;
 
                     sender.send(pools.ok()).unwrap();
                 }
@@ -66,83 +44,23 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(new_witness.ok()).unwrap();
                 }
-                Request::PushPool {
-                    sender,
-                    base_token_id,
-                    quote_token_id,
-                    base_token_amount,
-                    quote_token_amount,
-                    total_liqudity_points,
-                } => {
-                    let result = pools_db
-                        .push(&Pool {
-                            base_token_id,
-                            quote_token_id,
-                            base_token_amount,
-                            quote_token_amount,
-                            total_liqudity_points,
-                        })
-                        .await;
+                Request::PushPool { sender, pool } => {
+                    let result = pools_db.push(&pool).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdatePool {
-                    sender,
-                    base_token_id,
-                    quote_token_id,
-                    base_token_amount,
-                    quote_token_amount,
-                    total_liqudity_points,
-                } => {
-                    let result = pools_db
-                        .update(&Pool {
-                            base_token_id,
-                            quote_token_id,
-                            base_token_amount,
-                            quote_token_amount,
-                            total_liqudity_points,
-                        })
-                        .await;
+                Request::UpdatePool { sender, pool } => {
+                    let result = pools_db.update(&pool).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::PushLeaf {
-                    sender,
-                    base_token_id,
-                    quote_token_id,
-                    base_token_amount,
-                    quote_token_amount,
-                    total_liqudity_points,
-                } => {
-                    let result = pools_db
-                        .push_leaf(&Pool {
-                            base_token_id,
-                            quote_token_id,
-                            base_token_amount,
-                            quote_token_amount,
-                            total_liqudity_points,
-                        })
-                        .await;
+                Request::PushLeaf { sender, pool } => {
+                    let result = pools_db.push_leaf(&pool).await;
 
                     sender.send(result.ok()).unwrap();
                 }
-                Request::UpdateLeaf {
-                    sender,
-                    base_token_id,
-                    quote_token_id,
-                    base_token_amount,
-                    quote_token_amount,
-                    total_liqudity_points,
-                } => {
-                    let result = pools_db
-                        .update_leaf(&Pool {
-                            base_token_id,
-                            quote_token_id,
-                            base_token_amount,
-                            quote_token_amount,
-                            total_liqudity_points,
-                        })
-                        .await;
+                Request::UpdateLeaf { sender, pool } => {
+                    let result = pools_db.update_leaf(&pool).await;
 
                     sender.send(result.ok()).unwrap();
                 }
