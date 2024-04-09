@@ -899,6 +899,7 @@ dependencies = [
 name = "nacho-dynamic-queue"
 version = "0.1.0"
 dependencies = [
+ "nacho-data-structures",
  "thiserror",
  "tokio",
 ]
@@ -909,6 +910,19 @@ version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "thiserror",
+]
+
+[[package]]
+name = "nacho-generator"
+version = "0.1.0"
+dependencies = [
+ "nacho-balances-db",
+ "nacho-burns-db",
+ "nacho-data-structures",
+ "nacho-liquidities-db",
+ "nacho-pools-db",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -959,8 +973,11 @@ dependencies = [
 name = "nacho-poseidon-hash"
 version = "0.1.0"
 dependencies = [
+ "mina-hasher",
  "mina-poseidon",
+ "mina-signer",
  "nacho-data-structures",
+ "o1-utils",
 ]
 
 [[package]]
@@ -989,6 +1006,15 @@ dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-queue",
  "thiserror",
+]
+
+[[package]]
+name = "nacho-proofs-db"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1370,6 +1396,15 @@ name = "ryu"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e86697c916019a8588c99b5fac3cead74ec0b4b819707a682fd4d23fa0ce1ba1"
+
+[[package]]
+name = "schnorr-signature"
+version = "0.1.0"
+dependencies = [
+ "mina-hasher",
+ "mina-signer",
+ "nacho-data-structures",
+]
 
 [[package]]
 name = "scopeguard"
