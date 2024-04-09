@@ -1,7 +1,7 @@
 use http_body_util::Full;
 use hyper::{body::Bytes, Response};
 use nacho_burns_db::SingleBurnWitness;
-use nacho_data_structures::{ToBytes, TxStatus, U256};
+use nacho_data_structures::{ByteConversion, TxStatus, U256};
 use nacho_withdrawals_db::SingleWithdrawalWitness;
 
 /// The alias that represents the type of token IDs.

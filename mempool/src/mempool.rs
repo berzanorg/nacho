@@ -6,7 +6,7 @@ use nacho_dynamic_queue::DynamicQueue;
 use crate::MempoolError;
 
 pub struct Mempool {
-    queue: DynamicQueue<264, Transaction>,
+    queue: DynamicQueue<232, Transaction>,
 }
 
 type Result<T> = std::result::Result<T, MempoolError>;

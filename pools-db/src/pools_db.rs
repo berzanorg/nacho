@@ -2,7 +2,7 @@ use crate::{
     PoolsDbError, SinglePoolWitness, POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT,
     POOL_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{FromBytes, Pool, ToBytes, ToFields, U256};
+use nacho_data_structures::{ByteConversion, FieldConversion, Pool, U256};
 use nacho_dynamic_list::DynamicList;
 use nacho_merkle_tree::MerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
@@ -27,7 +27,7 @@ impl PoolsDb {
         let hasher = create_poseidon_hasher();
 
         list.for_each(&mut indexes, |buf, index, indexes| {
-            let pool = Pool::from_bytes(buf);
+            let pool = Pool::from_bytes(&buf);
 
             if indexes.contains_key(&(pool.base_token_id.clone(), pool.quote_token_id.clone())) {
                 return Err(PoolsDbError::PoolAlreadyExists);
@@ -85,7 +85,7 @@ impl PoolsDb {
 
         let buf = self.list.get(index).await?;
 
-        let pool = Pool::from_bytes(buf);
+        let pool = Pool::from_bytes(&buf);
 
         Ok(pool)
     }
@@ -99,7 +99,7 @@ impl PoolsDb {
         for &index in indexes {
             let buf = self.list.get(index).await?;
 
-            let pool = Pool::from_bytes(buf);
+            let pool = Pool::from_bytes(&buf);
 
             pools.push(pool)
         }

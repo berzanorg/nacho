@@ -2,9 +2,9 @@ use crate::{
     calculate_sibling_index, double_witness::DoubleWitness, single_witness::SingleWitness,
     MerkleTreeError, Sibling,
 };
-use nacho_data_structures::{Field, U256};
+use nacho_data_structures::{Field, FieldConversion, U256};
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
-use std::{array, borrow::Borrow, io::SeekFrom, path::Path};
+use std::{array, io::SeekFrom, path::Path};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
     io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -184,7 +184,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
 
         let u256 = U256(buf);
 
-        Ok(u256.borrow().into())
+        Ok(u256.to_fields()[0])
     }
 
     /// Returns the value of the leaf at the given index of the Merkle tree.
@@ -212,7 +212,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
 
         if leaves_file_len <= padding {
             let u256 = U256(buf);
-            return Ok(u256.borrow().into());
+            return Ok(u256.to_fields()[0]);
         }
 
         leaves_file.seek(SeekFrom::Start(padding)).await?;
@@ -220,7 +220,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
 
         let u256 = U256(buf);
 
-        Ok(u256.borrow().into())
+        Ok(u256.to_fields()[0])
     }
 
     /// Assigns the given value to the leaf at the given index of the Merkle tree.
@@ -276,7 +276,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
                 let mut buf = [0_u8; 32];
                 current_file.seek(SeekFrom::Start(sibling_padding)).await?;
                 current_file.read_exact(&mut buf).await?;
-                U256(buf).borrow().into()
+                U256(buf).to_fields()[0]
             };
 
             let (left, right) = if sibling_is_left {
@@ -622,7 +622,7 @@ mod tests {
         assert_eq!(
             single_witness
                 .siblings
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -642,7 +642,7 @@ mod tests {
         let witness = tree.get_single_witness(1).await?;
 
         assert_eq!(
-            witness.siblings.map(|sibling| Field::from(&sibling.value)),
+            witness.siblings.map(|sibling| sibling.value.to_fields()[0]),
             [
                 "42".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -671,7 +671,7 @@ mod tests {
         assert_eq!(
             double_witness
                 .siblings_x1
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -689,7 +689,7 @@ mod tests {
         assert_eq!(
             double_witness
                 .siblings_x2
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -713,7 +713,7 @@ mod tests {
         assert_eq!(
             double_witness
                 .siblings_x1
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -731,7 +731,7 @@ mod tests {
         assert_eq!(
             double_witness
                 .siblings_x2
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "42".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"

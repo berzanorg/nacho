@@ -2,6 +2,7 @@ use crate::{RpcMethod, RpcResponse};
 use http_body_util::BodyExt;
 use hyper::{body::Buf, server::conn::http1, service::service_fn};
 use hyper_util::rt::TokioIo;
+use nacho_data_structures::ByteConversion;
 use std::future::Future;
 use tokio::net::{TcpListener, ToSocketAddrs};
 
@@ -83,7 +84,7 @@ fn parse_body(
     let mut body_bytes = [0_u8; RpcMethod::SIZE_IN_BYTES];
     buf.copy_to_slice(body_bytes.as_mut_slice());
 
-    let rpc_method = body_bytes.into();
+    let rpc_method = RpcMethod::from_bytes(&body_bytes);
 
     rpc_method
 }

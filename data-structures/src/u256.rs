@@ -3,41 +3,33 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use ark_ff::{BigInteger256, PrimeField};
 
-use crate::{Field, FromBytes, ToBytes};
+use crate::{ByteConversion, Field, FieldConversion};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct U256(pub [u8; 32]);
 
-impl FromBytes for U256 {
-    type Bytes = [u8; 32];
-
-    fn from_bytes(bytes: Self::Bytes) -> Self {
-        U256(bytes)
-    }
-}
-
-impl ToBytes for U256 {
-    type Bytes = [u8; 32];
-
-    fn to_bytes(&self) -> Self::Bytes {
-        self.0
-    }
-}
-
-impl From<&U256> for Field {
-    fn from(value: &U256) -> Self {
+impl FieldConversion<1> for U256 {
+    fn to_fields(&self) -> [Field; 1] {
         let u64s: [u64; 4] = [
-            u64::from_le_bytes(value.0[0..8].try_into().unwrap()),
-            u64::from_le_bytes(value.0[8..16].try_into().unwrap()),
-            u64::from_le_bytes(value.0[16..24].try_into().unwrap()),
-            u64::from_le_bytes(value.0[24..32].try_into().unwrap()),
+            u64::from_le_bytes(self.0[0..8].try_into().unwrap()),
+            u64::from_le_bytes(self.0[8..16].try_into().unwrap()),
+            u64::from_le_bytes(self.0[16..24].try_into().unwrap()),
+            u64::from_le_bytes(self.0[24..32].try_into().unwrap()),
         ];
 
         let bigint = BigInteger256(u64s);
 
-        let field: Field = bigint.into();
+        [bigint.into()]
+    }
+}
 
-        field
+impl ByteConversion<32> for U256 {
+    fn to_bytes(&self) -> [u8; 32] {
+        self.0
+    }
+
+    fn from_bytes(bytes: &[u8; 32]) -> Self {
+        U256(bytes.to_owned())
     }
 }
 

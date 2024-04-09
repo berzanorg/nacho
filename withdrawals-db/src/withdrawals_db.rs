@@ -1,6 +1,6 @@
 use std::{array, io::SeekFrom, path::Path};
 
-use nacho_data_structures::{Field, FromBytes, ToBytes, U256};
+use nacho_data_structures::{ByteConversion, Field, FieldConversion, U256};
 use nacho_merkle_tree::Sibling;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use tokio::{
@@ -117,7 +117,7 @@ impl WithdrawalsDb {
                 .await?;
             self.file.read_exact(&mut sibling_buf).await?;
 
-            let sibling_value: Field = (&U256::from_bytes(sibling_buf)).into();
+            let sibling_value: Field = U256::from_bytes(&sibling_buf).to_fields()[0];
 
             let (left_value, right_value) = if sibling_is_left {
                 (sibling_value, current_value)
@@ -145,7 +145,7 @@ impl WithdrawalsDb {
         self.file.seek(SeekFrom::Start(padding)).await?;
         self.file.read_exact(&mut buf).await?;
 
-        let value = (&U256(buf)).into();
+        let value = U256(buf).to_fields()[0];
 
         Ok(value)
     }
@@ -158,7 +158,7 @@ impl WithdrawalsDb {
         self.file.seek(SeekFrom::Start(padding)).await?;
         self.file.read_exact(&mut buf).await?;
 
-        let value = (&U256(buf)).into();
+        let value = U256(buf).to_fields()[0];
 
         Ok(value)
     }
@@ -193,7 +193,7 @@ impl WithdrawalsDb {
                 .await?;
             self.file.read_exact(&mut sibling_buf).await?;
 
-            let sibling_value = U256::from_bytes(sibling_buf);
+            let sibling_value = U256::from_bytes(&sibling_buf);
 
             siblings[i] = Sibling {
                 value: sibling_value,
@@ -295,7 +295,7 @@ mod tests {
             witness
                 .siblings
                 .clone()
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -368,7 +368,7 @@ mod tests {
             witness
                 .siblings
                 .clone()
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"
@@ -441,7 +441,7 @@ mod tests {
             witness
                 .siblings
                 .clone()
-                .map(|sibling| Field::from(&sibling.value)),
+                .map(|sibling| sibling.value.to_fields()[0]),
             [
                 "0".parse().unwrap(),
                 "21565680844461314807147611702860246336805372493508489110556896454939225549736"

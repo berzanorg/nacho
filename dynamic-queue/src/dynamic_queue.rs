@@ -1,4 +1,5 @@
 use crate::error::DynamicQueueError;
+use nacho_data_structures::ByteConversion;
 use std::{io::SeekFrom, marker::PhantomData, path::Path};
 use tokio::{
     fs::{create_dir_all, File, OpenOptions},
@@ -7,70 +8,102 @@ use tokio::{
 
 type Result<T> = std::result::Result<T, DynamicQueueError>;
 
-/// An on-disk FIFO (first in, first out) queue optimized for constant memory usage, high performance, and low disk usage.
+/// An on-disk FIFO (first in, first out) queue optimized for constant memory usage, high performance and low disk usage.
 ///
 /// Items are stored in a file and it has a garbage collector to remove popped items from disk.
 ///
-/// The constant generic parameter `C` represents the size of each item in bytes.
+/// The constant generic parameter `L` represents the size of each item in bytes.
 ///
 /// The generic parameter `T` represents the type of the data structure that is going to be stored.
 ///
-/// It requires the type `T` to implement `Into<[u8; C]>` and the type `&T` to implement `From<[u8; C]>`traits.
+/// It requires the type `T` to implement `ByteConversion<L>`trait.
 ///
-pub struct DynamicQueue<const C: usize, T>
+/// # Examples
+///
+/// Define a type:
+///
+/// ```rs
+/// struct User {
+///     points: u16,
+/// }
+/// ```
+///
+/// Implement `ByteConversion<L>` trait:
+///
+/// ```rs
+/// impl ByteConversion<2> for User {
+///     fn to_bytes(&self) -> [u8; 2] {
+///         self.points.to_le_bytes()
+///     }
+///
+///     fn from_bytes(bytes: &[u8; 2]) -> Self {
+///         User {
+///             points: u16::from_le_bytes(bytes.to_owned()),
+///         }
+///     }
+/// }
+/// ```
+///
+/// Create a queue:
+/// ```rs
+/// let queue = Queue::<2, User>::new("tmp/nacho/tests/dynamic_queue_for_users").await?;
+/// ```
+///
+/// Push an item:
+///
+/// ```rs
+/// queue.push(&user).await?;
+/// ```
+///
+/// Pop an item:
+///
+/// ```rs
+/// let item: Option<T> = queue.pop().await?;
+/// ```
+///
+pub struct DynamicQueue<const L: usize, T>
 where
-    for<'a> &'a T: Into<[u8; C]>,
-    T: From<[u8; C]>,
+    T: ByteConversion<L>,
 {
     file: File,
     phantom: PhantomData<T>,
 }
 
-impl<const C: usize, T> DynamicQueue<C, T>
+impl<const L: usize, T> DynamicQueue<L, T>
 where
-    for<'a> &'a T: Into<[u8; C]>,
-    T: From<[u8; C]>,
+    T: ByteConversion<L>,
 {
     /// Creates a new `Queue` at the given path.
     ///
     /// # Examples
     ///
-    /// Create and implement a type that meets the requirements:
+    /// Define a type:
     ///
     /// ```rs
     /// struct User {
     ///     points: u16,
     /// }
+    /// ```
     ///
-    /// impl From<[u8; 2]> for User {
-    ///     fn from(value: [u8; 2]) -> Self {
-    ///         Self { points: u16::from_le_bytes(value) }
+    /// Implement `ByteConversion<L>` trait:
+    ///
+    /// ```rs
+    /// impl ByteConversion<2> for User {
+    ///     fn to_bytes(&self) -> [u8; 2] {
+    ///         self.points.to_le_bytes()
     ///     }
-    /// }
     ///
-    /// impl From<&User> for [u8; 2] {
-    ///     fn from(value: &User) -> [u8; 2] {
-    ///         value.points.to_le_bytes()
+    ///     fn from_bytes(bytes: &[u8; 2]) -> Self {
+    ///         User {
+    ///             points: u16::from_le_bytes(bytes.to_owned()),
+    ///         }
     ///     }
     /// }
     /// ```
     ///
     /// Create a queue:
     /// ```rs
-    /// let queue = Queue::<4, T>::new("tmp/nacho/tests/queue").await?;
-    /// ```
-    ///
-    /// Push an item:
-    ///
-    /// ```rs
-    /// let item = User { points: 42 };
-    /// queue.push(&item).await?;
-    /// ```
-    ///
-    /// Pop an item:
-    ///
-    /// ```rs
-    /// let item: Option<T> = queue.pop().await?;
+    /// let queue = Queue::<2, User>::new("tmp/nacho/tests/dynamic_queue_for_users").await?;
     /// ```
     ///
     pub async fn new(path: impl AsRef<Path>) -> Result<Self> {
@@ -116,7 +149,7 @@ where
     /// ```
     ///
     pub async fn push(&mut self, item: &T) -> Result<()> {
-        let item: [u8; C] = item.into();
+        let item = item.to_bytes();
 
         let file_len = self.get_file_len().await?;
 
@@ -159,14 +192,14 @@ where
 
         let new_pointer = match item {
             Some(_) => {
-                let new_pointer = pointer + C as u64;
+                let new_pointer = pointer + L as u64;
                 self.set_pointer(new_pointer).await?;
                 new_pointer
             }
             None => pointer,
         };
 
-        if new_pointer == 8 + 128 * C as u64 {
+        if new_pointer == 8 + 128 * L as u64 {
             self.run_garbage_collector(file_len, new_pointer).await?;
         }
 
@@ -277,7 +310,7 @@ where
     async fn run_garbage_collector(&mut self, file_len: u64, pointer: u64) -> Result<()> {
         let content_size = file_len - pointer;
         let new_file_len = content_size + 8;
-        let items_count = content_size / C as u64;
+        let items_count = content_size / L as u64;
 
         let (chunk_count, chunks_len, remaining_count) = match items_count {
             ..=127 => (0, 0, items_count),
@@ -286,9 +319,9 @@ where
         };
 
         for i in 0..chunks_len {
-            let mut buf = vec![0_u8; C * chunk_count];
+            let mut buf = vec![0_u8; L * chunk_count];
 
-            let padding = C as u64 * i * chunk_count as u64;
+            let padding = L as u64 * i * chunk_count as u64;
 
             self.file.seek(SeekFrom::Start(pointer + padding)).await?;
             self.file.read_exact(&mut buf).await?;
@@ -298,9 +331,9 @@ where
         }
 
         if remaining_count != 0 {
-            let mut buf = vec![0_u8; C * remaining_count as usize];
+            let mut buf = vec![0_u8; L * remaining_count as usize];
 
-            let padding = C as u64 * chunks_len * chunk_count as u64;
+            let padding = L as u64 * chunks_len * chunk_count as u64;
 
             self.file.seek(SeekFrom::Start(pointer + padding)).await?;
             self.file.read_exact(&mut buf).await?;
@@ -333,15 +366,15 @@ where
     ///
     #[inline]
     async fn read_oldest_item(&mut self, file_len: u64, pointer: u64) -> Result<Option<T>> {
-        let mut buf = [0_u8; C];
+        let mut buf = [0_u8; L];
 
-        if file_len < pointer + C as u64 {
+        if file_len < pointer + L as u64 {
             Ok(None)
         } else {
             self.file.seek(SeekFrom::Start(pointer)).await?;
             self.file.read_exact(&mut buf).await?;
 
-            let item: T = buf.into();
+            let item: T = T::from_bytes(&buf);
 
             Ok(Some(item))
         }
@@ -358,23 +391,21 @@ mod tests {
         num: u32,
     }
 
-    impl From<[u8; 4]> for T {
-        fn from(value: [u8; 4]) -> Self {
+    impl ByteConversion<4> for T {
+        fn to_bytes(&self) -> [u8; 4] {
+            self.num.to_le_bytes()
+        }
+
+        fn from_bytes(bytes: &[u8; 4]) -> Self {
             Self {
-                num: u32::from_le_bytes(value),
+                num: u32::from_le_bytes(bytes.to_owned()),
             }
         }
     }
 
-    impl From<&T> for [u8; 4] {
-        fn from(value: &T) -> Self {
-            value.num.to_le_bytes()
-        }
-    }
-
     #[tokio::test]
-    pub async fn creates_queue() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/queue/creates_queue";
+    pub async fn creates_dynamic_queue() -> std::result::Result<(), Box<dyn std::error::Error>> {
+        let dir = "/tmp/nacho/tests/dynamic_queue/creates_queue";
 
         let _ = DynamicQueue::<4, T>::new(dir).await?;
 
@@ -398,7 +429,7 @@ mod tests {
 
     #[tokio::test]
     pub async fn pushes_and_pops_items() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/queue/pushes_and_pops_items";
+        let dir = "/tmp/nacho/tests/dynamic_queue/pushes_and_pops_items";
 
         let mut queue = DynamicQueue::<4, T>::new(dir).await?;
 
@@ -465,7 +496,7 @@ mod tests {
 
     #[tokio::test]
     pub async fn collects_garbage() -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "/tmp/nacho/tests/queue/collects_garbage";
+        let dir = "/tmp/nacho/tests/dynamic_queue/collects_garbage";
 
         let mut queue = DynamicQueue::<4, T>::new(dir).await?;
 

@@ -19,6 +19,8 @@ describe("proof generator", async () => {
         assert.deepEqual(proof.publicInput, stateUtil.stateRoots)
         assert.deepEqual(proof.publicOutput, stateUtil.stateRoots)
         stateUtil.pushProof(proof)
+
+        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates deposit tokens proof", async () => {
@@ -46,6 +48,7 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
+        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates make burn tokens proof", async () => {
@@ -74,6 +77,7 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
+        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates deposit tokens proof one more time", async () => {
@@ -101,6 +105,7 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
+        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates make create pool proof", async () => {

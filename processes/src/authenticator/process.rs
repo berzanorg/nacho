@@ -1,7 +1,7 @@
 use std::process::Stdio;
 
 use super::{Processor, Request};
-use nacho_data_structures::Transaction;
+use nacho_data_structures::{ByteConversion, Transaction};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::process::{ChildStdin, ChildStdout, Command};
 use tokio::sync::mpsc;
@@ -53,7 +53,7 @@ pub async fn check_signature(
     stdout: &mut BufReader<&mut ChildStdout>,
     tx: Transaction,
 ) -> Option<bool> {
-    let tx_buf: [u8; 264] = (&tx).into();
+    let tx_buf = tx.to_bytes();
 
     stdin.write_all(&tx_buf).await.ok()?;
 

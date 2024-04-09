@@ -2,7 +2,7 @@ use crate::{
     BalancesDbError, DoubleBalanceWitness, SingleBalanceWitness, BALANCES_TREE_HEIGHT,
     BALANCES_TREE_SIBLING_COUNT, BALANCE_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, Balance, FromBytes, ToBytes, ToFields, U256};
+use nacho_data_structures::{Address, Balance, ByteConversion, FieldConversion, U256};
 use nacho_dynamic_list::DynamicList;
 use nacho_merkle_tree::MerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
@@ -27,7 +27,7 @@ impl BalancesDb {
         let hasher = create_poseidon_hasher();
 
         list.for_each(&mut indexes, |buf, index, indexes| {
-            let balance = Balance::from_bytes(buf);
+            let balance = Balance::from_bytes(&buf);
 
             match indexes.get_mut(&balance.owner) {
                 Some(indexes) => {
@@ -108,7 +108,7 @@ impl BalancesDb {
 
                 let buf = self.list.get(index).await?;
 
-                let balance = Balance::from_bytes(buf);
+                let balance = Balance::from_bytes(&buf);
 
                 Ok(balance)
             }
@@ -124,7 +124,7 @@ impl BalancesDb {
                 for &(index, _) in indexes {
                     let buf = self.list.get(index).await?;
 
-                    let balance = Balance::from_bytes(buf);
+                    let balance = Balance::from_bytes(&buf);
 
                     balances.push(balance)
                 }

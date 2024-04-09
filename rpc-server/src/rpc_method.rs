@@ -1,4 +1,4 @@
-use nacho_data_structures::{Address, FromBytes, Signature, U256};
+use nacho_data_structures::{Address, ByteConversion, Signature, U256};
 
 /// The enum that represents RPC methods.
 ///
@@ -94,11 +94,15 @@ pub enum RpcMethod {
 
 impl RpcMethod {
     /// The size of an RPC method over the network.
-    pub const SIZE_IN_BYTES: usize = 264;
+    pub const SIZE_IN_BYTES: usize = 232;
 }
 
-impl From<[u8; RpcMethod::SIZE_IN_BYTES]> for RpcMethod {
-    fn from(bytes: [u8; RpcMethod::SIZE_IN_BYTES]) -> Self {
+impl ByteConversion<{ RpcMethod::SIZE_IN_BYTES }> for RpcMethod {
+    fn to_bytes(&self) -> [u8; RpcMethod::SIZE_IN_BYTES] {
+        panic!("this function is not intended for use")
+    }
+
+    fn from_bytes(bytes: &[u8; RpcMethod::SIZE_IN_BYTES]) -> Self {
         match bytes[0] {
             1 => RpcMethod::GetTotalTxCount,
 
@@ -126,55 +130,55 @@ impl From<[u8; RpcMethod::SIZE_IN_BYTES]> for RpcMethod {
 
             8 => RpcMethod::BurnTokens {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                token_amount: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                token_amount: u64::from_bytes(bytes[152..160].try_into().unwrap()),
             },
 
             9 => RpcMethod::CreatePool {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                base_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                quote_token_id: U256::from_bytes(bytes[184..216].try_into().unwrap()),
-                base_token_amount: u64::from_bytes(bytes[216..224].try_into().unwrap()),
-                quote_token_amount: u64::from_bytes(bytes[224..232].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                base_token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
+                base_token_amount: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                quote_token_amount: u64::from_bytes(bytes[192..200].try_into().unwrap()),
             },
 
             10 => RpcMethod::ProvideLiquidity {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                base_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                quote_token_id: U256::from_bytes(bytes[184..216].try_into().unwrap()),
-                base_token_amount: u64::from_bytes(bytes[216..224].try_into().unwrap()),
-                quote_token_amount_limit: u64::from_bytes(bytes[224..232].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                base_token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
+                base_token_amount: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                quote_token_amount_limit: u64::from_bytes(bytes[192..200].try_into().unwrap()),
             },
 
             11 => RpcMethod::RemoveLiquidity {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                base_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                quote_token_id: U256::from_bytes(bytes[184..216].try_into().unwrap()),
-                base_token_amount_limit: u64::from_bytes(bytes[216..224].try_into().unwrap()),
-                quote_token_amount_limit: u64::from_bytes(bytes[224..232].try_into().unwrap()),
-                liquidity_point_amount: U256::from_bytes(bytes[232..264].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                base_token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
+                base_token_amount_limit: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                quote_token_amount_limit: u64::from_bytes(bytes[192..200].try_into().unwrap()),
+                liquidity_point_amount: U256::from_bytes(bytes[200..232].try_into().unwrap()),
             },
 
             12 => RpcMethod::BuyTokens {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                base_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                quote_token_id: U256::from_bytes(bytes[184..216].try_into().unwrap()),
-                base_token_amount: u64::from_bytes(bytes[216..224].try_into().unwrap()),
-                quote_token_amount_limit: u64::from_bytes(bytes[224..232].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                base_token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
+                base_token_amount: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                quote_token_amount_limit: u64::from_bytes(bytes[192..200].try_into().unwrap()),
             },
 
             13 => RpcMethod::SellTokens {
                 address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
-                signature: Signature::from_bytes(bytes[56..152].try_into().unwrap()),
-                base_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
-                quote_token_id: U256::from_bytes(bytes[184..216].try_into().unwrap()),
-                base_token_amount_limit: u64::from_bytes(bytes[216..224].try_into().unwrap()),
-                quote_token_amount: u64::from_bytes(bytes[224..232].try_into().unwrap()),
+                signature: Signature::from_bytes(bytes[56..120].try_into().unwrap()),
+                base_token_id: U256::from_bytes(bytes[120..152].try_into().unwrap()),
+                quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
+                base_token_amount_limit: u64::from_bytes(bytes[184..192].try_into().unwrap()),
+                quote_token_amount: u64::from_bytes(bytes[192..200].try_into().unwrap()),
             },
 
             _ => RpcMethod::Unknown,

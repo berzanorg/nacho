@@ -1,8 +1,8 @@
-use crate::ToFields;
-use ark_ff::BigInteger256;
+use crate::{ByteConversion, FieldConversion};
+use ark_ff::{BigInteger256, PrimeField};
 use mina_curves::pasta::Fp;
 
-/// An object that represents a field element.
+/// An alias that represents a field element.
 ///
 /// You can think of a field element as a the basic unit of data in zero knowledge proof programming.
 ///
@@ -33,83 +33,44 @@ use mina_curves::pasta::Fp;
 /// Creat a field from bytes:
 ///
 /// ```rs
-/// let big_integer = BigInteger256([
-///     u64::from_le_bytes(bytes[0..8].try_into().unwrap()),
-///     u64::from_le_bytes(bytes[8..16].try_into().unwrap()),
-///     u64::from_le_bytes(bytes[16..24].try_into().unwrap()),
-///     u64::from_le_bytes(bytes[24..32].try_into().unwrap()),
-/// ])
-///
-/// let field: Field = big_integer.into();
+/// let field: Field = Field::from_bytes(&bytes);
 /// ```
 ///
-/// Convert a field into bytes:
+/// Convert a field to bytes:
 ///
 /// ```rs
-/// let big_integer = field.into_repr();
-/// let bytes = [0_u8; 32];
-/// bytes[0..8].copy_from_slice(&big_integer.0[0].to_le_bytes());
-/// bytes[8..16].copy_from_slice(&big_integer.0[1].to_le_bytes());
-/// bytes[16..24].copy_from_slice(&big_integer.0[2].to_le_bytes());
-/// bytes[24..32].copy_from_slice(&big_integer.0[3].to_le_bytes());
+/// let bytes = field.to_bytes();
 /// ```
 ///
 pub type Field = Fp;
 
-impl ToFields for Field {
-    type Fields = [Field; 1];
-
+impl FieldConversion<1> for Field {
     fn to_fields(&self) -> [Field; 1] {
-        [*self]
+        [self.to_owned()]
     }
 }
 
-/// Converts a field element to its byte representation.
-///
-/// # Examples
-///
-/// ```rs
-/// let bytes = field_to_bytes(&field);
-/// ```
-///
-pub fn field_to_bytes(field: &Field) -> [u8; 32] {
-    let data = &field.0 .0;
+impl ByteConversion<32> for Field {
+    fn to_bytes(&self) -> [u8; 32] {
+        let mut buf = [0u8; 32];
 
-    let mut bytes = [0_u8; 32];
+        let u64s = self.into_repr().0;
 
-    for i in 0..4 {
-        bytes[i * 8..i * 8 + 8].copy_from_slice(&data[i].to_le_bytes());
+        buf[0..8].copy_from_slice(&u64s[0].to_bytes());
+        buf[8..16].copy_from_slice(&u64s[1].to_bytes());
+        buf[16..24].copy_from_slice(&u64s[2].to_bytes());
+        buf[24..32].copy_from_slice(&u64s[3].to_bytes());
+
+        buf
     }
 
-    bytes
-}
-
-/// Constructs a field element from bytes.
-///
-/// # Examples
-///
-/// ```rs
-/// let field = field_from_bytes(&bytes);
-/// ```
-///
-pub fn field_from_bytes(bytes: &[u8; 32]) -> Field {
-    Field::new(BigInteger256::new([
-        u64::from_le_bytes(bytes[0..8].try_into().unwrap()),
-        u64::from_le_bytes(bytes[8..16].try_into().unwrap()),
-        u64::from_le_bytes(bytes[16..24].try_into().unwrap()),
-        u64::from_le_bytes(bytes[24..32].try_into().unwrap()),
-    ]))
-}
-
-#[test]
-fn test_field_bytes_conversion() {
-    let original_field: Field = "4657651324657865143213749874615453498767487414568798746541"
-        .parse()
-        .unwrap();
-
-    let bytes = field_to_bytes(&original_field);
-
-    let restored_field = field_from_bytes(&bytes);
-
-    assert_eq!(original_field, restored_field);
+    fn from_bytes(bytes: &[u8; 32]) -> Self {
+        BigInteger256::new([
+            u64::from_le_bytes(bytes[0..8].try_into().unwrap()),
+            u64::from_le_bytes(bytes[8..16].try_into().unwrap()),
+            u64::from_le_bytes(bytes[16..24].try_into().unwrap()),
+            u64::from_le_bytes(bytes[24..32].try_into().unwrap()),
+        ])
+        .into()
+    }
 }

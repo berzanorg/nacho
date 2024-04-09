@@ -2,7 +2,7 @@ use crate::{
     BurnsDbError, SingleBurnWitness, BURNS_TREE_HEIGHT, BURNS_TREE_SIBLING_COUNT,
     BURN_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, Burn, FromBytes, ToBytes, ToFields, U256};
+use nacho_data_structures::{Address, Burn, ByteConversion, FieldConversion, U256};
 use nacho_dynamic_list::DynamicList;
 use nacho_merkle_tree::MerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
@@ -27,7 +27,7 @@ impl BurnsDb {
         let hasher = create_poseidon_hasher();
 
         list.for_each(&mut indexes, |buf, index, indexes| {
-            let burn = Burn::from_bytes(buf);
+            let burn = Burn::from_bytes(&buf);
 
             match indexes.get_mut(&burn.burner) {
                 Some(indexes) => {
@@ -109,7 +109,7 @@ impl BurnsDb {
 
         let buf = self.list.get(index).await?;
 
-        let burn = Burn::from_bytes(buf);
+        let burn = Burn::from_bytes(&buf);
 
         Ok(burn)
     }
@@ -125,7 +125,7 @@ impl BurnsDb {
         for &(index, _) in indexes {
             let buf = self.list.get(index).await?;
 
-            let burn = Burn::from_bytes(buf);
+            let burn = Burn::from_bytes(&buf);
 
             burns.push(burn)
         }

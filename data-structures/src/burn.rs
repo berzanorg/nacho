@@ -1,4 +1,4 @@
-use crate::{Address, Field, FromBytes, ToBytes, ToFields, U256};
+use crate::{Address, ByteConversion, Field, FieldConversion, U256};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Burn {
@@ -7,37 +7,18 @@ pub struct Burn {
     pub token_amount: u64,
 }
 
-impl ToFields for Burn {
-    type Fields = [Field; 4];
+impl FieldConversion<4> for Burn {
+    fn to_fields(&self) -> [Field; 4] {
+        let [field_0, field_1] = self.burner.to_fields();
+        let [field_2] = self.token_id.to_fields();
+        let [field_3] = self.token_amount.to_fields();
 
-    fn to_fields(&self) -> Self::Fields {
-        let burner = self.burner.to_fields();
-
-        [
-            burner[0],
-            burner[1],
-            (&self.token_id).into(),
-            self.token_amount.into(),
-        ]
+        [field_0, field_1, field_2, field_3]
     }
 }
 
-impl FromBytes for Burn {
-    type Bytes = [u8; 95];
-
-    fn from_bytes(bytes: Self::Bytes) -> Self {
-        Self {
-            burner: Address::from_bytes(bytes[0..55].try_into().unwrap()),
-            token_id: U256::from_bytes(bytes[55..87].try_into().unwrap()),
-            token_amount: u64::from_bytes(bytes[87..95].try_into().unwrap()),
-        }
-    }
-}
-
-impl ToBytes for Burn {
-    type Bytes = [u8; 95];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<95> for Burn {
+    fn to_bytes(&self) -> [u8; 95] {
         let mut bytes = [0u8; 95];
 
         bytes[0..55].copy_from_slice(&self.burner.to_bytes());
@@ -45,5 +26,13 @@ impl ToBytes for Burn {
         bytes[87..95].copy_from_slice(&self.token_amount.to_bytes());
 
         bytes
+    }
+
+    fn from_bytes(bytes: &[u8; 95]) -> Self {
+        Self {
+            burner: Address::from_bytes(bytes[0..55].try_into().unwrap()),
+            token_id: U256::from_bytes(bytes[55..87].try_into().unwrap()),
+            token_amount: u64::from_bytes(bytes[87..95].try_into().unwrap()),
+        }
     }
 }

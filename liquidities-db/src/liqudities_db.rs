@@ -2,7 +2,7 @@ use crate::{
     LiquiditiesDbError, SingleLiquidityWitness, LIQUIDITIES_TREE_HEIGHT,
     LIQUIDITIES_TREE_SIBLING_COUNT, LIQUIDITY_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, FromBytes, Liquidity, ToBytes, ToFields, U256};
+use nacho_data_structures::{Address, ByteConversion, FieldConversion, Liquidity, U256};
 use nacho_dynamic_list::DynamicList;
 use nacho_merkle_tree::MerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
@@ -27,7 +27,7 @@ impl LiquiditiesDb {
         let hasher = create_poseidon_hasher();
 
         list.for_each(&mut indexes, |buf, index, indexes| {
-            let liquidity = Liquidity::from_bytes(buf);
+            let liquidity = Liquidity::from_bytes(&buf);
 
             match indexes.get_mut(&liquidity.provider) {
                 Some(indexes) => {
@@ -132,7 +132,7 @@ impl LiquiditiesDb {
 
         let buf = self.list.get(index).await?;
 
-        let liquidity = Liquidity::from_bytes(buf);
+        let liquidity = Liquidity::from_bytes(&buf);
 
         Ok(liquidity)
     }
@@ -148,7 +148,7 @@ impl LiquiditiesDb {
         for &(index, _, _) in indexes {
             let buf = self.list.get(index).await?;
 
-            let liquidity = Liquidity::from_bytes(buf);
+            let liquidity = Liquidity::from_bytes(&buf);
 
             liquidities.push(liquidity)
         }

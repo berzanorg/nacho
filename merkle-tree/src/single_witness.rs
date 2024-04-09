@@ -1,8 +1,8 @@
 use crate::{put_in_order, Sibling};
-use nacho_data_structures::{Field, ToBytes};
+use nacho_data_structures::{ByteConversion, Field, FieldConversion};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SingleWitness<const L: usize> {
     pub siblings: [Sibling; L],
 }
@@ -16,7 +16,7 @@ impl<const L: usize> SingleWitness<L> {
                 hasher,
                 put_in_order!(
                     self.siblings[i].is_left,
-                    &[root, Field::from(&self.siblings[i].value)]
+                    &[root, self.siblings[i].value.to_fields()[0]]
                 ),
             );
         }
@@ -25,10 +25,8 @@ impl<const L: usize> SingleWitness<L> {
     }
 }
 
-impl ToBytes for SingleWitness<22> {
-    type Bytes = [u8; 726];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<726> for SingleWitness<22> {
+    fn to_bytes(&self) -> [u8; 726] {
         let mut buf = [0u8; 726];
 
         for (i, sibling) in self.siblings.iter().enumerate() {
@@ -39,12 +37,14 @@ impl ToBytes for SingleWitness<22> {
 
         buf
     }
+
+    fn from_bytes(_: &[u8; 726]) -> Self {
+        panic!("this function is not intended for use")
+    }
 }
 
-impl ToBytes for SingleWitness<21> {
-    type Bytes = [u8; 693];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<693> for SingleWitness<21> {
+    fn to_bytes(&self) -> [u8; 693] {
         let mut buf = [0u8; 693];
 
         for (i, sibling) in self.siblings.iter().enumerate() {
@@ -55,12 +55,14 @@ impl ToBytes for SingleWitness<21> {
 
         buf
     }
+
+    fn from_bytes(_: &[u8; 693]) -> Self {
+        panic!("this function is not intended for use")
+    }
 }
 
-impl ToBytes for SingleWitness<20> {
-    type Bytes = [u8; 660];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<660> for SingleWitness<20> {
+    fn to_bytes(&self) -> [u8; 660] {
         let mut buf = [0u8; 660];
 
         for (i, sibling) in self.siblings.iter().enumerate() {
@@ -71,12 +73,14 @@ impl ToBytes for SingleWitness<20> {
 
         buf
     }
+
+    fn from_bytes(_: &[u8; 660]) -> Self {
+        panic!("this function is not intended for use")
+    }
 }
 
-impl ToBytes for SingleWitness<19> {
-    type Bytes = [u8; 627];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<627> for SingleWitness<19> {
+    fn to_bytes(&self) -> [u8; 627] {
         let mut buf = [0u8; 627];
 
         for (i, sibling) in self.siblings.iter().enumerate() {
@@ -87,12 +91,14 @@ impl ToBytes for SingleWitness<19> {
 
         buf
     }
+
+    fn from_bytes(_: &[u8; 627]) -> Self {
+        panic!("this function is not intended for use")
+    }
 }
 
-impl ToBytes for SingleWitness<18> {
-    type Bytes = [u8; 594];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<594> for SingleWitness<18> {
+    fn to_bytes(&self) -> [u8; 594] {
         let mut buf = [0u8; 594];
 
         for (i, sibling) in self.siblings.iter().enumerate() {
@@ -102,6 +108,10 @@ impl ToBytes for SingleWitness<18> {
         }
 
         buf
+    }
+
+    fn from_bytes(_: &[u8; 594]) -> Self {
+        panic!("this function is not intended for use")
     }
 }
 

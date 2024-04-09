@@ -8,7 +8,9 @@
                 "rust-lang.rust-analyzer",
                 "tamasfe.even-better-toml",
                 "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "svelte.svelte-vscode",
+                "bradlc.vscode-tailwindcss"
             ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "fish",

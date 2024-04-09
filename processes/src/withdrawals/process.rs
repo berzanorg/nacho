@@ -1,3 +1,4 @@
+use nacho_data_structures::FieldConversion;
 use nacho_withdrawals_db::WithdrawalsDb;
 use tokio::sync::mpsc;
 
@@ -23,7 +24,7 @@ pub fn process(path: &str) -> Processor {
                     burn_id,
                     value,
                 } => {
-                    let result = withdrawals_db.set(burn_id, (&value).into()).await;
+                    let result = withdrawals_db.set(burn_id, value.to_fields()[0]).await;
 
                     sender.send(result.ok()).unwrap();
                 }

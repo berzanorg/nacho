@@ -11,3 +11,6 @@ nacho-data-structures.workspace = true
 
 # GitHub dependencies.
 mina-poseidon.workspace = true
+mina-signer.workspace = true
+mina-hasher.workspace = true
+o1-utils.workspace = true

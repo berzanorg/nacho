@@ -1,8 +1,8 @@
 use crate::{choose, put_in_order, Sibling};
-use nacho_data_structures::{Field, ToBytes};
+use nacho_data_structures::{ByteConversion, Field, FieldConversion};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DoubleWitness<const L: usize> {
     pub siblings_x1: [Sibling; L],
     pub siblings_x2: [Sibling; L],
@@ -23,7 +23,7 @@ impl<const L: usize> DoubleWitness<L> {
             let sibling_x1 = choose!(
                 self.siblings_at[i],
                 root_x2,
-                Field::from(&self.siblings_x1[i].value)
+                self.siblings_x1[i].value.to_fields()[0]
             );
 
             root_x1 = poseidon_hash(
@@ -35,7 +35,7 @@ impl<const L: usize> DoubleWitness<L> {
                 hasher,
                 put_in_order!(
                     self.siblings_x2[i].is_left,
-                    &[root_x2, Field::from(&self.siblings_x2[i].value)]
+                    &[root_x2, self.siblings_x2[i].value.to_fields()[0]]
                 ),
             );
         }
@@ -44,10 +44,8 @@ impl<const L: usize> DoubleWitness<L> {
     }
 }
 
-impl ToBytes for DoubleWitness<22> {
-    type Bytes = [u8; 1474];
-
-    fn to_bytes(&self) -> Self::Bytes {
+impl ByteConversion<1474> for DoubleWitness<22> {
+    fn to_bytes(&self) -> [u8; 1474] {
         let mut buf = [0u8; 1474];
 
         for (i, sibling) in self.siblings_x1.iter().enumerate() {
@@ -69,6 +67,10 @@ impl ToBytes for DoubleWitness<22> {
         }
 
         buf
+    }
+
+    fn from_bytes(_: &[u8; 1474]) -> Self {
+        panic!("this function is not intended for use")
     }
 }
 
