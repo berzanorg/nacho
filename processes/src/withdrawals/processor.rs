@@ -11,7 +11,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn get_witness(&self, burn_id: u64) -> Option<SingleWithdrawalWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetWitness {
@@ -21,13 +21,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn set_leaf(&self, burn_id: u64, value: U256) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::SetLeaf {
@@ -38,7 +38,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

@@ -9,7 +9,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn execute_next(&self) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::ExecuteNext {
@@ -18,7 +18,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

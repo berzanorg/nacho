@@ -158,7 +158,7 @@ where
         }
 
         self.file.seek(SeekFrom::End(0)).await?;
-        self.file.write(&item).await?;
+        self.file.write_all(&item).await?;
         self.file.flush().await?;
 
         Ok(())
@@ -221,7 +221,7 @@ where
     #[inline]
     async fn init_pointer(&mut self) -> Result<()> {
         self.file.seek(SeekFrom::Start(0)).await?;
-        self.file.write(&8_u64.to_le_bytes()).await?;
+        self.file.write_all(&8_u64.to_le_bytes()).await?;
         self.file.flush().await?;
 
         Ok(())
@@ -266,7 +266,7 @@ where
     #[inline]
     async fn set_pointer(&mut self, new_value: u64) -> Result<()> {
         self.file.seek(SeekFrom::Start(0)).await?;
-        self.file.write(&new_value.to_le_bytes()).await?;
+        self.file.write_all(&new_value.to_le_bytes()).await?;
         self.file.flush().await?;
 
         Ok(())
@@ -327,7 +327,7 @@ where
             self.file.read_exact(&mut buf).await?;
 
             self.file.seek(SeekFrom::Start(8 + padding)).await?;
-            self.file.write(&buf).await?;
+            self.file.write_all(&buf).await?;
         }
 
         if remaining_count != 0 {
@@ -339,7 +339,7 @@ where
             self.file.read_exact(&mut buf).await?;
 
             self.file.seek(SeekFrom::Start(8 + padding)).await?;
-            self.file.write(&buf).await?;
+            self.file.write_all(&buf).await?;
         }
 
         self.file.flush().await?;

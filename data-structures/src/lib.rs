@@ -15,7 +15,7 @@ mod transaction;
 mod tx_status;
 mod u256;
 
-pub use address::Address;
+pub use address::{check_address, Address};
 pub use balance::Balance;
 pub use burn::Burn;
 pub use byte_conversion::ByteConversion;

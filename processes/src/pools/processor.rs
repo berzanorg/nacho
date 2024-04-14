@@ -11,7 +11,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn get_pool(&self, base_token_id: U256, quote_token_id: U256) -> Option<Pool> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetPool {
@@ -22,13 +22,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let pool = oneshor_receiver.await.ok()?;
+        let pool = oneshot_receiver.await.ok()?;
 
         pool
     }
 
     pub async fn get_pools(&self) -> Option<Vec<Pool>> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetPools {
@@ -37,7 +37,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let pools = oneshor_receiver.await.ok()?;
+        let pools = oneshot_receiver.await.ok()?;
 
         pools
     }
@@ -47,7 +47,7 @@ impl Processor {
         base_token_id: U256,
         quote_token_id: U256,
     ) -> Option<SinglePoolWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetWitness {
@@ -58,13 +58,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn get_new_witness(&self) -> Option<SinglePoolWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetNewWitness {
@@ -73,13 +73,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let new_witness = oneshor_receiver.await.ok()?;
+        let new_witness = oneshot_receiver.await.ok()?;
 
         new_witness
     }
 
     pub async fn push_pool(&self, pool: Pool) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushPool {
@@ -89,13 +89,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_pool(&self, pool: Pool) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdatePool {
@@ -105,13 +105,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn push_leaf(&self, pool: Pool) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
@@ -121,13 +121,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_leaf(&self, pool: Pool) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
@@ -137,7 +137,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

@@ -64,7 +64,7 @@ impl WithdrawalsDb {
                     .collect();
 
                 file.seek(SeekFrom::Start(padding)).await?;
-                file.write(&buf).await?;
+                file.write_all(&buf).await?;
                 file.flush().await?;
 
                 current_zero = poseidon_hash(&mut hasher, &[current_zero, current_zero]);
@@ -93,7 +93,7 @@ impl WithdrawalsDb {
             self.file
                 .seek(SeekFrom::Start(cumulative_padding + current_padding))
                 .await?;
-            self.file.write(&buf_repr).await?;
+            self.file.write_all(&buf_repr).await?;
             self.file.flush().await?;
 
             if i == WITHDRAWALS_TREE_HEIGHT - 1 {

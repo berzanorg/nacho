@@ -18,9 +18,8 @@ members = [
     "rollup",
     "transactions-db",
     "withdrawals-db",
-    "proofs-db",
-    "generator",
     "schnorr-signature",
+    "proofs-db", "prover-method",
 ]
 
 [workspace.dependencies]

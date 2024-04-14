@@ -11,7 +11,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn get_burn_token_amount(&self, burner: Address, token_id: U256) -> Option<Burn> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetBurn {
@@ -22,13 +22,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let burn = oneshor_receiver.await.ok()?;
+        let burn = oneshot_receiver.await.ok()?;
 
         burn
     }
 
     pub async fn get_burns(&self, burner: Address) -> Option<Vec<Burn>> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetBurns {
@@ -38,13 +38,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let burns = oneshor_receiver.await.ok()?;
+        let burns = oneshot_receiver.await.ok()?;
 
         burns
     }
 
     pub async fn get_witness(&self, burner: Address, token_id: U256) -> Option<SingleBurnWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetWitness {
@@ -55,13 +55,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn get_new_witness(&self) -> Option<SingleBurnWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetNewWitness {
@@ -70,13 +70,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn push_burn(&self, burn: Burn) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushBurn {
@@ -86,13 +86,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_burn(&self, burn: Burn) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateBurn {
@@ -102,13 +102,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn push_leaf(&self, burn: Burn) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
@@ -118,13 +118,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_leaf(&self, burn: Burn) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
@@ -134,7 +134,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

@@ -16,7 +16,7 @@ impl Processor {
         base_token_id: U256,
         quote_token_id: U256,
     ) -> Option<Liquidity> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetLiquidity {
@@ -28,13 +28,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let liquidity_points = oneshor_receiver.await.ok()?;
+        let liquidity_points = oneshot_receiver.await.ok()?;
 
         liquidity_points
     }
 
     pub async fn get_liquidities(&self, provider: Address) -> Option<Vec<Liquidity>> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetLiquidities {
@@ -44,7 +44,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let liquidities = oneshor_receiver.await.ok()?;
+        let liquidities = oneshot_receiver.await.ok()?;
 
         liquidities
     }
@@ -55,7 +55,7 @@ impl Processor {
         base_token_id: U256,
         quote_token_id: U256,
     ) -> Option<SingleLiquidityWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetWitness {
@@ -67,13 +67,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn get_new_witness(&self) -> Option<SingleLiquidityWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetNewWitness {
@@ -82,13 +82,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn push_liquidity(&self, liquidity: Liquidity) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLiquidity {
@@ -98,13 +98,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_liquidity(&self, liquidity: Liquidity) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLiquidity {
@@ -114,13 +114,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn push_leaf(&self, liquidity: Liquidity) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
@@ -130,13 +130,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_leaf(&self, liquidity: Liquidity) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
@@ -146,7 +146,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

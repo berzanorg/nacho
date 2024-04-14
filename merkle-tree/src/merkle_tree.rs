@@ -288,7 +288,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
             let parent_value = poseidon_hash(&mut self.hasher, &[left, right]);
 
             current_file.seek(SeekFrom::Start(current_padding)).await?;
-            current_file.write(&U256::from(current_value).0).await?;
+            current_file.write_all(&U256::from(current_value).0).await?;
             current_file.flush().await?;
 
             let next_file = &mut self.files[j + 1];
@@ -296,7 +296,7 @@ impl<const H: usize, const L: usize> MerkleTree<H, L> {
             let next_padding = parent_index * 32;
 
             next_file.seek(SeekFrom::Start(next_padding)).await?;
-            next_file.write(&U256::from(parent_value).0).await?;
+            next_file.write_all(&U256::from(parent_value).0).await?;
             next_file.flush().await?;
 
             current_value = parent_value;

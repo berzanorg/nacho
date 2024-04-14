@@ -10,7 +10,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn push(&self, transaction: Transaction) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::Push {
@@ -20,13 +20,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn pop(&self) -> Option<Transaction> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::Pop {
@@ -35,7 +35,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let maybe_transaction = oneshor_receiver.await.ok()?;
+        let maybe_transaction = oneshot_receiver.await.ok()?;
 
         maybe_transaction
     }

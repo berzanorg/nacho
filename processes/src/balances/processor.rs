@@ -11,7 +11,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn get_balance(&self, address: Address, token_id: U256) -> Option<Balance> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetBalance {
@@ -22,13 +22,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let balance = oneshor_receiver.await.ok()?;
+        let balance = oneshot_receiver.await.ok()?;
 
         balance
     }
 
     pub async fn get_balances(&self, address: Address) -> Option<Vec<Balance>> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetBalances {
@@ -38,7 +38,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let balances = oneshor_receiver.await.ok()?;
+        let balances = oneshot_receiver.await.ok()?;
 
         balances
     }
@@ -48,7 +48,7 @@ impl Processor {
         address: Address,
         token_id: U256,
     ) -> Option<SingleBalanceWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetSingleWitness {
@@ -59,7 +59,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
@@ -70,7 +70,7 @@ impl Processor {
         base_token_id: U256,
         quote_token_id: U256,
     ) -> Option<DoubleBalanceWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetDoubleWitness {
@@ -82,13 +82,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let double_witness = oneshor_receiver.await.ok()?;
+        let double_witness = oneshot_receiver.await.ok()?;
 
         double_witness
     }
 
     pub async fn get_new_witness(&self) -> Option<SingleBalanceWitness> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetNewWitness {
@@ -97,13 +97,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let single_witness = oneshor_receiver.await.ok()?;
+        let single_witness = oneshot_receiver.await.ok()?;
 
         single_witness
     }
 
     pub async fn push_balance(&self, balance: Balance) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushBalance {
@@ -113,13 +113,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_balance(&self, balance: Balance) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateBalance {
@@ -129,13 +129,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn push_leaf(&self, balance: Balance) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::PushLeaf {
@@ -145,13 +145,13 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }
 
     pub async fn update_leaf(&self, balance: Balance) -> Option<()> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::UpdateLeaf {
@@ -161,7 +161,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

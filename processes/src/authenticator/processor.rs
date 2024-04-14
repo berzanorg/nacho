@@ -10,7 +10,7 @@ pub struct Processor {
 
 impl Processor {
     pub async fn check_signature(&self, tx: Transaction) -> Option<bool> {
-        let (oneshot_sender, oneshor_receiver) = oneshot::channel();
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::CheckSignature {
@@ -20,7 +20,7 @@ impl Processor {
             .await
             .ok()?;
 
-        let result = oneshor_receiver.await.ok()?;
+        let result = oneshot_receiver.await.ok()?;
 
         result
     }

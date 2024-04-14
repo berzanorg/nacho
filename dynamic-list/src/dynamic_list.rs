@@ -45,7 +45,7 @@ impl<const C: usize> DynamicList<C> {
         let index = padding / C as u64;
 
         self.file.seek(SeekFrom::Start(padding)).await?;
-        self.file.write(&buf).await?;
+        self.file.write_all(&buf).await?;
         self.file.flush().await?;
 
         Ok(index)
@@ -61,7 +61,7 @@ impl<const C: usize> DynamicList<C> {
         }
 
         self.file.seek(SeekFrom::Start(padding)).await?;
-        self.file.write(&buf).await?;
+        self.file.write_all(&buf).await?;
         self.file.flush().await?;
 
         Ok(())
