@@ -14,19 +14,19 @@ const main = async () => {
         const input = parseInput(chunk)
 
         const isValid =
-            input.kind === "mistaken"
-                ? false
-                : input.kind === "burnTokens"
+            input.kind === "BurnTokens"
                 ? isBurnTokensSignatureValid(input)
-                : input.kind === "createPool"
+                : input.kind === "CreatePool"
                 ? isCreatePoolSignatureValid(input)
-                : input.kind === "provideLiquidity"
+                : input.kind === "ProvideLiquidity"
                 ? isProvideLiquditySignatureValid(input)
-                : input.kind === "removeLiquidity"
+                : input.kind === "RemoveLiquidity"
                 ? isRemoveLiquditySignatureValid(input)
-                : input.kind === "buyTokens"
+                : input.kind === "BuyTokens"
                 ? isBuyTokensSignatureValid(input)
-                : isSellTokensSignatureValid(input)
+                : input.kind === "SellTokens"
+                ? isSellTokensSignatureValid(input)
+                : false
 
         const buffer = new ArrayBuffer(1)
         const array = new Uint8Array(buffer)
