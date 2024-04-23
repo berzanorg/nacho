@@ -2,9 +2,9 @@ use crate::{
     LiquiditiesDbError, SingleLiquidityWitness, LIQUIDITIES_TREE_HEIGHT,
     LIQUIDITIES_TREE_SIBLING_COUNT, LIQUIDITY_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, ByteConversion, FieldConversion, Liquidity, U256};
+use nacho_data_structures::{Address, ByteConversion, Field, FieldConversion, Liquidity, U256};
 use nacho_dynamic_list::DynamicList;
-use nacho_merkle_tree::MerkleTree;
+use nacho_dynamic_merkle_tree::DynamicMerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use std::{collections::HashMap, path::Path};
 
@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, LiquiditiesDbError>;
 
 pub struct LiquiditiesDb {
     list: DynamicList<LIQUIDITY_SIZE_IN_BYTES>,
-    tree: MerkleTree<LIQUIDITIES_TREE_HEIGHT, LIQUIDITIES_TREE_SIBLING_COUNT>,
+    tree: DynamicMerkleTree<LIQUIDITIES_TREE_HEIGHT, LIQUIDITIES_TREE_SIBLING_COUNT>,
     indexes: HashMap<Address, Vec<(u64, U256, U256)>>,
     hasher: PoseidonHasher,
 }
@@ -22,7 +22,7 @@ impl LiquiditiesDb {
         let path = path.as_ref();
 
         let mut list = DynamicList::new(path.join("dynamic_list")).await?;
-        let tree = MerkleTree::new(path.join("merkle_tree")).await?;
+        let tree = DynamicMerkleTree::new(path.join("dynamic_merkle_tree")).await?;
         let mut indexes = HashMap::<Address, Vec<(u64, U256, U256)>>::new();
         let hasher = create_poseidon_hasher();
 
@@ -107,7 +107,7 @@ impl LiquiditiesDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.push(hash).await?;
+        self.tree.push_leaf(hash).await?;
 
         Ok(())
     }
@@ -180,7 +180,7 @@ impl LiquiditiesDb {
     }
 
     pub async fn get_new_single_witness(&mut self) -> Result<SingleLiquidityWitness> {
-        let single_witness = self.tree.get_new_single_witness().await?;
+        let single_witness = self.tree.get_unused_single_witness().await?;
 
         Ok(single_witness)
     }
@@ -224,9 +224,15 @@ impl LiquiditiesDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.set(index, hash).await?;
+        self.tree.set_leaf(index, hash).await?;
 
         Ok(())
+    }
+
+    pub async fn get_root(&mut self) -> Result<Field> {
+        let root = self.tree.get_root().await?;
+
+        Ok(root)
     }
 }
 
@@ -380,6 +386,68 @@ mod tests {
         let err = liquidities_db.update(&liquidity_4).await.unwrap_err();
 
         assert!(matches!(err, LiquiditiesDbError::LiquidityDoesntExist));
+
+        remove_dir_all(dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn calculates_correct_roots() {
+        let dir = "/tmp/nacho/tests/liquidities_db/calculates_correct_roots";
+
+        let mut liquidities_db = LiquiditiesDb::new(dir).await.unwrap();
+
+        let root = liquidities_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "1945127946440409282447574121167141731006841597528804291507158560727071219394"
+                .parse()
+                .unwrap()
+        );
+
+        let balance = Liquidity {
+            provider: Address::from_bytes(
+                "B62qr1H2QvZVSz7jBEyr91LXFvFTLfHB1W2S9TcMrBiZPHnPQ7yGohY"
+                    .as_bytes()
+                    .try_into()
+                    .unwrap(),
+            ),
+            base_token_id: U256([0; 32]),
+            quote_token_id: U256([1; 32]),
+            points: U256([44; 32]),
+        };
+
+        liquidities_db.push(&balance).await.unwrap();
+        liquidities_db.push_leaf(&balance).await.unwrap();
+
+        let root = liquidities_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "13548228949217198807310792093561457131520929862298447192231975208087040415890"
+                .parse()
+                .unwrap()
+        );
+
+        let updated_liquidity = Liquidity {
+            points: U256([35; 32]),
+            ..balance
+        };
+
+        liquidities_db.update(&updated_liquidity).await.unwrap();
+        liquidities_db
+            .update_leaf(&updated_liquidity)
+            .await
+            .unwrap();
+
+        let root = liquidities_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "20321691250697101313976472915314419977063523481388894706218314657377909871012"
+                .parse()
+                .unwrap()
+        );
 
         remove_dir_all(dir).await.unwrap();
     }

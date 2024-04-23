@@ -1,14 +1,17 @@
 [package]
-name = "nacho-pools-db"
+name = "nacho-dynamic-merkle-tree"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Local dependencies.
 nacho-data-structures.workspace = true
-nacho-dynamic-merkle-tree.workspace = true
-nacho-dynamic-list.workspace = true
+nacho-macros.workspace = true
 nacho-poseidon-hash.workspace = true
-tokio.workspace = true
+
+# Crates.io dependencies.
+ark-ff.workspace = true
 thiserror.workspace = true
+tokio.workspace = true

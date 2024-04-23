@@ -2,9 +2,9 @@ use crate::{
     PoolsDbError, SinglePoolWitness, POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT,
     POOL_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{ByteConversion, FieldConversion, Pool, U256};
+use nacho_data_structures::{ByteConversion, Field, FieldConversion, Pool, U256};
 use nacho_dynamic_list::DynamicList;
-use nacho_merkle_tree::MerkleTree;
+use nacho_dynamic_merkle_tree::DynamicMerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use std::{collections::HashMap, path::Path};
 
@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, PoolsDbError>;
 
 pub struct PoolsDb {
     list: DynamicList<POOL_SIZE_IN_BYTES>,
-    tree: MerkleTree<POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT>,
+    tree: DynamicMerkleTree<POOLS_TREE_HEIGHT, POOLS_TREE_SIBLING_COUNT>,
     indexes: HashMap<(U256, U256), u64>,
     hasher: PoseidonHasher,
 }
@@ -22,7 +22,7 @@ impl PoolsDb {
         let path = path.as_ref();
 
         let mut list = DynamicList::new(path.join("dynamic_list")).await?;
-        let tree = MerkleTree::new(path.join("merkle_tree")).await?;
+        let tree = DynamicMerkleTree::new(path.join("dynamic_merkle_tree")).await?;
         let mut indexes = HashMap::<(U256, U256), u64>::new();
         let hasher = create_poseidon_hasher();
 
@@ -72,7 +72,7 @@ impl PoolsDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.push(hash).await?;
+        self.tree.push_leaf(hash).await?;
 
         Ok(())
     }
@@ -123,7 +123,7 @@ impl PoolsDb {
     }
 
     pub async fn get_new_single_witness(&mut self) -> Result<SinglePoolWitness> {
-        let single_witness = self.tree.get_new_single_witness().await?;
+        let single_witness = self.tree.get_unused_single_witness().await?;
 
         Ok(single_witness)
     }
@@ -151,9 +151,15 @@ impl PoolsDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.set(index, hash).await?;
+        self.tree.set_leaf(index, hash).await?;
 
         Ok(())
+    }
+
+    pub async fn get_root(&mut self) -> Result<Field> {
+        let root = self.tree.get_root().await?;
+
+        Ok(root)
     }
 }
 
@@ -263,6 +269,62 @@ mod tests {
         let err = pools_db.update(&pool_4).await.unwrap_err();
 
         assert!(matches!(err, PoolsDbError::PoolDoesntExist));
+
+        remove_dir_all(dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn calculates_correct_roots() {
+        let dir = "/tmp/nacho/tests/pools_db/calculates_correct_roots";
+
+        let mut pools_db = PoolsDb::new(dir).await.unwrap();
+
+        let root = pools_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "19489292394622142448727235211662807700126173086870669586237893953121074753278"
+                .parse()
+                .unwrap()
+        );
+
+        let balance = Pool {
+            base_token_id: U256([3; 32]),
+            quote_token_id: U256([0; 32]),
+            base_token_amount: 3000,
+            quote_token_amount: 6000,
+            total_liqudity_points: U256([33; 32]),
+        };
+
+        pools_db.push(&balance).await.unwrap();
+        pools_db.push_leaf(&balance).await.unwrap();
+
+        let root = pools_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "884324786753859877182898688446331622058578773535708871298755069692164367300"
+                .parse()
+                .unwrap()
+        );
+
+        let updated_liquidity = Pool {
+            base_token_amount: 4500,
+            quote_token_amount: 9000,
+            ..balance
+        };
+
+        pools_db.update(&updated_liquidity).await.unwrap();
+        pools_db.update_leaf(&updated_liquidity).await.unwrap();
+
+        let root = pools_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "3217203223338749031628492323995110323274418569951189810771124308006422402590"
+                .parse()
+                .unwrap()
+        );
 
         remove_dir_all(dir).await.unwrap();
     }

@@ -2,9 +2,9 @@ use crate::{
     BurnsDbError, SingleBurnWitness, BURNS_TREE_HEIGHT, BURNS_TREE_SIBLING_COUNT,
     BURN_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, Burn, ByteConversion, FieldConversion, U256};
+use nacho_data_structures::{Address, Burn, ByteConversion, Field, FieldConversion, U256};
 use nacho_dynamic_list::DynamicList;
-use nacho_merkle_tree::MerkleTree;
+use nacho_dynamic_merkle_tree::DynamicMerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use std::{collections::HashMap, path::Path};
 
@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, BurnsDbError>;
 
 pub struct BurnsDb {
     list: DynamicList<BURN_SIZE_IN_BYTES>,
-    tree: MerkleTree<BURNS_TREE_HEIGHT, BURNS_TREE_SIBLING_COUNT>,
+    tree: DynamicMerkleTree<BURNS_TREE_HEIGHT, BURNS_TREE_SIBLING_COUNT>,
     indexes: HashMap<Address, Vec<(u64, U256)>>,
     hasher: PoseidonHasher,
 }
@@ -22,7 +22,7 @@ impl BurnsDb {
         let path = path.as_ref();
 
         let mut list = DynamicList::new(path.join("dynamic_list")).await?;
-        let tree = MerkleTree::new(path.join("merkle_tree")).await?;
+        let tree = DynamicMerkleTree::new(path.join("dynamic_merkle_tree")).await?;
         let mut indexes = HashMap::<Address, Vec<(u64, U256)>>::new();
         let hasher = create_poseidon_hasher();
 
@@ -91,7 +91,7 @@ impl BurnsDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.push(hash).await?;
+        self.tree.push_leaf(hash).await?;
 
         Ok(())
     }
@@ -154,7 +154,7 @@ impl BurnsDb {
     }
 
     pub async fn get_new_single_witness(&mut self) -> Result<SingleBurnWitness> {
-        let single_witness = self.tree.get_new_single_witness().await?;
+        let single_witness = self.tree.get_unused_single_witness().await?;
 
         Ok(single_witness)
     }
@@ -192,9 +192,15 @@ impl BurnsDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.set(index, hash).await?;
+        self.tree.set_leaf(index, hash).await?;
 
         Ok(())
+    }
+
+    pub async fn get_root(&mut self) -> Result<Field> {
+        let root = self.tree.get_root().await?;
+
+        Ok(root)
     }
 }
 
@@ -321,6 +327,64 @@ mod tests {
         let err = burns_db.update(&burn_4).await.unwrap_err();
 
         assert!(matches!(err, BurnsDbError::BurnDoesntExist));
+
+        remove_dir_all(dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn calculates_correct_roots() {
+        let dir = "/tmp/nacho/tests/burns_db/calculates_correct_roots";
+
+        let mut burns_db = BurnsDb::new(dir).await.unwrap();
+
+        let root = burns_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "23937279336243536139305946754911463754843381541673857352836322740025067834219"
+                .parse()
+                .unwrap()
+        );
+
+        let balance = Burn {
+            burner: Address::from_bytes(
+                "B62qiiGxLsqNemiKFKiD19JdTHmqbE5YKAkMuXGachSdYkTi8xR2dfY"
+                    .as_bytes()
+                    .try_into()
+                    .unwrap(),
+            ),
+            token_id: U256([0; 32]),
+            token_amount: 250,
+        };
+
+        burns_db.push(&balance).await.unwrap();
+        burns_db.push_leaf(&balance).await.unwrap();
+
+        let root = burns_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "28479639587013259192146351247697949301975115084093104274892896440875098942098"
+                .parse()
+                .unwrap()
+        );
+
+        let updated_burn = Burn {
+            token_amount: 300,
+            ..balance
+        };
+
+        burns_db.update(&updated_burn).await.unwrap();
+        burns_db.update_leaf(&updated_burn).await.unwrap();
+
+        let root = burns_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "2102503854929075198633367373295740762216948253746750778360128509599410644026"
+                .parse()
+                .unwrap()
+        );
 
         remove_dir_all(dir).await.unwrap();
     }

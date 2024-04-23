@@ -1,4 +1,5 @@
-use crate::BALANCES_TREE_SIBLING_COUNT;
-use nacho_merkle_tree::DoubleWitness;
+use nacho_data_structures::DoubleMerkleWitness;
 
-pub type DoubleBalanceWitness = DoubleWitness<BALANCES_TREE_SIBLING_COUNT>;
+use crate::BALANCES_TREE_SIBLING_COUNT;
+
+pub type DoubleBalanceWitness = DoubleMerkleWitness<BALANCES_TREE_SIBLING_COUNT>;

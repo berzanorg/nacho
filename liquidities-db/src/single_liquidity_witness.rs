@@ -1,4 +1,4 @@
 use crate::LIQUIDITIES_TREE_SIBLING_COUNT;
-use nacho_merkle_tree::SingleWitness;
+use nacho_data_structures::SingleMerkleWitness;
 
-pub type SingleLiquidityWitness = SingleWitness<LIQUIDITIES_TREE_SIBLING_COUNT>;
+pub type SingleLiquidityWitness = SingleMerkleWitness<LIQUIDITIES_TREE_SIBLING_COUNT>;

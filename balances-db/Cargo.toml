@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 nacho-data-structures.workspace = true
-nacho-merkle-tree.workspace = true
+nacho-dynamic-merkle-tree.workspace = true
 nacho-dynamic-list.workspace = true
 nacho-poseidon-hash.workspace = true
 tokio.workspace = true

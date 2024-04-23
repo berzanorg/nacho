@@ -2,9 +2,9 @@ use crate::{
     BalancesDbError, DoubleBalanceWitness, SingleBalanceWitness, BALANCES_TREE_HEIGHT,
     BALANCES_TREE_SIBLING_COUNT, BALANCE_SIZE_IN_BYTES,
 };
-use nacho_data_structures::{Address, Balance, ByteConversion, FieldConversion, U256};
+use nacho_data_structures::{Address, Balance, ByteConversion, Field, FieldConversion, U256};
 use nacho_dynamic_list::DynamicList;
-use nacho_merkle_tree::MerkleTree;
+use nacho_dynamic_merkle_tree::DynamicMerkleTree;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 use std::{collections::HashMap, path::Path};
 
@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, BalancesDbError>;
 
 pub struct BalancesDb {
     list: DynamicList<BALANCE_SIZE_IN_BYTES>,
-    tree: MerkleTree<BALANCES_TREE_HEIGHT, BALANCES_TREE_SIBLING_COUNT>,
+    tree: DynamicMerkleTree<BALANCES_TREE_HEIGHT, BALANCES_TREE_SIBLING_COUNT>,
     indexes: HashMap<Address, Vec<(u64, U256)>>,
     hasher: PoseidonHasher,
 }
@@ -22,7 +22,7 @@ impl BalancesDb {
         let path = path.as_ref();
 
         let mut list = DynamicList::new(path.join("dynamic_list")).await?;
-        let tree = MerkleTree::new(path.join("merkle_tree")).await?;
+        let tree = DynamicMerkleTree::new(path.join("dynamic_merkle_tree")).await?;
         let mut indexes = HashMap::<Address, Vec<(u64, U256)>>::new();
         let hasher = create_poseidon_hasher();
 
@@ -93,7 +93,7 @@ impl BalancesDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.push(hash).await?;
+        self.tree.push_leaf(hash).await?;
 
         Ok(())
     }
@@ -188,7 +188,7 @@ impl BalancesDb {
     }
 
     pub async fn get_new_single_witness(&mut self) -> Result<SingleBalanceWitness> {
-        let single_witness = self.tree.get_new_single_witness().await?;
+        let single_witness = self.tree.get_unused_single_witness().await?;
 
         Ok(single_witness)
     }
@@ -226,9 +226,15 @@ impl BalancesDb {
 
         let hash = poseidon_hash(&mut self.hasher, &fields);
 
-        self.tree.set(index, hash).await?;
+        self.tree.set_leaf(index, hash).await?;
 
         Ok(())
+    }
+
+    pub async fn get_root(&mut self) -> Result<Field> {
+        let root = self.tree.get_root().await?;
+
+        Ok(root)
     }
 }
 
@@ -355,6 +361,64 @@ mod tests {
         let err = balances_db.update(&balance_4).await.unwrap_err();
 
         assert!(matches!(err, BalancesDbError::BalanceDoesntExist));
+
+        remove_dir_all(dir).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn calculates_correct_roots() {
+        let dir = "/tmp/nacho/tests/balances_db/calculates_correct_roots";
+
+        let mut balances_db = BalancesDb::new(dir).await.unwrap();
+
+        let root = balances_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "27841935691558593279858640177961574373148122335514448527568736064618172266482"
+                .parse()
+                .unwrap()
+        );
+
+        let balance = Balance {
+            owner: Address::from_bytes(
+                "B62qr1H2QvZVSz7jBEyr91LXFvFTLfHB1W2S9TcMrBiZPHnPQ7yGohY"
+                    .as_bytes()
+                    .try_into()
+                    .unwrap(),
+            ),
+            token_id: U256([0; 32]),
+            token_amount: 150,
+        };
+
+        balances_db.push(&balance).await.unwrap();
+        balances_db.push_leaf(&balance).await.unwrap();
+
+        let root = balances_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "27489112645307945006783215842707596600256272842068372142876299295747751229490"
+                .parse()
+                .unwrap()
+        );
+
+        let updated_balance = Balance {
+            token_amount: 90,
+            ..balance
+        };
+
+        balances_db.update(&updated_balance).await.unwrap();
+        balances_db.update_leaf(&updated_balance).await.unwrap();
+
+        let root = balances_db.get_root().await.unwrap();
+
+        assert_eq!(
+            root,
+            "3847128151157624127835942057282164084040902825349057573274273979399571932032"
+                .parse()
+                .unwrap()
+        );
 
         remove_dir_all(dir).await.unwrap();
     }

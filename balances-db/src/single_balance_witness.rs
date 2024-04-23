@@ -1,4 +1,4 @@
 use crate::BALANCES_TREE_SIBLING_COUNT;
-use nacho_merkle_tree::SingleWitness;
+use nacho_data_structures::SingleMerkleWitness;
 
-pub type SingleBalanceWitness = SingleWitness<BALANCES_TREE_SIBLING_COUNT>;
+pub type SingleBalanceWitness = SingleMerkleWitness<BALANCES_TREE_SIBLING_COUNT>;
