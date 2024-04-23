@@ -1,5 +1,15 @@
 use crate::{ByteConversion, Field, FieldConversion, U256};
 
+/// The data structure that represents a specific AMM pool.
+///
+/// It is stored inside Pools DB.
+///
+/// - The `base_token_id` property represents the base token's identifier of the AMM pool.
+/// - The `quote_token_id` property represents the quote token's identifier of the AMM pool.
+/// - The `base_token_amount` property represents the total base token amount inside the AMM pool.
+/// - The `quote_token_amount` property represents the total quote token amount inside the AMM pool.
+/// - The `total_liqudity_points` property represents the total liquidity points created for the AMM pool.
+///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Pool {
     pub base_token_id: U256,

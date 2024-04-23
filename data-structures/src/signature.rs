@@ -3,7 +3,9 @@ use crate::{
 };
 use mina_signer::Signature as MinaSignature;
 
-/// A signature that is created by signing a message.
+/// A wrapper around `mina_signer::Signature`.
+///
+/// It represents a Schnorr signature created by using a message and a private key.
 #[derive(Clone, Debug)]
 pub struct Signature {
     pub inner: MinaSignature,
@@ -28,6 +30,7 @@ impl ByteConversion<64> for Signature {
 }
 
 impl Signature {
+    /// Creates a new `Signature` using the given base and scalar fields.
     pub fn new(r: Field, s: Scalar) -> Signature {
         Signature {
             inner: MinaSignature::new(r, s),

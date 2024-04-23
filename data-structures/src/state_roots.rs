@@ -1,11 +1,18 @@
 use crate::{ByteConversion, U256};
 
+/// The data structure that represents the state roots stored in the layer 1 network.
+///
+/// - The `balances` property represents the Merkle root of Balances DB.
+/// - The `liquidities` property represents the Merkle root of Liquidities DB.
+/// - The `pools` property represents the Merkle root of Pools DB.
+/// - The `burns` property represents the Merkle root of Burns DB.
+///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct StateRoots {
-    balances: U256,
-    liquidities: U256,
-    pools: U256,
-    burns: U256,
+    pub balances: U256,
+    pub liquidities: U256,
+    pub pools: U256,
+    pub burns: U256,
 }
 
 impl ByteConversion<128> for StateRoots {

@@ -1,6 +1,35 @@
 /// The trait that is used to convert statically sized data structures back and forth into bytes.
 ///
 /// The constant generic parameter `L` represents the length of the byte representation of the data structures.
+///
+/// # Examples:
+///
+/// Implement `ByteConversion`:
+///
+/// ```rs
+/// impl ByteConversion<8> for u64 {
+///     fn to_bytes(&self) -> [u8; 8] {
+///         self.to_le_bytes()
+///     }
+///
+///     fn from_bytes(bytes: &[u8; 8]) -> Self {
+///         u64::from_le_bytes(bytes.to_owned())
+///     }
+/// }
+/// ```
+///
+/// Parse from bytes:
+///
+/// ```rs
+/// let data = u64::from_bytes(&bytes);
+/// ```
+///
+/// Convert into bytes:
+///
+/// ```rs
+/// let bytes = data.to_bytes();
+/// ```
+///
 pub trait ByteConversion<const L: usize> {
     /// Converts the data structure to bytes.
     ///

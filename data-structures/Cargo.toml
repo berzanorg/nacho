@@ -14,3 +14,7 @@ primitive-types.workspace = true
 # GitHub dependencies.
 mina-curves.workspace = true
 mina-signer.workspace = true
+
+# Local dependencies.
+nacho-poseidon-hash.workspace = true
+nacho-macros.workspace = true

@@ -1,5 +1,14 @@
 use crate::{Address, ByteConversion, Field, FieldConversion, U256};
 
+/// The data structure that represents a user's liquidity inside a single AMM pool.
+///
+/// It is stored inside Liquidities DB.
+///
+/// - The `provider` property represents the related user's address.
+/// - The `base_token_id` property represents the base token's identifier of the related AMM pool.
+/// - The `quote_token_id` property represents the quote token's identifier of the related AMM pool.
+/// - The `points` property represents the total liquidity points of the user inside the related AMM pool.
+///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Liquidity {
     pub provider: Address,

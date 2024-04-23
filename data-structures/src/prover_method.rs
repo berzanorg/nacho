@@ -1,24 +1,19 @@
-use nacho_balances_db::{DoubleBalanceWitness, SingleBalanceWitness};
-use nacho_burns_db::SingleBurnWitness;
-use nacho_data_structures::{Address, ByteConversion, Signature, StateRoots, U256};
-use nacho_liquidities_db::SingleLiquidityWitness;
-use nacho_pools_db::SinglePoolWitness;
+use crate::{
+    Address, ByteConversion, DoubleMerkleWitness, Signature, SingleMerkleWitness, StateRoots, U256,
+};
 
 /// The enum that represents prover methods.
+///
+/// Each variant is used as public and private inputs to generate zero knowledge proofs.
 #[derive(Clone, Debug)]
 pub enum ProverMethod {
     CreateGenesis {
         state_roots: StateRoots,
     },
-    MergeProofs {
-        state_roots: StateRoots,
-        first_proof_index: u64,
-        second_proof_index: u64,
-    },
     DepositTokens {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_balance_witness: SingleBalanceWitness,
+        single_balance_witness: SingleMerkleWitness<22>,
         current_deposits_merkle_list_hash: U256,
         expected_deposits_merkle_list_hash: U256,
         user_address: Address,
@@ -30,8 +25,8 @@ pub enum ProverMethod {
     BurnTokens {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_balance_witness: SingleBalanceWitness,
-        single_burn_witness: SingleBurnWitness,
+        single_balance_witness: SingleMerkleWitness<22>,
+        single_burn_witness: SingleMerkleWitness<19>,
         user_address: Address,
         token_id: U256,
         user_burn_token_amount: u64,
@@ -42,9 +37,9 @@ pub enum ProverMethod {
     CreatePool {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_pool_witness: SinglePoolWitness,
-        single_liquidity_witness: SingleLiquidityWitness,
-        double_balance_witness: DoubleBalanceWitness,
+        single_pool_witness: SingleMerkleWitness<20>,
+        single_liquidity_witness: SingleMerkleWitness<21>,
+        double_balance_witness: DoubleMerkleWitness<22>,
         base_token_id: U256,
         quote_token_id: U256,
         user_address: Address,
@@ -57,9 +52,9 @@ pub enum ProverMethod {
     ProvideLiquidity {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_pool_witness: SinglePoolWitness,
-        single_liquidity_witness: SingleLiquidityWitness,
-        double_balance_witness: DoubleBalanceWitness,
+        single_pool_witness: SingleMerkleWitness<20>,
+        single_liquidity_witness: SingleMerkleWitness<21>,
+        double_balance_witness: DoubleMerkleWitness<22>,
         base_token_id: U256,
         quote_token_id: U256,
         user_address: Address,
@@ -77,9 +72,9 @@ pub enum ProverMethod {
     RemoveLiquidity {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_pool_witness: SinglePoolWitness,
-        single_liquidity_witness: SingleLiquidityWitness,
-        double_balance_witness: DoubleBalanceWitness,
+        single_pool_witness: SingleMerkleWitness<20>,
+        single_liquidity_witness: SingleMerkleWitness<21>,
+        double_balance_witness: DoubleMerkleWitness<22>,
         base_token_id: U256,
         quote_token_id: U256,
         user_address: Address,
@@ -97,8 +92,8 @@ pub enum ProverMethod {
     BuyTokens {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_pool_witness: SinglePoolWitness,
-        double_balance_witness: DoubleBalanceWitness,
+        single_pool_witness: SingleMerkleWitness<20>,
+        double_balance_witness: DoubleMerkleWitness<22>,
         user_address: Address,
         base_token_id: U256,
         quote_token_id: U256,
@@ -114,8 +109,8 @@ pub enum ProverMethod {
     SellTokens {
         state_roots: StateRoots,
         earlier_proof_index: u64,
-        single_pool_witness: SinglePoolWitness,
-        double_balance_witness: DoubleBalanceWitness,
+        single_pool_witness: SingleMerkleWitness<20>,
+        double_balance_witness: DoubleMerkleWitness<22>,
         user_address: Address,
         base_token_id: U256,
         quote_token_id: U256,
@@ -139,16 +134,6 @@ impl ByteConversion<3291> for ProverMethod {
                 buf[0] = 0;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
             }
-            ProverMethod::MergeProofs {
-                state_roots,
-                first_proof_index,
-                second_proof_index,
-            } => {
-                buf[0] = 1;
-                buf[1..129].copy_from_slice(&state_roots.to_bytes());
-                buf[129..137].copy_from_slice(&first_proof_index.to_bytes());
-                buf[137..145].copy_from_slice(&second_proof_index.to_bytes());
-            }
             ProverMethod::DepositTokens {
                 state_roots,
                 earlier_proof_index,
@@ -161,7 +146,7 @@ impl ByteConversion<3291> for ProverMethod {
                 user_balance_token_amount,
                 is_users_first_deposit,
             } => {
-                buf[0] = 2;
+                buf[0] = 1;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..863].copy_from_slice(&single_balance_witness.to_bytes());
@@ -185,7 +170,7 @@ impl ByteConversion<3291> for ProverMethod {
                 amount_to_burn,
                 user_signature,
             } => {
-                buf[0] = 3;
+                buf[0] = 2;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..863].copy_from_slice(&single_balance_witness.to_bytes());
@@ -212,7 +197,7 @@ impl ByteConversion<3291> for ProverMethod {
                 user_balance_quote_token_amount,
                 user_signature,
             } => {
-                buf[0] = 4;
+                buf[0] = 3;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..797].copy_from_slice(&single_pool_witness.to_bytes());
@@ -247,7 +232,7 @@ impl ByteConversion<3291> for ProverMethod {
                 is_first_providing,
                 user_signature,
             } => {
-                buf[0] = 5;
+                buf[0] = 4;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..797].copy_from_slice(&single_pool_witness.to_bytes());
@@ -288,7 +273,7 @@ impl ByteConversion<3291> for ProverMethod {
                 user_quote_token_amount_limit_to_remove,
                 user_signature,
             } => {
-                buf[0] = 6;
+                buf[0] = 5;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..797].copy_from_slice(&single_pool_witness.to_bytes());
@@ -326,7 +311,7 @@ impl ByteConversion<3291> for ProverMethod {
                 user_quote_token_amount_limit_to_swap,
                 user_signature,
             } => {
-                buf[0] = 7;
+                buf[0] = 6;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..797].copy_from_slice(&single_pool_witness.to_bytes());
@@ -360,7 +345,7 @@ impl ByteConversion<3291> for ProverMethod {
                 user_quote_token_amount_to_swap,
                 user_signature,
             } => {
-                buf[0] = 8;
+                buf[0] = 7;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
                 buf[129..137].copy_from_slice(&earlier_proof_index.to_bytes());
                 buf[137..797].copy_from_slice(&single_pool_witness.to_bytes());

@@ -1,5 +1,13 @@
 use crate::{Address, ByteConversion, Field, FieldConversion, U256};
 
+/// The data structure that represents a user's burnings of a single token inside the layer 2 network.
+///
+/// It is stored inside Burns DB.
+///
+/// - The `burner` property represents the related user's address.
+/// - The `token_id` property represents the related token's identifier.
+/// - The `token_amount` property represents the total burned token amount of the user.
+///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Burn {
     pub burner: Address,

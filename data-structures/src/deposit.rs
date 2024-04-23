@@ -1,10 +1,18 @@
 use crate::{Address, ByteConversion, Field, FieldConversion, U256};
 
+/// The data structure that represents a user's deposits of a single token from the layer 1 network.
+///
+/// It is stored inside Deposits DB.
+///
+/// - The `depositor` property represents the related user's address.
+/// - The `token_id` property represents the related token's identifier.
+/// - The `token_amount` property represents the total deposited token amount of the user.
+///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Deposit {
-    depositor: Address,
-    token_id: U256,
-    token_amount: u64,
+    pub depositor: Address,
+    pub token_id: U256,
+    pub token_amount: u64,
 }
 
 impl FieldConversion<4> for Deposit {

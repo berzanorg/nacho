@@ -1,10 +1,9 @@
+use crate::{ByteConversion, Field, FieldConversion};
+use ark_ff::{BigInteger256, PrimeField};
 use primitive_types::U256 as PU256;
 use std::ops::{Add, Div, Mul, Sub};
 
-use ark_ff::{BigInteger256, PrimeField};
-
-use crate::{ByteConversion, Field, FieldConversion};
-
+/// The struct that represents a 256 bit integer.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct U256(pub [u8; 32]);
 
