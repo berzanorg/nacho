@@ -1,9 +1,6 @@
-import { SIGNATURE_REGEXP } from "../constants.js"
+import { uint256EncodeInto } from "./uint256.js"
 
-export const signatureEncodeInto = (signature: string, uint8Array: Uint8Array) => {
-    if (!SIGNATURE_REGEXP.test(signature)) {
-        throw Error("Cannot encode invalid signature.")
-    }
-
-    new TextEncoder().encodeInto(signature, uint8Array)
+export const signatureEncodeInto = (signature: [bigint, bigint], uint8Array: Uint8Array) => {
+    uint256EncodeInto(signature[0], uint8Array.subarray(0, 32))
+    uint256EncodeInto(signature[0], uint8Array.subarray(32, 64))
 }

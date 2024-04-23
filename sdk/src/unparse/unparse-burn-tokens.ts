@@ -6,7 +6,7 @@ import { uint64EncodeInto } from "../utils/uint64.js"
 
 export const unparseBurnTokens = (
     address: string,
-    signature: string,
+    signature: [bigint, bigint],
     tokenId: bigint,
     amount: bigint,
 ): ArrayBuffer => {
@@ -16,9 +16,9 @@ export const unparseBurnTokens = (
     array[0] = 8
 
     addressEncodeInto(address, array.subarray(1, 56))
-    signatureEncodeInto(signature, array.subarray(56, 152))
-    uint256EncodeInto(tokenId, array.subarray(152, 184))
-    uint64EncodeInto(amount, array.subarray(184, 192))
+    signatureEncodeInto(signature, array.subarray(56, 120))
+    uint256EncodeInto(tokenId, array.subarray(120, 152))
+    uint64EncodeInto(amount, array.subarray(152, 160))
 
     return buffer
 }

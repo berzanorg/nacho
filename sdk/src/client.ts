@@ -48,14 +48,14 @@ interface ClientReadMethods {
 interface ClientWriteMethods {
     burnTokens: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         tokenId: bigint,
         amount: bigint,
     ) => Promise<void>
 
     createPool: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -64,7 +64,7 @@ interface ClientWriteMethods {
 
     provideLiquidity: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -73,7 +73,7 @@ interface ClientWriteMethods {
 
     removeLiquidity: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmountLimit: bigint,
@@ -83,7 +83,7 @@ interface ClientWriteMethods {
 
     buyTokens: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -92,7 +92,7 @@ interface ClientWriteMethods {
 
     sellTokens: (
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmountLimit: bigint,
@@ -179,7 +179,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async burnTokens(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         tokenId: bigint,
         amount: bigint,
     ): Promise<void> {
@@ -191,7 +191,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async createPool(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -212,7 +212,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async provideLiquidity(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -233,7 +233,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async removeLiquidity(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmountLimit: bigint,
@@ -256,7 +256,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async buyTokens(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmount: bigint,
@@ -277,7 +277,7 @@ export class Client implements ClientReadMethods, ClientWriteMethods {
 
     public async sellTokens(
         address: string,
-        signature: string,
+        signature: [bigint, bigint],
         baseTokenId: bigint,
         quoteTokenId: bigint,
         baseTokenAmountLimit: bigint,

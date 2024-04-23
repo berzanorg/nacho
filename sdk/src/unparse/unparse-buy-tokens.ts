@@ -6,7 +6,7 @@ import { uint64EncodeInto } from "../utils/uint64.js"
 
 export const unparseBuyTokens = (
     address: string,
-    signature: string,
+    signature: [bigint, bigint],
     baseTokenId: bigint,
     quoteTokenId: bigint,
     baseTokenAmount: bigint,
@@ -18,11 +18,11 @@ export const unparseBuyTokens = (
     array[0] = 12
 
     addressEncodeInto(address, array.subarray(1, 56))
-    signatureEncodeInto(signature, array.subarray(56, 152))
-    uint256EncodeInto(baseTokenId, array.subarray(152, 184))
-    uint256EncodeInto(quoteTokenId, array.subarray(184, 216))
-    uint64EncodeInto(baseTokenAmount, array.subarray(216, 224))
-    uint64EncodeInto(quoteTokenAmountLimit, array.subarray(224, 232))
+    signatureEncodeInto(signature, array.subarray(56, 120))
+    uint256EncodeInto(baseTokenId, array.subarray(120, 152))
+    uint256EncodeInto(quoteTokenId, array.subarray(152, 184))
+    uint64EncodeInto(baseTokenAmount, array.subarray(184, 192))
+    uint64EncodeInto(quoteTokenAmountLimit, array.subarray(192, 200))
 
     return buffer
 }
