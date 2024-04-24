@@ -277,7 +277,7 @@ impl<const H: usize, const L: usize> StaticMerkleTree<H, L> {
     ///
     /// # Examples
     ///
-    /// Get the root:
+    /// Get the root hash:
     ///
     /// ```rs
     /// let root = smt.get_root().await?;

@@ -858,7 +858,7 @@ version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-list",
- "nacho-merkle-tree",
+ "nacho-dynamic-merkle-tree",
  "nacho-poseidon-hash",
  "thiserror",
  "tokio",
@@ -870,7 +870,7 @@ version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-list",
- "nacho-merkle-tree",
+ "nacho-dynamic-merkle-tree",
  "nacho-poseidon-hash",
  "thiserror",
  "tokio",
@@ -883,6 +883,8 @@ dependencies = [
  "ark-ff",
  "mina-curves",
  "mina-signer",
+ "nacho-macros",
+ "nacho-poseidon-hash",
  "primitive-types",
  "thiserror",
 ]
@@ -891,6 +893,18 @@ dependencies = [
 name = "nacho-dynamic-list"
 version = "0.1.0"
 dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-dynamic-merkle-tree"
+version = "0.1.0"
+dependencies = [
+ "ark-ff",
+ "nacho-data-structures",
+ "nacho-macros",
+ "nacho-poseidon-hash",
  "thiserror",
  "tokio",
 ]
@@ -918,11 +932,15 @@ version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-list",
- "nacho-merkle-tree",
+ "nacho-dynamic-merkle-tree",
  "nacho-poseidon-hash",
  "thiserror",
  "tokio",
 ]
+
+[[package]]
+name = "nacho-macros"
+version = "0.1.0"
 
 [[package]]
 name = "nacho-mempool"
@@ -934,23 +952,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "nacho-merkle-tree"
-version = "0.1.0"
-dependencies = [
- "ark-ff",
- "nacho-data-structures",
- "nacho-poseidon-hash",
- "thiserror",
- "tokio",
-]
-
-[[package]]
 name = "nacho-pools-db"
 version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-list",
- "nacho-merkle-tree",
+ "nacho-dynamic-merkle-tree",
  "nacho-poseidon-hash",
  "thiserror",
  "tokio",
@@ -963,7 +970,6 @@ dependencies = [
  "mina-hasher",
  "mina-poseidon",
  "mina-signer",
- "nacho-data-structures",
  "o1-utils",
 ]
 
@@ -1004,6 +1010,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nacho-prover"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "thiserror",
+]
+
+[[package]]
 name = "nacho-rollup"
 version = "0.1.0"
 dependencies = [
@@ -1038,6 +1052,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "nacho-schnorr-signature"
+version = "0.1.0"
+dependencies = [
+ "mina-hasher",
+ "mina-signer",
+ "nacho-data-structures",
+]
+
+[[package]]
+name = "nacho-static-merkle-tree"
+version = "0.1.0"
+dependencies = [
+ "nacho-data-structures",
+ "nacho-poseidon-hash",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "nacho-transactions-db"
 version = "0.1.0"
 dependencies = [
@@ -1051,8 +1084,9 @@ name = "nacho-withdrawals-db"
 version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
- "nacho-merkle-tree",
+ "nacho-dynamic-list",
  "nacho-poseidon-hash",
+ "nacho-static-merkle-tree",
  "thiserror",
  "tokio",
 ]
@@ -1283,17 +1317,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "prover-method"
-version = "0.1.0"
-dependencies = [
- "nacho-balances-db",
- "nacho-burns-db",
- "nacho-data-structures",
- "nacho-liquidities-db",
- "nacho-pools-db",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1393,15 +1416,6 @@ name = "ryu"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e86697c916019a8588c99b5fac3cead74ec0b4b819707a682fd4d23fa0ce1ba1"
-
-[[package]]
-name = "schnorr-signature"
-version = "0.1.0"
-dependencies = [
- "mina-hasher",
- "mina-signer",
- "nacho-data-structures",
-]
 
 [[package]]
 name = "scopeguard"

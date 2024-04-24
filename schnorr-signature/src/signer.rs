@@ -14,6 +14,12 @@ use crate::Message;
 /// let signer = Signer::new();
 /// ```
 ///
+/// Check if a signature is valid:
+///
+/// ```rs
+/// let is_valid = signer.check_signature(&signature, &pubkey, msg);
+/// ```
+///
 ///
 pub struct Signer {
     inner: Box<dyn MinaSigner<Message>>,
@@ -28,11 +34,6 @@ impl Signer {
     /// let signer = Signer::new();
     /// ```
     ///
-    /// Check if a signature is valid:
-    /// ```rs
-    /// let is_valid = signer.check_signature(&signature, &pubkey, msg);
-    /// ```
-    ///
     pub fn new() -> Signer {
         let mina_signer = create_kimchi::<Message>(());
         Signer {
@@ -45,11 +46,6 @@ impl Signer {
     /// Returns `true` if the signature is valid, otherwise returns `false`.
     ///
     /// # Examples
-    ///
-    /// Create a signer:
-    /// ```rs
-    /// let signer = Signer::new();
-    /// ```
     ///
     /// Check if a signature is valid:
     /// ```rs

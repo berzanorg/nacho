@@ -5,9 +5,8 @@ pub use poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
 #[cfg(test)]
 mod tests {
 
-    use mina_hasher::{Hashable, ROInput};
+    use mina_hasher::{Fp, Hashable, ROInput};
     use mina_signer::{BaseField, PubKey, Signature, Signer};
-    use nacho_data_structures::Field;
 
     #[derive(Clone)]
     pub struct Message {
@@ -59,7 +58,7 @@ mod tests {
             &signature,
             &pubkey,
             &Message {
-                fields: vec![Field::from(42)],
+                fields: vec![Fp::from(42)],
             },
         );
         assert_eq!(is_valid, true);

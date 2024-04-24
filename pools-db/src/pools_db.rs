@@ -288,7 +288,7 @@ mod tests {
                 .unwrap()
         );
 
-        let balance = Pool {
+        let pool = Pool {
             base_token_id: U256([3; 32]),
             quote_token_id: U256([0; 32]),
             base_token_amount: 3000,
@@ -296,8 +296,8 @@ mod tests {
             total_liqudity_points: U256([33; 32]),
         };
 
-        pools_db.push(&balance).await.unwrap();
-        pools_db.push_leaf(&balance).await.unwrap();
+        pools_db.push(&pool).await.unwrap();
+        pools_db.push_leaf(&pool).await.unwrap();
 
         let root = pools_db.get_root().await.unwrap();
 
@@ -308,14 +308,14 @@ mod tests {
                 .unwrap()
         );
 
-        let updated_liquidity = Pool {
+        let updated_pool = Pool {
             base_token_amount: 4500,
             quote_token_amount: 9000,
-            ..balance
+            ..pool
         };
 
-        pools_db.update(&updated_liquidity).await.unwrap();
-        pools_db.update_leaf(&updated_liquidity).await.unwrap();
+        pools_db.update(&updated_pool).await.unwrap();
+        pools_db.update_leaf(&updated_pool).await.unwrap();
 
         let root = pools_db.get_root().await.unwrap();
 

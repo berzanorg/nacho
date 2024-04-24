@@ -1,4 +1,4 @@
 use crate::WITHDRAWALS_TREE_SIBLING_COUNT;
-use nacho_merkle_tree::SingleWitness;
+use nacho_data_structures::SingleMerkleWitness;
 
-pub type SingleWithdrawalWitness = SingleWitness<WITHDRAWALS_TREE_SIBLING_COUNT>;
+pub type SingleWithdrawalWitness = SingleMerkleWitness<WITHDRAWALS_TREE_SIBLING_COUNT>;

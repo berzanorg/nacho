@@ -405,7 +405,7 @@ mod tests {
                 .unwrap()
         );
 
-        let balance = Liquidity {
+        let liquidity = Liquidity {
             provider: Address::from_bytes(
                 "B62qr1H2QvZVSz7jBEyr91LXFvFTLfHB1W2S9TcMrBiZPHnPQ7yGohY"
                     .as_bytes()
@@ -417,8 +417,8 @@ mod tests {
             points: U256([44; 32]),
         };
 
-        liquidities_db.push(&balance).await.unwrap();
-        liquidities_db.push_leaf(&balance).await.unwrap();
+        liquidities_db.push(&liquidity).await.unwrap();
+        liquidities_db.push_leaf(&liquidity).await.unwrap();
 
         let root = liquidities_db.get_root().await.unwrap();
 
@@ -431,7 +431,7 @@ mod tests {
 
         let updated_liquidity = Liquidity {
             points: U256([35; 32]),
-            ..balance
+            ..liquidity
         };
 
         liquidities_db.update(&updated_liquidity).await.unwrap();

@@ -346,7 +346,7 @@ mod tests {
                 .unwrap()
         );
 
-        let balance = Burn {
+        let burn = Burn {
             burner: Address::from_bytes(
                 "B62qiiGxLsqNemiKFKiD19JdTHmqbE5YKAkMuXGachSdYkTi8xR2dfY"
                     .as_bytes()
@@ -357,8 +357,8 @@ mod tests {
             token_amount: 250,
         };
 
-        burns_db.push(&balance).await.unwrap();
-        burns_db.push_leaf(&balance).await.unwrap();
+        burns_db.push(&burn).await.unwrap();
+        burns_db.push_leaf(&burn).await.unwrap();
 
         let root = burns_db.get_root().await.unwrap();
 
@@ -371,7 +371,7 @@ mod tests {
 
         let updated_burn = Burn {
             token_amount: 300,
-            ..balance
+            ..burn
         };
 
         burns_db.update(&updated_burn).await.unwrap();

@@ -10,9 +10,9 @@ use crate::{Address, ByteConversion, Field, FieldConversion, U256};
 ///
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Withdrawal {
-    withdrawer: Address,
-    token_id: U256,
-    token_amount: u64,
+    pub withdrawer: Address,
+    pub token_id: U256,
+    pub token_amount: u64,
 }
 
 impl FieldConversion<4> for Withdrawal {

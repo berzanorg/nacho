@@ -1,12 +1,12 @@
 use std::path::Path;
 
-use nacho_data_structures::Transaction;
+use nacho_data_structures::ProverMethod;
 use nacho_dynamic_queue::DynamicQueue;
 
 use crate::ProofpoolError;
 
 pub struct Proofpool {
-    queue: DynamicQueue<232, Transaction>,
+    queue: DynamicQueue<3291, ProverMethod>,
 }
 
 type Result<T> = std::result::Result<T, ProofpoolError>;
@@ -20,15 +20,15 @@ impl Proofpool {
         Ok(Self { queue })
     }
 
-    pub async fn push(&mut self, transaction: &Transaction) -> Result<()> {
-        self.queue.push(transaction).await?;
+    pub async fn push(&mut self, method: &ProverMethod) -> Result<()> {
+        self.queue.push(method).await?;
 
         Ok(())
     }
 
-    pub async fn pop(&mut self) -> Result<Option<Transaction>> {
-        let maybe_transaction = self.queue.pop().await?;
+    pub async fn pop(&mut self) -> Result<Option<ProverMethod>> {
+        let maybe_method = self.queue.pop().await?;
 
-        Ok(maybe_transaction)
+        Ok(maybe_method)
     }
 }

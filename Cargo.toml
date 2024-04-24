@@ -9,17 +9,20 @@ members = [
     "executor",
     "liquidities-db",
     "mempool",
-    "merkle-tree",
+    "static-merkle-tree",
+    "dynamic-merkle-tree",
     "pools-db",
     "poseidon-hash",
     "processes",
     "proofpool",
     "rpc-server",
+    "prover",
     "rollup",
     "transactions-db",
     "withdrawals-db",
     "schnorr-signature",
-    "proofs-db", "prover-method",
+    "proofs-db",
+    "macros",
 ]
 
 [workspace.dependencies]
@@ -42,18 +45,21 @@ o1-utils = { git = "https://github.com/o1-labs/proof-systems", branch = "master"
 # Local dependencies.
 nacho-balances-db.path = "balances-db"
 nacho-burns-db.path = "burns-db"
+nacho-macros.path = "macros"
+nacho-static-merkle-tree.path = "static-merkle-tree"
 nacho-data-structures.path = "data-structures"
 nacho-dynamic-queue.path = "dynamic-queue"
 nacho-liquidities-db.path = "liquidities-db"
 nacho-dynamic-list.path = "dynamic-list"
 nacho-executor.path = "executor"
 nacho-mempool.path = "mempool"
-nacho-merkle-tree.path = "merkle-tree"
+nacho-dynamic-merkle-tree.path = "dynamic-merkle-tree"
 nacho-pools-db.path = "pools-db"
 nacho-poseidon-hash.path = "poseidon-hash"
 nacho-processes.path = "processes"
 nacho-proofpool.path = "proofpool"
 nacho-proofs-db.path = "proofs-db"
+nacho-prover.path = "prover"
 nacho-rpc-server.path = "rpc-server"
 nacho-schnorr-signature.path = "schnorr-signature"
 nacho-withdrawals-db.path = "withdrawals-db"
