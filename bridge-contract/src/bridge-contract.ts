@@ -13,8 +13,13 @@ import {
     method,
     state,
 } from "o1js"
-import { Burn, Deposit, SingleBurnWitness, SingleWithdrawalWitness } from "nacho-common-o1js"
-import { RollupContract } from "nacho-rollup-contract"
+import {
+    Burn,
+    Deposit,
+    SingleBurnWitness,
+    SingleWithdrawalWitness,
+    Withdrawal,
+} from "nacho-common-o1js"
 import { SafeContract } from "./safe-contract.js"
 import { TokenContract } from "nacho-token-contract"
 
@@ -24,6 +29,7 @@ export class BridgeContract extends SmartContract {
     })
     events = {
         deposited: Deposit,
+        withdrawn: Withdrawal,
     }
 
     @state(Field) actionState = State<Field>()
@@ -122,6 +128,15 @@ export class BridgeContract extends SmartContract {
             singleWithdrawWitness.calculateRoot(
                 Poseidon.hash([...this.sender.toFields(), tokenId, amount.value]),
             ),
+        )
+
+        this.emitEvent(
+            "withdrawn",
+            new Withdrawal({
+                withdrawer: this.sender,
+                tokenId,
+                tokenAmount: totalBurnAmount,
+            }),
         )
     }
 }

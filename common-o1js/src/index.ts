@@ -16,6 +16,7 @@ export {
 export { Balance } from "./structs/balance.js"
 export { Burn } from "./structs/burn.js"
 export { Deposit } from "./structs/deposit.js"
+export { Withdrawal } from "./structs/withdrawal.js"
 export { Liquidity } from "./structs/liquidity.js"
 export { Pool } from "./structs/pool.js"
 export { StateRoots } from "./structs/state-roots.js"
