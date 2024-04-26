@@ -1,6 +1,6 @@
 {
   "name": "nacho-rollup-contract",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -12,8 +12,8 @@
     "build": "rm -rf build/ && tsc"
   },
   "dependencies": {
-    "nacho-common-o1js": "^0.1.7",
-    "nacho-proof-generator": "^0.1.3",
+    "nacho-common-o1js": "^0.1.8",
+    "nacho-proof-generator": "^0.1.4",
     "o1js": "^0.17.0"
   },
   "devDependencies": {
