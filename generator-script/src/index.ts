@@ -10,7 +10,7 @@ import {
     makeBuyTokens,
     makeSellTokens,
 } from "./prove.js"
-import { saveMergedProofToDisk, saveProofToDisk } from "./utils.js"
+import { saveProofToDisk } from "./utils.js"
 import { proofGenerator } from "nacho-proof-generator"
 
 const main = async () => {

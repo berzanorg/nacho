@@ -8,11 +8,7 @@ export const readProofFromDisk = async (proofDbPath: string, index: bigint): Pro
     return jsonProof
 }
 
-export const saveProofToDisk = async (
-    proofDbPath: string,
-    index: bigint,
-    proof: ZkProof,
-): Promise<void> => {
-    const filePath = `${proofDbPath}/${index}`
+export const saveMergedProofToDisk = async (proofDbPath: string, proof: ZkProof): Promise<void> => {
+    const filePath = `${proofDbPath}/merged`
     await writeFile(filePath, JSON.stringify(proof.toJSON()), { encoding: "ascii" })
 }
