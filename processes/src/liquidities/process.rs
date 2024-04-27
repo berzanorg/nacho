@@ -67,6 +67,11 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(result.ok()).unwrap();
                 }
+                Request::GetRoot { sender } => {
+                    let result = liquidities_db.get_root().await;
+
+                    sender.send(result.ok().map(|root| root.into())).unwrap();
+                }
             }
         }
     });

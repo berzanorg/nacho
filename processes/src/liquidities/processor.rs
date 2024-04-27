@@ -150,4 +150,19 @@ impl Processor {
 
         result
     }
+
+    pub async fn get_root(&self) -> Option<U256> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::GetRoot {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
 }

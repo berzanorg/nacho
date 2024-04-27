@@ -35,4 +35,7 @@ pub enum Request {
         sender: oneshot::Sender<Option<()>>,
         pool: Pool,
     },
+    GetRoot {
+        sender: oneshot::Sender<Option<U256>>,
+    },
 }

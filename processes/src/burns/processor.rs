@@ -10,7 +10,7 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_burn_token_amount(&self, burner: Address, token_id: U256) -> Option<Burn> {
+    pub async fn get_burn(&self, burner: Address, token_id: U256) -> Option<Burn> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
@@ -130,6 +130,21 @@ impl Processor {
             .send(Request::UpdateLeaf {
                 sender: oneshot_sender,
                 burn,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_root(&self) -> Option<U256> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::GetRoot {
+                sender: oneshot_sender,
             })
             .await
             .ok()?;

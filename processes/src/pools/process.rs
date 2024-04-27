@@ -1,4 +1,3 @@
-use nacho_data_structures::Pool;
 use nacho_pools_db::PoolsDb;
 use tokio::sync::mpsc;
 
@@ -63,6 +62,11 @@ pub fn process(path: &str) -> Processor {
                     let result = pools_db.update_leaf(&pool).await;
 
                     sender.send(result.ok()).unwrap();
+                }
+                Request::GetRoot { sender } => {
+                    let result = pools_db.get_root().await;
+
+                    sender.send(result.ok().map(|root| root.into())).unwrap();
                 }
             }
         }
