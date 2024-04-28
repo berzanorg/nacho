@@ -927,6 +927,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nacho-js-process"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "nacho-liquidities-db"
 version = "0.1.0"
 dependencies = [
@@ -981,6 +989,7 @@ dependencies = [
  "nacho-burns-db",
  "nacho-data-structures",
  "nacho-executor",
+ "nacho-js-process",
  "nacho-liquidities-db",
  "nacho-mempool",
  "nacho-pools-db",

@@ -23,6 +23,7 @@ members = [
     "schnorr-signature",
     "proofs-db",
     "macros",
+    "js-process",
 ]
 
 [workspace.dependencies]
@@ -60,6 +61,7 @@ nacho-processes.path = "processes"
 nacho-proofpool.path = "proofpool"
 nacho-proofs-db.path = "proofs-db"
 nacho-prover.path = "prover"
+nacho-js-process.path = "js-process"
 nacho-rpc-server.path = "rpc-server"
 nacho-schnorr-signature.path = "schnorr-signature"
 nacho-withdrawals-db.path = "withdrawals-db"
