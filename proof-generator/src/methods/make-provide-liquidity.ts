@@ -28,7 +28,6 @@ export const makeProvideLiquidity = (
     poolTotalLiquidityPoints: Field,
     userBaseTokenAmountToProvide: UInt64,
     userQuoteTokenAmountLimitToProvide: UInt64,
-    isFirstProviding: Bool,
     userSignature: Signature,
 ): StateRoots => {
     stateRoots.assertEquals(earlierProof.publicOutput)
@@ -76,11 +75,16 @@ export const makeProvideLiquidity = (
     doubleBalanceWitness.isCorrect().assertTrue()
 
     stateRoots.pools.assertEquals(singlePoolWitness.calculateRoot(Poseidon.hash(pool.toFields())))
-    stateRoots.liquidities.assertEquals(
-        singleLiquidityWitness.calculateRoot(
-            choose(isFirstProviding, Field(0), Poseidon.hash(userLiquidity.toFields())),
+    const liquiditiesRootIfFirstProviding = singleLiquidityWitness.calculateRoot(Field(0))
+    const isFirstProviding = stateRoots.liquidities.equals(liquiditiesRootIfFirstProviding)
+
+    Bool.or(
+        stateRoots.liquidities.equals(liquiditiesRootIfFirstProviding),
+        stateRoots.liquidities.equals(
+            singleLiquidityWitness.calculateRoot(Poseidon.hash(userLiquidity.toFields())),
         ),
-    )
+    ).assertTrue()
+
     stateRoots.balances.assertEquals(
         doubleBalanceWitness.calculateRoot(
             Poseidon.hash(userBaseTokenBalance.toFields()),

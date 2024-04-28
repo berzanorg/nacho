@@ -227,7 +227,6 @@ describe("bridge contract", async () => {
             depositsList[0].tokenId,
             depositsList[0].tokenAmount,
             UInt64.from(0),
-            Bool(true),
         )
 
         stateUtil.setBalance(
@@ -256,7 +255,6 @@ describe("bridge contract", async () => {
             depositsList[1].tokenId,
             depositsList[1].tokenAmount,
             UInt64.from(0),
-            Bool(true),
         )
 
         stateUtil.setBalance(

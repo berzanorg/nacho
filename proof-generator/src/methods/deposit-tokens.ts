@@ -11,7 +11,6 @@ export const depositTokens = (
     tokenId: Field,
     userDepositTokenAmount: UInt64,
     userBalanceTokenAmount: UInt64,
-    isUsersFirstDeposit: Bool,
 ): StateRoots => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
@@ -22,11 +21,16 @@ export const depositTokens = (
         tokenAmount: userBalanceTokenAmount,
     })
 
-    stateRoots.balances.assertEquals(
-        singleBalanceWitness.calculateRoot(
-            choose(isUsersFirstDeposit, Field(0), Poseidon.hash(userBalance.toFields())),
+    const balancesRootIfFirstDeposit = singleBalanceWitness.calculateRoot(Field(0))
+
+    const isUsersFirstDeposit = stateRoots.balances.equals(balancesRootIfFirstDeposit)
+
+    Bool.or(
+        stateRoots.balances.equals(balancesRootIfFirstDeposit),
+        stateRoots.balances.equals(
+            singleBalanceWitness.calculateRoot(Poseidon.hash(userBalance.toFields())),
         ),
-    )
+    ).assertTrue()
 
     const userDeposit = new Deposit({
         depositor: userAddress,
@@ -39,7 +43,7 @@ export const depositTokens = (
         Poseidon.hash([currentDepositsMerkleListHash, Poseidon.hash(userDeposit.toFields())]),
     )
 
-    choose(isUsersFirstDeposit, Field(0), userBalanceTokenAmount.value).assertEquals(Field(0))
+    choose(isUsersFirstDeposit, userBalanceTokenAmount.value, Field(0)).assertEquals(0)
 
     userBalance.tokenAmount = userBalanceTokenAmount.add(userDepositTokenAmount)
 

@@ -1,4 +1,4 @@
-use nacho_data_structures::U256;
+use nacho_data_structures::{Withdrawal, U256};
 use nacho_withdrawals_db::SingleWithdrawalWitness;
 use tokio::sync::{mpsc, oneshot};
 
@@ -10,30 +10,61 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_witness(&self, burn_id: u64) -> Option<SingleWithdrawalWitness> {
+    pub async fn set(&self, index: u64, withdrawal: Withdrawal) -> Option<()> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::Set {
+                sender: oneshot_sender,
+                index,
+                withdrawal,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get(&self, index: u64) -> Option<Withdrawal> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::Get {
+                sender: oneshot_sender,
+                index,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_root(&self) -> Option<U256> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::GetRoot {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_witness(&self, index: u64) -> Option<SingleWithdrawalWitness> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::GetWitness {
                 sender: oneshot_sender,
-                burn_id,
-            })
-            .await
-            .ok()?;
-
-        let single_witness = oneshot_receiver.await.ok()?;
-
-        single_witness
-    }
-
-    pub async fn set_leaf(&self, burn_id: u64, value: U256) -> Option<()> {
-        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
-
-        self.sender
-            .send(Request::SetLeaf {
-                sender: oneshot_sender,
-                burn_id,
-                value,
+                index,
             })
             .await
             .ok()?;

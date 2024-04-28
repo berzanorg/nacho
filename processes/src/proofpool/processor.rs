@@ -1,4 +1,4 @@
-use nacho_data_structures::Transaction;
+use nacho_data_structures::StatefulTransaction;
 use tokio::sync::{mpsc, oneshot};
 
 use super::Request;
@@ -9,13 +9,13 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn push(&self, transaction: Transaction) -> Option<()> {
+    pub async fn push(&self, stateful_tx: StatefulTransaction) -> Option<()> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
             .send(Request::Push {
                 sender: oneshot_sender,
-                transaction,
+                stateful_tx,
             })
             .await
             .ok()?;
@@ -25,7 +25,7 @@ impl Processor {
         result
     }
 
-    pub async fn pop(&self) -> Option<Transaction> {
+    pub async fn pop(&self) -> Option<StatefulTransaction> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
@@ -35,8 +35,8 @@ impl Processor {
             .await
             .ok()?;
 
-        let maybe_transaction = oneshot_receiver.await.ok()?;
+        let maybe_stateful_tx = oneshot_receiver.await.ok()?;
 
-        maybe_transaction
+        maybe_stateful_tx
     }
 }

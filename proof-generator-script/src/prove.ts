@@ -49,7 +49,6 @@ export const depositTokens = async (params: DepositTokens, proofDbPath: string) 
         Field(params.token_id),
         UInt64.from(params.user_deposit_token_amount),
         UInt64.from(params.user_balance_token_amount),
-        Bool(params.is_users_first_deposit),
     )
 
     return proof
@@ -139,7 +138,6 @@ export const makeProvideLiquidity = async (params: ProvideLiquidity, proofDbPath
         Field(params.pool_total_liquidity_points),
         UInt64.from(params.user_base_token_amount_to_provide),
         UInt64.from(params.user_quote_token_amount_limit_to_provide),
-        Bool(params.is_first_providing),
         Signature.fromObject({
             r: Field.from(params.user_signature[0]),
             s: Scalar.from(params.user_signature[1]),

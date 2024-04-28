@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "nacho-common-o1js": "^0.1.8",
-        "nacho-proof-generator": "^0.1.5",
+        "nacho-proof-generator": "^0.1.7",
         "o1js": "^0.17.0"
     },
     "devDependencies": {

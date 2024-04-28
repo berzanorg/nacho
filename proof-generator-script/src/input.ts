@@ -34,7 +34,6 @@ export type DepositTokens = {
     token_id: bigint
     user_deposit_token_amount: bigint
     user_balance_token_amount: bigint
-    is_users_first_deposit: boolean
 }
 
 export type BurnTokens = {
@@ -86,7 +85,6 @@ export type ProvideLiquidity = {
     pool_total_liquidity_points: bigint
     user_base_token_amount_to_provide: bigint
     user_quote_token_amount_limit_to_provide: bigint
-    is_first_providing: boolean
     user_signature: [bigint, bigint]
 }
 

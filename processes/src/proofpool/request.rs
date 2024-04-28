@@ -1,12 +1,12 @@
-use nacho_data_structures::Transaction;
+use nacho_data_structures::StatefulTransaction;
 use tokio::sync::oneshot;
 
 pub enum Request {
     Push {
         sender: oneshot::Sender<Option<()>>,
-        transaction: Transaction,
+        stateful_tx: StatefulTransaction,
     },
     Pop {
-        sender: oneshot::Sender<Option<Transaction>>,
+        sender: oneshot::Sender<Option<StatefulTransaction>>,
     },
 }

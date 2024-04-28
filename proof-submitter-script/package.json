@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "nacho-common-o1js": "^0.1.8",
-        "nacho-rollup-contract": "^0.1.4",
+        "nacho-rollup-contract": "^0.1.5",
         "o1js": "^0.17.0"
     },
     "devDependencies": {

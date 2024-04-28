@@ -1,6 +1,6 @@
 {
   "name": "nacho-proof-generator",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",

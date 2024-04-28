@@ -40,7 +40,6 @@ export const parseInput = (buffer: Buffer): Input => {
                 token_id: parseUint256(buffer.subarray(982, 1014)),
                 user_deposit_token_amount: parseUint64(buffer.subarray(1014, 1022)),
                 user_balance_token_amount: parseUint64(buffer.subarray(1022, 1030)),
-                is_users_first_deposit: parseBoolean(buffer.subarray(1030, 1031)),
             } satisfies DepositTokens
         }
         case 2: {
@@ -95,8 +94,7 @@ export const parseInput = (buffer: Buffer): Input => {
                 pool_total_liquidity_points: parseUint256(buffer.subarray(3147, 3179)),
                 user_base_token_amount_to_provide: parseUint64(buffer.subarray(3179, 3187)),
                 user_quote_token_amount_limit_to_provide: parseUint64(buffer.subarray(3187, 3195)),
-                is_first_providing: parseBoolean(buffer.subarray(3195, 3196)),
-                user_signature: parseSignature(buffer.subarray(3196, 3260)),
+                user_signature: parseSignature(buffer.subarray(3195, 3259)),
             } satisfies ProvideLiquidity
         }
         case 5: {

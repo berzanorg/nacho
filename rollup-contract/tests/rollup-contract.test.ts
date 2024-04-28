@@ -41,7 +41,6 @@ describe("rollup contract", async () => {
         const minaTokenId = Field(1)
         const tokenAmount = UInt64.from(42)
         const currentBalance = UInt64.zero
-        const isUsersFirstDeposit = Bool(true)
 
         const proof = await proofGenerator.depositTokens(
             stateUtil.stateRoots,
@@ -53,7 +52,6 @@ describe("rollup contract", async () => {
             minaTokenId,
             tokenAmount,
             currentBalance,
-            isUsersFirstDeposit,
         )
 
         stateUtil.pushProof(proof)

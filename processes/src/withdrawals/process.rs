@@ -1,4 +1,3 @@
-use nacho_data_structures::FieldConversion;
 use nacho_withdrawals_db::WithdrawalsDb;
 use tokio::sync::mpsc;
 
@@ -14,17 +13,27 @@ pub fn process(path: &str) -> Processor {
 
         while let Some(request) = receiver.recv().await {
             match request {
-                Request::GetWitness { sender, burn_id } => {
-                    let single_witness = withdrawals_db.get_witness(burn_id).await;
-
-                    sender.send(single_witness.ok()).unwrap();
-                }
-                Request::SetLeaf {
+                Request::Set {
                     sender,
-                    burn_id,
-                    value,
+                    index,
+                    withdrawal,
                 } => {
-                    let result = withdrawals_db.set(burn_id, value.to_fields()[0]).await;
+                    let result = withdrawals_db.set(index, &withdrawal).await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+                Request::Get { sender, index } => {
+                    let result = withdrawals_db.get(index).await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+                Request::GetRoot { sender } => {
+                    let result = withdrawals_db.get_root().await.map(|root| root.into());
+
+                    sender.send(result.ok()).unwrap();
+                }
+                Request::GetWitness { sender, index } => {
+                    let result = withdrawals_db.get_witness(index).await;
 
                     sender.send(result.ok()).unwrap();
                 }

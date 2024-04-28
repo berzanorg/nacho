@@ -19,14 +19,11 @@ describe("proof generator", async () => {
         assert.deepEqual(proof.publicInput, stateUtil.stateRoots)
         assert.deepEqual(proof.publicOutput, stateUtil.stateRoots)
         stateUtil.pushProof(proof)
-
-        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates deposit tokens proof", async () => {
         const tokenAmount = UInt64.from(45_000_000)
         const currentBalance = UInt64.from(0)
-        const isUsersFirstDeposit = Bool(true)
 
         const proof = await proofGenerator.depositTokens(
             stateUtil.stateRoots,
@@ -38,7 +35,6 @@ describe("proof generator", async () => {
             minaTokenId,
             tokenAmount,
             currentBalance,
-            isUsersFirstDeposit,
         )
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
@@ -48,7 +44,6 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
-        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates make burn tokens proof", async () => {
@@ -77,13 +72,11 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
-        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates deposit tokens proof one more time", async () => {
         const tokenAmount = UInt64.from(100_000_000)
         const currentBalance = UInt64.from(0)
-        const isUsersFirstDeposit = Bool(true)
 
         const proof = await proofGenerator.depositTokens(
             stateUtil.stateRoots,
@@ -95,7 +88,6 @@ describe("proof generator", async () => {
             usdcTokenId,
             tokenAmount,
             currentBalance,
-            isUsersFirstDeposit,
         )
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
@@ -105,7 +97,6 @@ describe("proof generator", async () => {
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
-        console.log(JSON.stringify(proof.toJSON()).length)
     })
 
     it("generates make create pool proof", async () => {
@@ -180,7 +171,6 @@ describe("proof generator", async () => {
         const currentLiquidityPoints = currentMinaLiquidity.value.mul(currentUsdcLiquidity.value)
         const baseTokenAmountToProvide = UInt64.from(5_000_000)
         const quoteTokenAmountLimitToProvide = UInt64.from(10_000_000)
-        const isFirstProviding = Bool(false)
         const userSignature = Signature.create(john.privateKey, [
             minaTokenId,
             usdcTokenId,
@@ -205,7 +195,6 @@ describe("proof generator", async () => {
             currentLiquidityPoints,
             baseTokenAmountToProvide,
             quoteTokenAmountLimitToProvide,
-            isFirstProviding,
             userSignature,
         )
 

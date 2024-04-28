@@ -1,15 +1,22 @@
-use nacho_data_structures::U256;
+use nacho_data_structures::{Withdrawal, U256};
 use nacho_withdrawals_db::SingleWithdrawalWitness;
 use tokio::sync::oneshot;
 
 pub enum Request {
+    Set {
+        sender: oneshot::Sender<Option<()>>,
+        index: u64,
+        withdrawal: Withdrawal,
+    },
+    Get {
+        sender: oneshot::Sender<Option<Withdrawal>>,
+        index: u64,
+    },
+    GetRoot {
+        sender: oneshot::Sender<Option<U256>>,
+    },
     GetWitness {
         sender: oneshot::Sender<Option<SingleWithdrawalWitness>>,
-        burn_id: u64,
-    },
-    SetLeaf {
-        sender: oneshot::Sender<Option<()>>,
-        burn_id: u64,
-        value: U256,
+        index: u64,
     },
 }

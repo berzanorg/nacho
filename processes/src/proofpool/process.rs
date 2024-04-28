@@ -15,7 +15,7 @@ pub fn process(path: &str) -> Processor {
             match request {
                 Request::Push {
                     sender,
-                    transaction,
+                    stateful_tx: transaction,
                 } => {
                     let result = proofpool.push(&transaction).await;
 

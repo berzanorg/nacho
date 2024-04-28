@@ -20,7 +20,6 @@ pub enum ProverMethod {
         token_id: U256,
         user_deposit_token_amount: u64,
         user_balance_token_amount: u64,
-        is_users_first_deposit: bool,
     },
     BurnTokens {
         state_roots: StateRoots,
@@ -66,7 +65,6 @@ pub enum ProverMethod {
         pool_total_liquidity_points: U256,
         user_base_token_amount_to_provide: u64,
         user_quote_token_amount_limit_to_provide: u64,
-        is_first_providing: bool,
         user_signature: Signature,
     },
     RemoveLiquidity {
@@ -144,7 +142,6 @@ impl ByteConversion<3291> for ProverMethod {
                 token_id,
                 user_deposit_token_amount,
                 user_balance_token_amount,
-                is_users_first_deposit,
             } => {
                 buf[0] = 1;
                 buf[1..129].copy_from_slice(&state_roots.to_bytes());
@@ -156,7 +153,6 @@ impl ByteConversion<3291> for ProverMethod {
                 buf[982..1014].copy_from_slice(&token_id.to_bytes());
                 buf[1014..1022].copy_from_slice(&user_deposit_token_amount.to_bytes());
                 buf[1022..1030].copy_from_slice(&user_balance_token_amount.to_bytes());
-                buf[1030..1031].copy_from_slice(&is_users_first_deposit.to_bytes());
             }
             ProverMethod::BurnTokens {
                 state_roots,
@@ -229,7 +225,6 @@ impl ByteConversion<3291> for ProverMethod {
                 pool_total_liquidity_points,
                 user_base_token_amount_to_provide,
                 user_quote_token_amount_limit_to_provide,
-                is_first_providing,
                 user_signature,
             } => {
                 buf[0] = 4;
@@ -250,8 +245,7 @@ impl ByteConversion<3291> for ProverMethod {
                 buf[3179..3187].copy_from_slice(&user_base_token_amount_to_provide.to_bytes());
                 buf[3187..3195]
                     .copy_from_slice(&user_quote_token_amount_limit_to_provide.to_bytes());
-                buf[3195..3196].copy_from_slice(&is_first_providing.to_bytes());
-                buf[3196..3260].copy_from_slice(&user_signature.to_bytes());
+                buf[3195..3259].copy_from_slice(&user_signature.to_bytes());
             }
             ProverMethod::RemoveLiquidity {
                 state_roots,

@@ -35,8 +35,15 @@ pub use sibling::Sibling;
 pub use signature::Signature;
 pub use single_merkle_witness::SingleMerkleWitness;
 pub use state_roots::StateRoots;
-pub use stateful_transaction::StatefulTransaction;
-pub use transaction::Transaction;
+pub use stateful_transaction::{
+    BurnTokensTransactionState, BuyTokensTransactionState, CreatePoolTransactionState,
+    DepositTokensTransactionState, ProvideLiquidityTransactionState,
+    RemoveLiquidityTransactionState, SellTokensTransactionState, StatefulTransaction,
+};
+pub use transaction::{
+    BurnTokensTransaction, BuyTokensTransaction, CreatePoolTransaction, DepositTokensTransaction,
+    ProvideLiquidityTransaction, RemoveLiquidityTransaction, SellTokensTransaction, Transaction,
+};
 pub use tx_status::TxStatus;
 pub use u256::U256;
 pub use withdrawal::Withdrawal;
