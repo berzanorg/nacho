@@ -1,0 +1,24 @@
+{
+    "name": "nacho-proof-merger-process",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "files": [
+        "build"
+    ],
+    "scripts": {
+        "build": "rimraf build/ && tsc && rollup --config"
+    },
+    "dependencies": {
+        "nacho-common-o1js": "^0.1.8",
+        "nacho-proof-generator": "^0.1.7",
+        "o1js": "^0.17.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.24",
+        "@rollup/plugin-typescript": "^11.1.6",
+        "rimraf": "^5.0.5",
+        "rollup": "^4.17.0",
+        "typescript": "^5.3.3"
+    }
+}
