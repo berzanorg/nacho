@@ -1,10 +1,10 @@
 use crate::{
-    SingleWithdrawalWitness, WithdrawalsDbError, WITHDRAWALS_TREE_HEIGHT,
+    SingleWithdrawalWitness, WithdrawalsDbError, WITHDRAWALS_COUNT, WITHDRAWALS_TREE_HEIGHT,
     WITHDRAWALS_TREE_SIBLING_COUNT, WITHDRAWAL_SIZE_IN_BYTES,
 };
 use nacho_data_structures::{ByteConversion, Field, FieldConversion, Withdrawal};
-use nacho_dynamic_list::DynamicList;
 use nacho_poseidon_hash::{create_poseidon_hasher, poseidon_hash, PoseidonHasher};
+use nacho_static_list::StaticList;
 use nacho_static_merkle_tree::StaticMerkleTree;
 use std::path::Path;
 
@@ -46,8 +46,8 @@ type Result<T> = std::result::Result<T, WithdrawalsDbError>;
 /// ```
 ///
 pub struct WithdrawalsDb {
-    /// The dynamic list that holds `Withdrawal` items on disk.
-    list: DynamicList<WITHDRAWAL_SIZE_IN_BYTES>,
+    /// The static list that holds `Withdrawal` items on disk.
+    list: StaticList<WITHDRAWAL_SIZE_IN_BYTES, WITHDRAWALS_COUNT>,
     /// The static Merkle tree that holds the hashes of `Withdrawal` items on disk.
     tree: StaticMerkleTree<WITHDRAWALS_TREE_HEIGHT, WITHDRAWALS_TREE_SIBLING_COUNT>,
     /// The hasher that is used to calculate Poseidon hashes of field elements.
@@ -68,7 +68,7 @@ impl WithdrawalsDb {
     pub async fn new(path: impl AsRef<Path>) -> Result<WithdrawalsDb> {
         let path = path.as_ref();
 
-        let list = DynamicList::new(path.join("dynamic_list")).await?;
+        let list = StaticList::new(path.join("static_list")).await?;
         let tree = StaticMerkleTree::new(path.join("static_merkle_tree")).await?;
         let hasher = create_poseidon_hasher();
 
@@ -91,11 +91,8 @@ impl WithdrawalsDb {
 
         let withdrawal_hash = poseidon_hash(&mut self.hasher, &fields);
 
-        if self.list.get(index).await.is_ok() {
-            self.list.set(index, bytes).await?;
-        } else {
-            self.list.push(bytes).await?;
-        }
+        self.list.set(index, &bytes).await?;
+
         self.tree.set_leaf(index, withdrawal_hash).await?;
 
         Ok(())
@@ -220,10 +217,22 @@ mod tests {
             token_amount: 150,
         };
 
+        let withdrawal_7 = Withdrawal {
+            withdrawer: Address::from_bytes(
+                "B62qr1H2QvZVSz7jBEyr91LXFvFTLfHB1W2S9TcMrBiZPHnPQ7yGohY"
+                    .as_bytes()
+                    .try_into()
+                    .unwrap(),
+            ),
+            token_id: U256([0; 32]),
+            token_amount: 150,
+        };
+
         withdrawals_db.set(0, &withdrawal_0).await.unwrap();
         withdrawals_db.set(1, &withdrawal_1).await.unwrap();
         withdrawals_db.set(2, &withdrawal_2).await.unwrap();
         withdrawals_db.set(3, &withdrawal_3).await.unwrap();
+        withdrawals_db.set(7, &withdrawal_7).await.unwrap();
 
         let updated_withdrawal_2 = Withdrawal {
             token_amount: 32,
@@ -235,6 +244,7 @@ mod tests {
         assert_eq!(withdrawals_db.get(1).await.unwrap(), withdrawal_1);
         assert_eq!(withdrawals_db.get(2).await.unwrap(), updated_withdrawal_2);
         assert_eq!(withdrawals_db.get(3).await.unwrap(), withdrawal_3);
+        assert_eq!(withdrawals_db.get(7).await.unwrap(), withdrawal_7);
 
         remove_dir_all(dir).await.unwrap();
     }

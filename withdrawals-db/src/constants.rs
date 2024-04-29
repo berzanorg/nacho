@@ -1,3 +1,4 @@
 pub const WITHDRAWALS_TREE_HEIGHT: usize = 19;
 pub const WITHDRAWALS_TREE_SIBLING_COUNT: usize = WITHDRAWALS_TREE_HEIGHT - 1;
 pub const WITHDRAWAL_SIZE_IN_BYTES: usize = 95;
+pub const WITHDRAWALS_COUNT: usize = 2_usize.pow(WITHDRAWALS_TREE_HEIGHT as u32 - 1);
