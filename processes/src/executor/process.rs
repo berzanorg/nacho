@@ -1,5 +1,5 @@
-use super::{Processor, Request};
-use crate::{authenticator, balances, burns, liquidities, mempool, pools, proofpool};
+use super::Processor;
+use crate::{balances, burns, liquidities, mempool, pools, proofpool, transactions, verifier};
 use nacho_data_structures::{
     BurnTokensTransaction, BurnTokensTransactionState, BuyTokensTransaction,
     BuyTokensTransactionState, CreatePoolTransaction, CreatePoolTransactionState,
@@ -7,10 +7,11 @@ use nacho_data_structures::{
     ProvideLiquidityTransactionState, RemoveLiquidityTransaction, RemoveLiquidityTransactionState,
     SellTokensTransaction, SellTokensTransactionState, StatefulTransaction, Transaction,
 };
-use tokio::sync::mpsc;
+use tokio::sync::Notify;
 
 pub fn process(
-    authenticator: authenticator::Processor,
+    verifier: verifier::Processor,
+    transactions: transactions::Processor,
     mempool: mempool::Processor,
     proofpool: proofpool::Processor,
     balances: balances::Processor,
@@ -18,46 +19,42 @@ pub fn process(
     liquidities: liquidities::Processor,
     burns: burns::Processor,
 ) -> Processor {
-    let (sender, mut receiver) = mpsc::channel::<Request>(1000);
+    let notify: &Notify = Box::leak(Box::new(Notify::new()));
 
     tokio::spawn(async move {
-        while let Some(request) = receiver.recv().await {
-            match request {
-                Request::ExecuteNext { sender } => {
-                    let result = execute_tx(
-                        authenticator,
-                        mempool,
-                        proofpool,
-                        balances,
-                        pools,
-                        liquidities,
-                        burns,
-                    )
-                    .await;
+        loop {
+            if let Some(tx) = mempool.pop().await {
+                let tx_result =
+                    execute_tx(tx, verifier, proofpool, balances, pools, liquidities, burns).await;
 
-                    sender.send(result.ok()).unwrap();
+                if tx_result.is_err() {
+                    if let Some(executed_until) = transactions.get_executed_until().await {
+                        transactions.set_rejected(executed_until).await;
+                    };
+                } else {
+                    if let Some(executed_until) = transactions.get_executed_until().await {
+                        transactions.set_executed_until(executed_until + 1).await;
+                    };
                 }
+            } else {
+                notify.notified().await;
             }
         }
     });
 
-    Processor {
-        sender: Box::leak(Box::new(sender)),
-    }
+    Processor { notify }
 }
 
 pub async fn execute_tx(
-    authenticator: authenticator::Processor,
-    mempool: mempool::Processor,
+    tx: Transaction,
+    verifier: verifier::Processor,
     proofpool: proofpool::Processor,
     balances: balances::Processor,
     pools: pools::Processor,
     liquidities: liquidities::Processor,
     burns: burns::Processor,
 ) -> Result<(), ()> {
-    let tx = mempool.pop().await.ok_or(())?;
-
-    let is_valid = authenticator.check_signature(tx.clone()).await.ok_or(())?;
+    let is_valid = verifier.check_signature(tx.clone()).await.ok_or(())?;
 
     if !is_valid {
         return Err(());
