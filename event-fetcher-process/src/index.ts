@@ -25,15 +25,15 @@ stdin.on("data", async (chunk) => {
     try {
         const input = parseInput(chunk)
 
-        const events =
+        const { events, last_fetched_block } =
             input.kind === "FetchDepositedEvents"
                 ? await fetchDepositedEvents(input.fromBlock, bridgeContract)
                 : input.kind === "FetchWithdrawnEvents"
                 ? await fetchWithdrawnEvents(input.fromBlock, bridgeContract)
-                : null
+                : { events: null, last_fetched_block: null }
 
-        if (events) {
-            const buffer = unparseOutput(events)
+        if (events && last_fetched_block) {
+            const buffer = unparseOutput(events, last_fetched_block)
 
             stdout.write(buffer)
         } else {

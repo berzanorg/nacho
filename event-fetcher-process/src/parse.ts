@@ -3,7 +3,7 @@ import { Input } from "./input"
 export const parseInput = (buffer: Buffer): Input => {
     const array = new Uint8Array(buffer)
 
-    if (array.length !== 33) {
+    if (array.length !== 5) {
         return {
             kind: "MistakenInput",
         }
@@ -13,13 +13,13 @@ export const parseInput = (buffer: Buffer): Input => {
         case 0: {
             return {
                 kind: "FetchDepositedEvents",
-                fromBlock: parseUint32(buffer.subarray(1, 33)),
+                fromBlock: parseUint32(buffer.subarray(1, 5)),
             }
         }
         case 1: {
             return {
                 kind: "FetchWithdrawnEvents",
-                fromBlock: parseUint32(buffer.subarray(1, 33)),
+                fromBlock: parseUint32(buffer.subarray(1, 5)),
             }
         }
         default: {

@@ -5,19 +5,29 @@ import { UInt32 } from "o1js"
 export const fetchDepositedEvents = async (fromBlock: number, bridgeContract: BridgeContract) => {
     const allEvents = await bridgeContract.fetchEvents(UInt32.from(fromBlock))
 
-    const depositedEvents = allEvents
-        .filter(({ event, type }) => type === "deposited")
+    const last_fetched_block = allEvents
+        .filter(({ type }) => type === "deposited")
+        .map((e) => Number(e.blockHeight.toBigint()))
+        .reduce((a, b) => (a > b ? a : b), 0)
+
+    const events = allEvents
+        .filter(({ type }) => type === "deposited")
         .map(({ event }) => event.data as unknown as Deposit)
 
-    return depositedEvents
+    return { last_fetched_block, events }
 }
 
 export const fetchWithdrawnEvents = async (fromBlock: number, bridgeContract: BridgeContract) => {
-    const events = await bridgeContract.fetchEvents(UInt32.from(fromBlock))
+    const allEvents = await bridgeContract.fetchEvents(UInt32.from(fromBlock))
 
-    const withdrawnEvents = events
-        .filter(({ event, type }) => type === "withdrawn")
+    const last_fetched_block = allEvents
+        .filter(({ type }) => type === "withdrawn")
+        .map((e) => Number(e.blockHeight.toBigint()))
+        .reduce((a, b) => (a > b ? a : b), 0)
+
+    const events = allEvents
+        .filter(({ type }) => type === "withdrawn")
         .map(({ event }) => event.data as unknown as Withdrawal)
 
-    return withdrawnEvents
+    return { last_fetched_block, events }
 }
