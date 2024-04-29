@@ -13,21 +13,30 @@ pub fn process(path: &str) -> Processor {
 
         while let Some(request) = receiver.recv().await {
             match request {
-                Request::GetTxCount { sender } => {
+                Request::GetTotalTxCount { sender } => {
                     let tx_count = transactions_db.get_tx_count().await;
 
                     sender.send(tx_count.ok()).unwrap();
                 }
+
                 Request::GetTxStatus { sender, tx_id } => {
                     let tx_status = transactions_db.get_status(tx_id).await;
 
                     sender.send(tx_status.ok()).unwrap();
                 }
-                Request::RejectTx { sender, tx_id } => {
+
+                Request::AddNewTx { sender } => {
+                    let tx_status = transactions_db.add_new_tx().await;
+
+                    sender.send(tx_status.ok()).unwrap();
+                }
+
+                Request::SetRejected { sender, tx_id } => {
                     let result = transactions_db.set_rejected(tx_id).await;
 
                     sender.send(result.ok()).unwrap();
                 }
+
                 Request::SetExecutedUntil {
                     sender,
                     until_tx_id,
@@ -36,6 +45,13 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(result.ok()).unwrap();
                 }
+
+                Request::GetExecutedUntil { sender } => {
+                    let result = transactions_db.get_executed_until().await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+
                 Request::SetProvedUntil {
                     sender,
                     until_tx_id,
@@ -44,11 +60,24 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(result.ok()).unwrap();
                 }
+
+                Request::GetProvedUntil { sender } => {
+                    let result = transactions_db.get_proved_until().await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+
                 Request::SetSettledUntil {
                     sender,
                     until_tx_id,
                 } => {
                     let result = transactions_db.set_settled_until(until_tx_id).await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+
+                Request::GetSettledUntil { sender } => {
+                    let result = transactions_db.get_settled_until().await;
 
                     sender.send(result.ok()).unwrap();
                 }

@@ -9,10 +9,10 @@ pub struct Processor {
 }
 
 impl Processor {
-    pub async fn get_tx_count(&self) -> Option<u64> {
+    pub async fn get_total_tx_count(&self) -> Option<u64> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
         self.sender
-            .send(Request::GetTxCount {
+            .send(Request::GetTotalTxCount {
                 sender: oneshot_sender,
             })
             .await
@@ -38,10 +38,24 @@ impl Processor {
         tx_status
     }
 
-    pub async fn reject_tx(&self, tx_id: u64) -> Option<()> {
+    pub async fn add_new_tx(&self) -> Option<u64> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
         self.sender
-            .send(Request::RejectTx {
+            .send(Request::AddNewTx {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn set_rejected(&self, tx_id: u64) -> Option<()> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::SetRejected {
                 sender: oneshot_sender,
                 tx_id,
             })
@@ -68,6 +82,20 @@ impl Processor {
         result
     }
 
+    pub async fn get_executed_until(&self) -> Option<u64> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::GetExecutedUntil {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
     pub async fn set_proved_until(&self, until_tx_id: u64) -> Option<()> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
         self.sender
@@ -83,12 +111,40 @@ impl Processor {
         result
     }
 
+    pub async fn get_proved_until(&self) -> Option<u64> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::GetProvedUntil {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
     pub async fn set_settled_until(&self, until_tx_id: u64) -> Option<()> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
         self.sender
             .send(Request::SetSettledUntil {
                 sender: oneshot_sender,
                 until_tx_id,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_settled_until(&self) -> Option<u64> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::GetSettledUntil {
+                sender: oneshot_sender,
             })
             .await
             .ok()?;
