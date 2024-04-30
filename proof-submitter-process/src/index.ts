@@ -35,10 +35,9 @@ stdin.on("data", async () => {
     let ok = false
 
     try {
-        ok = true
-
         const mergedProof = await readMergedProofFromDisk(proofDbPath)
         await submitMergedProof(mergedProof, rollupContract, txSender)
+        ok = true
     } catch {}
 
     array[0] = Number(ok)
