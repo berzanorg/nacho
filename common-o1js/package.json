@@ -1,6 +1,6 @@
 {
   "name": "nacho-common-o1js",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",

@@ -1,7 +1,6 @@
 {
     "name": "nacho-signature-verifier-process",
     "version": "0.1.0",
-    "private": true,
     "type": "module",
     "files": [
         "build"

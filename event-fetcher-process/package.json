@@ -1,7 +1,6 @@
 {
     "name": "nacho-event-fetcher-process",
     "version": "0.1.0",
-    "private": true,
     "type": "module",
     "files": [
         "build"
@@ -10,8 +9,8 @@
         "build": "rimraf build/ && tsc && rollup --config"
     },
     "dependencies": {
-        "nacho-common-o1js": "^0.1.8",
-        "nacho-bridge-contract": "^0.1.2",
+        "nacho-common-o1js": "^0.1.10",
+        "nacho-bridge-contract": "^0.1.10",
         "o1js": "^0.17.0"
     },
     "devDependencies": {

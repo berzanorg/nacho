@@ -13,9 +13,9 @@ import {
 import { saveProofToDisk } from "./utils"
 import { proofGenerator } from "nacho-proof-generator"
 
-const proofDbPath = process.argv.at(2)
+const proofsPath = process.env.NACHO_PROOFS_PATH
 
-if (proofDbPath === undefined) {
+if (proofsPath === undefined) {
     process.exit(1)
 }
 
@@ -30,23 +30,23 @@ stdin.on("data", async (chunk) => {
             input.kind === "CreateGenesis"
                 ? await createGenesis(input)
                 : input.kind === "DepositTokens"
-                ? await depositTokens(input, proofDbPath)
+                ? await depositTokens(input, proofsPath)
                 : input.kind === "BurnTokens"
-                ? await makeBurnTokens(input, proofDbPath)
+                ? await makeBurnTokens(input, proofsPath)
                 : input.kind === "CreatePool"
-                ? await makeCreatePool(input, proofDbPath)
+                ? await makeCreatePool(input, proofsPath)
                 : input.kind === "ProvideLiquidity"
-                ? await makeProvideLiquidity(input, proofDbPath)
+                ? await makeProvideLiquidity(input, proofsPath)
                 : input.kind === "RemoveLiquidity"
-                ? await makeRemoveLiquidity(input, proofDbPath)
+                ? await makeRemoveLiquidity(input, proofsPath)
                 : input.kind === "BuyTokens"
-                ? await makeBuyTokens(input, proofDbPath)
+                ? await makeBuyTokens(input, proofsPath)
                 : input.kind === "SellTokens"
-                ? await makeSellTokens(input, proofDbPath)
+                ? await makeSellTokens(input, proofsPath)
                 : null
 
         if (input.kind === "CreateGenesis") {
-            await saveProofToDisk(proofDbPath, 0n, proof!)
+            await saveProofToDisk(proofsPath, 0n, proof!)
         } else if (
             input.kind === "DepositTokens" ||
             input.kind === "BurnTokens" ||
@@ -56,7 +56,7 @@ stdin.on("data", async (chunk) => {
             input.kind === "BuyTokens" ||
             input.kind === "SellTokens"
         ) {
-            await saveProofToDisk(proofDbPath, input.earlier_proof_index + 1n, proof!)
+            await saveProofToDisk(proofsPath, input.earlier_proof_index + 1n, proof!)
         }
 
         const buffer = new ArrayBuffer(1)

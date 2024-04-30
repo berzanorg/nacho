@@ -1,6 +1,6 @@
 {
   "name": "nacho-proof-generator",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -12,7 +12,7 @@
     "build": "rm -rf build/ && tsc"
   },
   "dependencies": {
-    "nacho-common-o1js": "^0.1.8",
+    "nacho-common-o1js": "^0.1.10",
     "o1js": "^0.17.0"
   },
   "devDependencies": {

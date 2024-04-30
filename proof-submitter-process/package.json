@@ -1,7 +1,6 @@
 {
     "name": "nacho-proof-submitter-process",
     "version": "0.1.0",
-    "private": true,
     "type": "module",
     "files": [
         "build"
@@ -10,8 +9,8 @@
         "build": "rimraf build/ && tsc && rollup --config"
     },
     "dependencies": {
-        "nacho-common-o1js": "^0.1.8",
-        "nacho-rollup-contract": "^0.1.5",
+        "nacho-common-o1js": "^0.1.10",
+        "nacho-rollup-contract": "^0.1.10",
         "o1js": "^0.17.0"
     },
     "devDependencies": {

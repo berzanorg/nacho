@@ -4,9 +4,9 @@ import { continueMerge, startMerge } from "./prove"
 import { saveMergedProofToDisk } from "./utils"
 import { proofGenerator } from "nacho-proof-generator"
 
-const proofDbPath = process.argv.at(2)
+const proofsPath = process.env.NACHO_PROOFS_PATH
 
-if (proofDbPath === undefined) {
+if (proofsPath === undefined) {
     process.exit(1)
 }
 
@@ -23,13 +23,13 @@ stdin.on("data", async (chunk) => {
 
         const proof =
             input.kind === "StartMerge"
-                ? await startMerge(input, proofDbPath)
+                ? await startMerge(input, proofsPath)
                 : input.kind === "ContinueMerge"
-                ? await continueMerge(input, proofDbPath)
+                ? await continueMerge(input, proofsPath)
                 : null
 
         if (proof) {
-            saveMergedProofToDisk(proofDbPath, proof)
+            saveMergedProofToDisk(proofsPath, proof)
             isSuccess = true
         }
     } catch {}

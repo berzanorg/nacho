@@ -4,21 +4,21 @@ import { RollupContract } from "nacho-rollup-contract"
 import { Mina, PrivateKey, PublicKey } from "o1js"
 import { readMergedProofFromDisk } from "./utils"
 
-const proofDbPath = process.argv.at(2)
-const txSenderPrivateKeyAsBase58 = process.argv.at(3)
-const minaNodeUrl = process.argv.at(4)
-const rollupContractAddress = process.argv.at(5)
+const proofsPath = process.env.NACHO_PROOFS_PATH
+const privateKeyAsBase58 = process.env.NACHO_SUBMITTER_PRIVATE_KEY
+const minaNodeUrl = process.env.NACHO_MINA_NODE_URL
+const rollupContractAddress = process.env.NACHO_ROLLUP_CONTRACT_ADDRESS
 
 if (
-    proofDbPath === undefined ||
-    txSenderPrivateKeyAsBase58 === undefined ||
+    proofsPath === undefined ||
+    privateKeyAsBase58 === undefined ||
     minaNodeUrl === undefined ||
     rollupContractAddress === undefined
 ) {
     process.exit(1)
 }
 
-const txSender = PrivateKey.fromBase58(txSenderPrivateKeyAsBase58)
+const txSender = PrivateKey.fromBase58(privateKeyAsBase58)
 
 Mina.setActiveInstance(Mina.Network(minaNodeUrl))
 
@@ -35,7 +35,7 @@ stdin.on("data", async () => {
     let ok = false
 
     try {
-        const mergedProof = await readMergedProofFromDisk(proofDbPath)
+        const mergedProof = await readMergedProofFromDisk(proofsPath)
         await submitMergedProof(mergedProof, rollupContract, txSender)
         ok = true
     } catch {}

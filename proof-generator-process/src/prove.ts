@@ -33,7 +33,7 @@ export const createGenesis = async (params: CreateGenesis) => {
     return proof
 }
 
-export const depositTokens = async (params: DepositTokens, proofDbPath: string) => {
+export const depositTokens = async (params: DepositTokens, proofsPath: string) => {
     const proof = await proofGenerator.depositTokens(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -41,7 +41,7 @@ export const depositTokens = async (params: DepositTokens, proofDbPath: string) 
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SingleBalanceWitness(params.single_balance_witness.siblings),
         Field(params.current_deposits_merkle_list_hash),
         Field(params.expected_deposits_merkle_list_hash),
@@ -54,7 +54,7 @@ export const depositTokens = async (params: DepositTokens, proofDbPath: string) 
     return proof
 }
 
-export const makeBurnTokens = async (params: BurnTokens, proofDbPath: string) => {
+export const makeBurnTokens = async (params: BurnTokens, proofsPath: string) => {
     const proof = await proofGenerator.makeBurnTokens(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -62,7 +62,7 @@ export const makeBurnTokens = async (params: BurnTokens, proofDbPath: string) =>
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SingleBalanceWitness(params.single_balance_witness.siblings),
         new SingleBurnWitness(params.single_burn_witness.siblings),
         PublicKey.fromBase58(params.user_address),
@@ -79,7 +79,7 @@ export const makeBurnTokens = async (params: BurnTokens, proofDbPath: string) =>
     return proof
 }
 
-export const makeCreatePool = async (params: CreatePool, proofDbPath: string) => {
+export const makeCreatePool = async (params: CreatePool, proofsPath: string) => {
     const proof = await proofGenerator.makeCreatePool(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -87,7 +87,7 @@ export const makeCreatePool = async (params: CreatePool, proofDbPath: string) =>
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SinglePoolWitness(params.single_pool_witness.siblings),
         new SingleLiquidityWitness(params.single_liquidity_witness.siblings),
         new DoubleBalanceWitness(
@@ -111,7 +111,7 @@ export const makeCreatePool = async (params: CreatePool, proofDbPath: string) =>
     return proof
 }
 
-export const makeProvideLiquidity = async (params: ProvideLiquidity, proofDbPath: string) => {
+export const makeProvideLiquidity = async (params: ProvideLiquidity, proofsPath: string) => {
     const proof = await proofGenerator.makeProvideLiquidity(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -119,7 +119,7 @@ export const makeProvideLiquidity = async (params: ProvideLiquidity, proofDbPath
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SinglePoolWitness(params.single_pool_witness.siblings),
         new SingleLiquidityWitness(params.single_liquidity_witness.siblings),
         new DoubleBalanceWitness(
@@ -147,7 +147,7 @@ export const makeProvideLiquidity = async (params: ProvideLiquidity, proofDbPath
     return proof
 }
 
-export const makeRemoveLiquidity = async (params: RemoveLiquidity, proofDbPath: string) => {
+export const makeRemoveLiquidity = async (params: RemoveLiquidity, proofsPath: string) => {
     const proof = await proofGenerator.makeRemoveLiquidity(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -155,7 +155,7 @@ export const makeRemoveLiquidity = async (params: RemoveLiquidity, proofDbPath: 
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SinglePoolWitness(params.single_pool_witness.siblings),
         new SingleLiquidityWitness(params.single_liquidity_witness.siblings),
         new DoubleBalanceWitness(
@@ -184,7 +184,7 @@ export const makeRemoveLiquidity = async (params: RemoveLiquidity, proofDbPath: 
     return proof
 }
 
-export const makeBuyTokens = async (params: BuyTokens, proofDbPath: string) => {
+export const makeBuyTokens = async (params: BuyTokens, proofsPath: string) => {
     const proof = await proofGenerator.makeBuyTokens(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -192,7 +192,7 @@ export const makeBuyTokens = async (params: BuyTokens, proofDbPath: string) => {
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SinglePoolWitness(params.single_pool_witness.siblings),
         new DoubleBalanceWitness(
             params.double_balance_witness.siblingsX1,
@@ -218,7 +218,7 @@ export const makeBuyTokens = async (params: BuyTokens, proofDbPath: string) => {
     return proof
 }
 
-export const makeSellTokens = async (params: SellTokens, proofDbPath: string) => {
+export const makeSellTokens = async (params: SellTokens, proofsPath: string) => {
     const proof = await proofGenerator.makeSellTokens(
         new StateRoots({
             balances: Field(params.state_roots.balances),
@@ -226,7 +226,7 @@ export const makeSellTokens = async (params: SellTokens, proofDbPath: string) =>
             pools: Field(params.state_roots.pools),
             burns: Field(params.state_roots.burns),
         }),
-        await readProofFromDisk(proofDbPath, params.earlier_proof_index),
+        await readProofFromDisk(proofsPath, params.earlier_proof_index),
         new SinglePoolWitness(params.single_pool_witness.siblings),
         new DoubleBalanceWitness(
             params.double_balance_witness.siblingsX1,

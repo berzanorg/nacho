@@ -5,8 +5,8 @@ import { BridgeContract } from "nacho-bridge-contract"
 import { Mina, PublicKey } from "o1js"
 import { unparseError, unparseOutput } from "./output"
 
-const minaNodeUrl = process.argv.at(2)
-const bridgeContractAddress = process.argv.at(3)
+const minaNodeUrl = process.env.NACHO_MINA_NODE_URL
+const bridgeContractAddress = process.env.NACHO_BRIDGE_CONTRACT_ADDRESS
 
 if (minaNodeUrl === undefined || bridgeContractAddress === undefined) {
     process.exit(1)
