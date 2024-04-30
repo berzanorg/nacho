@@ -153,4 +153,33 @@ impl Processor {
 
         result
     }
+
+    pub async fn set_merged_until(&self, until_tx_id: u64) -> Option<()> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::SetMergedUntil {
+                sender: oneshot_sender,
+                until_tx_id,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_merged_until(&self) -> Option<u64> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+        self.sender
+            .send(Request::GetMergedUntil {
+                sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
 }

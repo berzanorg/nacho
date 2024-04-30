@@ -66,6 +66,16 @@ impl ByteConversion<8> for u64 {
     }
 }
 
+impl ByteConversion<4> for u32 {
+    fn to_bytes(&self) -> [u8; 4] {
+        self.to_le_bytes()
+    }
+
+    fn from_bytes(bytes: &[u8; 4]) -> Self {
+        u32::from_le_bytes(bytes.to_owned())
+    }
+}
+
 impl ByteConversion<1> for bool {
     fn to_bytes(&self) -> [u8; 1] {
         (self.to_owned() as u8).to_le_bytes()

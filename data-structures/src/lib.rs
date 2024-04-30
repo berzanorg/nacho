@@ -24,6 +24,7 @@ pub use address::Address;
 pub use balance::Balance;
 pub use burn::Burn;
 pub use byte_conversion::ByteConversion;
+pub use deposit::Deposit;
 pub use double_merkle_witness::DoubleMerkleWitness;
 pub use field::Field;
 pub use field_conversion::FieldConversion;

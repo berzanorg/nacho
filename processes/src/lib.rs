@@ -1,10 +1,14 @@
-pub mod authenticator;
 pub mod balances;
 pub mod burns;
 pub mod executor;
+pub mod fetcher;
+pub mod generator;
 pub mod liquidities;
 pub mod mempool;
+pub mod merger;
 pub mod pools;
 pub mod proofpool;
+pub mod submitter;
 pub mod transactions;
+pub mod verifier;
 pub mod withdrawals;

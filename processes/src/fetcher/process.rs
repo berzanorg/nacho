@@ -1,10 +1,7 @@
 use std::time::Duration;
 
 use super::Processor;
-use crate::{
-    balances, burns, executor, liquidities, mempool, pools, proofpool, transactions, verifier,
-    withdrawals,
-};
+use crate::{burns, executor, mempool, transactions, withdrawals};
 use nacho_data_structures::{
     ByteConversion, Deposit, DepositTokensTransaction, Transaction, Withdrawal,
 };
@@ -17,14 +14,9 @@ use tokio::{
 pub fn process(
     events_db_path: &str,
     event_fetcher_process_path: &str,
-    verifier: verifier::Processor,
     executor: executor::Processor,
     mempool: mempool::Processor,
     transactions: transactions::Processor,
-    proofpool: proofpool::Processor,
-    balances: balances::Processor,
-    pools: pools::Processor,
-    liquidities: liquidities::Processor,
     burns: burns::Processor,
     withdrawals: withdrawals::Processor,
 ) -> Processor {

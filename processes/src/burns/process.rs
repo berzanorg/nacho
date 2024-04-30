@@ -32,7 +32,9 @@ pub fn process(path: &str) -> Processor {
                     burner,
                     token_id,
                 } => {
-                    let single_witness = burns_db.get_single_witness(&burner, &token_id).await;
+                    let single_witness = burns_db
+                        .get_single_witness_with_index(&burner, &token_id)
+                        .await;
 
                     sender.send(single_witness.ok()).unwrap();
                 }
@@ -63,6 +65,15 @@ pub fn process(path: &str) -> Processor {
                 }
                 Request::GetRoot { sender } => {
                     let result = burns_db.get_root().await;
+
+                    sender.send(result.ok().map(|root| root.into())).unwrap();
+                }
+                Request::GetIndex {
+                    sender,
+                    burner,
+                    token_id,
+                } => {
+                    let result = burns_db.get_index(&burner, &token_id).await;
 
                     sender.send(result.ok().map(|root| root.into())).unwrap();
                 }

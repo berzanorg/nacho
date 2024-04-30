@@ -37,4 +37,11 @@ pub enum Request {
     GetSettledUntil {
         sender: oneshot::Sender<Option<u64>>,
     },
+    SetMergedUntil {
+        sender: oneshot::Sender<Option<()>>,
+        until_tx_id: u64,
+    },
+    GetMergedUntil {
+        sender: oneshot::Sender<Option<u64>>,
+    },
 }

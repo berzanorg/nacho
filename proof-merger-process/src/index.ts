@@ -1,6 +1,6 @@
 import { stdin, stdout } from "node:process"
 import { parseInput } from "./parse"
-import { mergeWithPrevious } from "./prove"
+import { continueMerge, startMerge } from "./prove"
 import { saveMergedProofToDisk } from "./utils"
 import { proofGenerator } from "nacho-proof-generator"
 
@@ -22,7 +22,11 @@ stdin.on("data", async (chunk) => {
         const input = parseInput(chunk)
 
         const proof =
-            input.kind === "MergeWithPrevious" ? await mergeWithPrevious(input, proofDbPath) : null
+            input.kind === "StartMerge"
+                ? await startMerge(input, proofDbPath)
+                : input.kind === "ContinueMerge"
+                ? await continueMerge(input, proofDbPath)
+                : null
 
         if (proof) {
             saveMergedProofToDisk(proofDbPath, proof)

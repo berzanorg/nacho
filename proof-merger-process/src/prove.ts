@@ -1,20 +1,21 @@
-import { StateRoots } from "nacho-common-o1js"
 import { proofGenerator } from "nacho-proof-generator"
-import { Field } from "o1js"
-import { MergeWithPrevious } from "./input"
-import { readProofFromDisk } from "./utils"
+import { ContinueMerge, StartMerge } from "./input"
+import { readMergedProofFromDisk, readProofFromDisk } from "./utils"
 
-export const mergeWithPrevious = async (params: MergeWithPrevious, proofDbPath: string) => {
-    const proof = await proofGenerator.mergeProofs(
-        new StateRoots({
-            balances: Field(params.state_roots.balances),
-            liquidities: Field(params.state_roots.liquidities),
-            pools: Field(params.state_roots.pools),
-            burns: Field(params.state_roots.burns),
-        }),
-        await readProofFromDisk(proofDbPath, BigInt(params.proof_index - 1)),
-        await readProofFromDisk(proofDbPath, BigInt(params.proof_index)),
-    )
+export const startMerge = async (params: StartMerge, proofDbPath: string) => {
+    const firstProof = await readProofFromDisk(proofDbPath, BigInt(params.proof_index))
+    const secondProof = await readProofFromDisk(proofDbPath, BigInt(params.proof_index + 1))
+
+    const proof = await proofGenerator.mergeProofs(firstProof.publicInput, firstProof, secondProof)
+
+    return proof
+}
+
+export const continueMerge = async (params: ContinueMerge, proofDbPath: string) => {
+    const firstProof = await readMergedProofFromDisk(proofDbPath)
+    const secondProof = await readProofFromDisk(proofDbPath, BigInt(params.proof_index))
+
+    const proof = await proofGenerator.mergeProofs(firstProof.publicInput, firstProof, secondProof)
 
     return proof
 }

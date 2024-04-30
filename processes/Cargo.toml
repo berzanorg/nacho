@@ -19,3 +19,6 @@ nacho-proofpool.workspace = true
 nacho-rpc-server.workspace = true
 nacho-transactions-db.workspace = true
 nacho-withdrawals-db.workspace = true
+nacho-js-process.workspace = true
+nacho-events-db.workspace = true
+nacho-poseidon-hash.workspace = true

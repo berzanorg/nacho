@@ -919,6 +919,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nacho-events-db"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "nacho-executor"
 version = "0.1.0"
 dependencies = [
@@ -988,11 +996,13 @@ dependencies = [
  "nacho-balances-db",
  "nacho-burns-db",
  "nacho-data-structures",
+ "nacho-events-db",
  "nacho-executor",
  "nacho-js-process",
  "nacho-liquidities-db",
  "nacho-mempool",
  "nacho-pools-db",
+ "nacho-poseidon-hash",
  "nacho-proofpool",
  "nacho-rpc-server",
  "nacho-transactions-db",
@@ -1007,22 +1017,6 @@ version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
  "nacho-dynamic-queue",
- "thiserror",
-]
-
-[[package]]
-name = "nacho-proofs-db"
-version = "0.1.0"
-dependencies = [
- "thiserror",
- "tokio",
-]
-
-[[package]]
-name = "nacho-prover"
-version = "0.1.0"
-dependencies = [
- "nacho-data-structures",
  "thiserror",
 ]
 
@@ -1070,6 +1064,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nacho-static-list"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "nacho-static-merkle-tree"
 version = "0.1.0"
 dependencies = [
@@ -1093,8 +1095,8 @@ name = "nacho-withdrawals-db"
 version = "0.1.0"
 dependencies = [
  "nacho-data-structures",
- "nacho-dynamic-list",
  "nacho-poseidon-hash",
+ "nacho-static-list",
  "nacho-static-merkle-tree",
  "thiserror",
  "tokio",

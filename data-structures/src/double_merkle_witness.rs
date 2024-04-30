@@ -1,4 +1,4 @@
-use crate::{ByteConversion, Field, FieldConversion, Sibling};
+use crate::{ByteConversion, Field, FieldConversion, Sibling, SingleMerkleWitness};
 use nacho_macros::{choose, put_in_order};
 use nacho_poseidon_hash::{poseidon_hash, PoseidonHasher};
 
@@ -109,6 +109,27 @@ macro_rules! impl_byte_conversion_trait_for_height {
 }
 
 impl_byte_conversion_trait_for_height!(23);
+
+impl<const L: usize> From<(SingleMerkleWitness<L>, SingleMerkleWitness<L>)>
+    for DoubleMerkleWitness<L>
+{
+    fn from(value: (SingleMerkleWitness<L>, SingleMerkleWitness<L>)) -> Self {
+        let mut siblings_at = [false; L];
+
+        for i in 0..L {
+            if value.0.siblings[L - i - 1].is_left != value.1.siblings[L - i - 1].is_left {
+                siblings_at[L - i - 1] = true;
+                break;
+            }
+        }
+
+        Self {
+            siblings_x1: value.0.siblings,
+            siblings_x2: value.1.siblings,
+            siblings_at,
+        }
+    }
+}
 
 #[cfg(test)]
 mod test {

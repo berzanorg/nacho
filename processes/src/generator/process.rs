@@ -1,5 +1,5 @@
 use super::Processor;
-use crate::{balances, burns, liquidities, pools, proofpool, transactions, verifier};
+use crate::{balances, burns, liquidities, pools, proofpool, transactions};
 use nacho_data_structures::{
     Balance, Burn, ByteConversion, Deposit, FieldConversion, Liquidity, Pool, ProverMethod,
     StateRoots, StatefulTransaction,
@@ -12,7 +12,6 @@ use tokio::{
 
 pub fn process(
     path: &str,
-    verifier: verifier::Processor,
     transactions: transactions::Processor,
     proofpool: proofpool::Processor,
     balances: balances::Processor,
@@ -310,13 +309,22 @@ pub async fn create_prover_method(
                     transaction.quote_token_id.clone(),
                 )
                 .await?,
-            double_balance_witness: balances
-                .get_double_witness(
-                    transaction.address.clone(),
-                    transaction.base_token_id.clone(),
-                    transaction.quote_token_id.clone(),
-                )
-                .await?,
+            double_balance_witness: (
+                balances
+                    .get_single_witness(
+                        transaction.address.clone(),
+                        transaction.base_token_id.clone(),
+                    )
+                    .await
+                    .unwrap_or(balances.get_new_witness().await?),
+                balances
+                    .get_single_witness(
+                        transaction.address.clone(),
+                        transaction.quote_token_id.clone(),
+                    )
+                    .await?,
+            )
+                .into(),
             user_address: transaction.address.clone(),
             base_token_id: transaction.base_token_id.clone(),
             quote_token_id: transaction.quote_token_id.clone(),
@@ -344,13 +352,22 @@ pub async fn create_prover_method(
                     transaction.quote_token_id.clone(),
                 )
                 .await?,
-            double_balance_witness: balances
-                .get_double_witness(
-                    transaction.address.clone(),
-                    transaction.base_token_id.clone(),
-                    transaction.quote_token_id.clone(),
-                )
-                .await?,
+            double_balance_witness: (
+                balances
+                    .get_single_witness(
+                        transaction.address.clone(),
+                        transaction.base_token_id.clone(),
+                    )
+                    .await?,
+                balances
+                    .get_single_witness(
+                        transaction.address.clone(),
+                        transaction.quote_token_id.clone(),
+                    )
+                    .await
+                    .unwrap_or(balances.get_new_witness().await?),
+            )
+                .into(),
             user_address: transaction.address.clone(),
             base_token_id: transaction.base_token_id.clone(),
             quote_token_id: transaction.quote_token_id.clone(),

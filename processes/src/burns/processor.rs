@@ -43,7 +43,11 @@ impl Processor {
         burns
     }
 
-    pub async fn get_witness(&self, burner: Address, token_id: U256) -> Option<SingleBurnWitness> {
+    pub async fn get_witness(
+        &self,
+        burner: Address,
+        token_id: U256,
+    ) -> Option<(SingleBurnWitness, u64)> {
         let (oneshot_sender, oneshot_receiver) = oneshot::channel();
 
         self.sender
@@ -145,6 +149,23 @@ impl Processor {
         self.sender
             .send(Request::GetRoot {
                 sender: oneshot_sender,
+            })
+            .await
+            .ok()?;
+
+        let result = oneshot_receiver.await.ok()?;
+
+        result
+    }
+
+    pub async fn get_index(&self, burner: Address, token_id: U256) -> Option<u64> {
+        let (oneshot_sender, oneshot_receiver) = oneshot::channel();
+
+        self.sender
+            .send(Request::GetIndex {
+                sender: oneshot_sender,
+                burner,
+                token_id,
             })
             .await
             .ok()?;

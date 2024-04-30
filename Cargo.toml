@@ -4,6 +4,7 @@ members = [
     "balances-db",
     "burns-db",
     "data-structures",
+    "static-list",
     "dynamic-list",
     "dynamic-queue",
     "executor",
@@ -16,13 +17,12 @@ members = [
     "processes",
     "proofpool",
     "rpc-server",
-    "prover",
     "rollup",
     "transactions-db",
     "withdrawals-db",
     "schnorr-signature",
-    "proofs-db",
     "macros",
+    "events-db",
     "js-process",
 ]
 
@@ -52,6 +52,7 @@ nacho-data-structures.path = "data-structures"
 nacho-dynamic-queue.path = "dynamic-queue"
 nacho-liquidities-db.path = "liquidities-db"
 nacho-dynamic-list.path = "dynamic-list"
+nacho-static-list.path = "static-list"
 nacho-executor.path = "executor"
 nacho-mempool.path = "mempool"
 nacho-dynamic-merkle-tree.path = "dynamic-merkle-tree"
@@ -59,8 +60,7 @@ nacho-pools-db.path = "pools-db"
 nacho-poseidon-hash.path = "poseidon-hash"
 nacho-processes.path = "processes"
 nacho-proofpool.path = "proofpool"
-nacho-proofs-db.path = "proofs-db"
-nacho-prover.path = "prover"
+nacho-events-db.path = "events-db"
 nacho-js-process.path = "js-process"
 nacho-rpc-server.path = "rpc-server"
 nacho-schnorr-signature.path = "schnorr-signature"

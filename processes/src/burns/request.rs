@@ -13,7 +13,7 @@ pub enum Request {
         burner: Address,
     },
     GetWitness {
-        sender: oneshot::Sender<Option<SingleBurnWitness>>,
+        sender: oneshot::Sender<Option<(SingleBurnWitness, u64)>>,
         burner: Address,
         token_id: U256,
     },
@@ -38,5 +38,10 @@ pub enum Request {
     },
     GetRoot {
         sender: oneshot::Sender<Option<U256>>,
+    },
+    GetIndex {
+        sender: oneshot::Sender<Option<u64>>,
+        burner: Address,
+        token_id: U256,
     },
 }

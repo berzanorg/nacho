@@ -114,6 +114,20 @@ impl BurnsDb {
         Ok(burn)
     }
 
+    pub async fn get_index(&mut self, address: &Address, token_id: &U256) -> Result<u64> {
+        let indexes = self
+            .indexes
+            .get(address)
+            .ok_or(BurnsDbError::BurnDoesntExist)?;
+
+        let &(index, _) = indexes
+            .iter()
+            .find(|(_, f_token_id)| f_token_id == token_id)
+            .ok_or(BurnsDbError::BurnDoesntExist)?;
+
+        Ok(index)
+    }
+
     pub async fn get_many(&mut self, address: &Address) -> Result<Vec<Burn>> {
         let indexes = self
             .indexes
@@ -133,11 +147,11 @@ impl BurnsDb {
         Ok(burns)
     }
 
-    pub async fn get_single_witness(
+    pub async fn get_single_witness_with_index(
         &mut self,
         address: &Address,
         token_id: &U256,
-    ) -> Result<SingleBurnWitness> {
+    ) -> Result<(SingleBurnWitness, u64)> {
         let indexes = self
             .indexes
             .get(address)
@@ -150,7 +164,7 @@ impl BurnsDb {
 
         let single_witness = self.tree.get_single_witness(index).await?;
 
-        Ok(single_witness)
+        Ok((single_witness, index))
     }
 
     pub async fn get_new_single_witness(&mut self) -> Result<SingleBurnWitness> {

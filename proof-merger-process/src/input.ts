@@ -1,10 +1,12 @@
-import { StateRoots } from "./types"
+export type Input = StartMerge | ContinueMerge | MistakenInput
 
-export type Input = MergeWithPrevious | MistakenInput
+export type StartMerge = {
+    kind: "StartMerge"
+    proof_index: number
+}
 
-export type MergeWithPrevious = {
-    kind: "MergeWithPrevious"
-    state_roots: StateRoots
+export type ContinueMerge = {
+    kind: "ContinueMerge"
     proof_index: number
 }
 

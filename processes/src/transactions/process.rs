@@ -81,6 +81,21 @@ pub fn process(path: &str) -> Processor {
 
                     sender.send(result.ok()).unwrap();
                 }
+
+                Request::SetMergedUntil {
+                    sender,
+                    until_tx_id,
+                } => {
+                    let result = transactions_db.set_merged_until(until_tx_id).await;
+
+                    sender.send(result.ok()).unwrap();
+                }
+
+                Request::GetMergedUntil { sender } => {
+                    let result = transactions_db.get_merged_until().await;
+
+                    sender.send(result.ok()).unwrap();
+                }
             }
         }
     });

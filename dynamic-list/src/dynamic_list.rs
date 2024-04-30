@@ -129,7 +129,7 @@ mod tests {
 
     #[tokio::test]
     async fn creates_list() {
-        let dir = "/tmp/nacho/tests/list/creates_list";
+        let dir = "/tmp/nacho/tests/dynamic_list/creates_list";
 
         let list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -140,7 +140,7 @@ mod tests {
 
     #[tokio::test]
     async fn pushes_buffers() {
-        let dir = "/tmp/nacho/tests/list/pushes_buffers";
+        let dir = "/tmp/nacho/tests/dynamic_list/pushes_buffers";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -155,7 +155,7 @@ mod tests {
 
     #[tokio::test]
     async fn sets_buffers() {
-        let dir = "/tmp/nacho/tests/list/sets_buffers";
+        let dir = "/tmp/nacho/tests/dynamic_list/sets_buffers";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -170,7 +170,7 @@ mod tests {
 
     #[tokio::test]
     async fn gets_buffers() {
-        let dir = "/tmp/nacho/tests/list/gets_buffers";
+        let dir = "/tmp/nacho/tests/dynamic_list/gets_buffers";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -188,7 +188,7 @@ mod tests {
 
     #[tokio::test]
     async fn runs_given_function_for_each_buffer_correctly() {
-        let dir = "/tmp/nacho/tests/list/runs_given_function_for_each_buffer_correctly";
+        let dir = "/tmp/nacho/tests/dynamic_list/runs_given_function_for_each_buffer_correctly";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -212,7 +212,7 @@ mod tests {
 
     #[tokio::test]
     async fn doesnt_get_buffers_at_unset_indexes() {
-        let dir = "/tmp/nacho/tests/list/doesnt_get_buffers_at_unset_indexes";
+        let dir = "/tmp/nacho/tests/dynamic_list/doesnt_get_buffers_at_unset_indexes";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
@@ -227,7 +227,7 @@ mod tests {
 
     #[tokio::test]
     async fn doesnt_set_buffers_at_indexes_out_of_bounds() {
-        let dir = "/tmp/nacho/tests/list/doesnt_set_buffers_at_indexes_out_of_bounds";
+        let dir = "/tmp/nacho/tests/dynamic_list/doesnt_set_buffers_at_indexes_out_of_bounds";
 
         let mut list = DynamicList::<2>::new(dir).await.unwrap();
 
