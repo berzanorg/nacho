@@ -1,7 +1,7 @@
 import { createStateUtil, proofGenerator } from "nacho-proof-generator"
 import { describe, it } from "node:test"
 import { RollupContract } from "../src/index.js"
-import { AccountUpdate, Bool, Field, Mina, UInt64 } from "o1js"
+import { AccountUpdate, Bool, Field, Mina, Provable, UInt64 } from "o1js"
 import { generateKeypair } from "./utils.js"
 import { StateRoots } from "nacho-common-o1js"
 import assert from "assert"
@@ -28,7 +28,7 @@ describe("rollup contract", async () => {
         await tx.prove()
         await tx.send()
 
-        rollupContract.stateRoots.getAndRequireEquals().assertEquals(StateRoots.empty())
+        rollupContract.stateRoots.get().assertEquals(StateRoots.empty())
     })
 
     it("generates create genesis proof", async () => {
@@ -76,8 +76,8 @@ describe("rollup contract", async () => {
         await tx.prove()
         await tx.send()
 
-        stateUtil.setBalance(0n, john.publicKey, Field(0), UInt64.from(42))
-        rollupContract.stateRoots.getAndRequireEquals().assertEquals(stateUtil.stateRoots)
+        stateUtil.setBalance(0n, john.publicKey, Field(1), UInt64.from(42))
+        rollupContract.stateRoots.get().assertEquals(stateUtil.stateRoots)
     })
 
     it("doesn't settle old proofs to rollup contract", async () => {
@@ -89,10 +89,7 @@ describe("rollup contract", async () => {
             await tx.prove()
             await tx.send()
         } catch (error) {
-            assert.equal(
-                (error as Error).message,
-                'Transaction failed with errors:\n- [[],[["Account_app_state_precondition_unsatisfied",0]]]',
-            )
+            assert.equal((error as Error).message, "Bool.assertTrue(): false != true")
         }
     })
 })
