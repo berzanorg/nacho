@@ -1,0 +1,58 @@
+name: Node.js Tests
+
+on:
+    push:
+
+jobs:
+    token_contract:
+        name: Token Contract Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "21"
+                  cache: "npm"
+            - run: npm install --prefix token-contract
+            - run: npm test --prefix token-contract
+
+    bridge_contract:
+        name: Bridge Contract Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "21"
+                  cache: "npm"
+            - run: npm install --prefix bridge-contract
+            - run: npm test --prefix bridge-contract
+
+    rollup_contract:
+        name: Rollup Contract Tests
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "21"
+                  cache: "npm"
+            - run: npm install --prefix rollup-contract
+            - run: npm test --prefix rollup-contract
+
+    proof_generator:
+        name: Proof Generator Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "21"
+                  cache: "npm"
+            - run: npm install --prefix proof-generator
+            - run: npm test --prefix proof-generator
