@@ -7,52 +7,63 @@ jobs:
     token_contract:
         name: Token Contract Tests
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./token-contract
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "21"
+                  node-version: 20
                   cache: "npm"
-            - run: npm install --prefix token-contract
-            - run: npm test --prefix token-contract
+            - run: npm install
+            - run: npm test
 
     bridge_contract:
         name: Bridge Contract Tests
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./bridge-contract
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "21"
+                  node-version: 20
                   cache: "npm"
-            - run: npm install --prefix bridge-contract
-            - run: npm test --prefix bridge-contract
+            - run: npm install
+            - run: npm test
 
     rollup_contract:
         name: Rollup Contract Tests
         runs-on: ubuntu-latest
-
+        defaults:
+            run:
+                working-directory: ./rollup-contract
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "21"
+                  node-version: 20
                   cache: "npm"
-            - run: npm install --prefix rollup-contract
-            - run: npm test --prefix rollup-contract
+            - run: npm install
+            - run: npm test
 
     proof_generator:
         name: Proof Generator Tests
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./proof-generator
         steps:
             - uses: actions/checkout@v4
             - name: Use Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "21"
+                  node-version: 20
                   cache: "npm"
-            - run: npm install --prefix proof-generator
-            - run: npm test --prefix proof-generator
+            - run: npm install
+            - run: npm test

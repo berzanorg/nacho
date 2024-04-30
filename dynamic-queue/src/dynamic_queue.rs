@@ -370,7 +370,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::fs::remove_file;
+    use tokio::fs::remove_dir_all;
 
     #[derive(Debug, PartialEq)]
     struct T {
@@ -395,7 +395,7 @@ mod tests {
 
         let _ = DynamicQueue::<4, T>::new(dir).await?;
 
-        Ok(remove_file(dir).await?)
+        Ok(remove_dir_all(dir).await?)
     }
 
     #[tokio::test]
@@ -462,7 +462,7 @@ mod tests {
             assert_eq!(queue.pop().await?, Some(T { num: i }));
         }
 
-        Ok(remove_file(dir).await?)
+        Ok(remove_dir_all(dir).await?)
     }
 
     #[tokio::test]
@@ -541,6 +541,6 @@ mod tests {
         let file_len = queue.file.metadata().await?.len();
         assert_eq!(file_len, (12 + 3 + 2) * 4 + 8);
 
-        Ok(remove_file(dir).await?)
+        Ok(remove_dir_all(dir).await?)
     }
 }

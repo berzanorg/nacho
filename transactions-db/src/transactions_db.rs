@@ -240,7 +240,7 @@ impl TransactionsDb {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::fs::remove_file;
+    use tokio::fs::remove_dir_all;
 
     #[tokio::test]
     async fn creates_tx_statuses_db_correctly() {
@@ -260,7 +260,7 @@ mod tests {
         assert_eq!(settled_until, 0);
         assert_eq!(merged_until, 0);
 
-        remove_file(dir).await.unwrap();
+        remove_dir_all(dir).await.unwrap();
     }
 
     #[tokio::test]
@@ -317,7 +317,7 @@ mod tests {
         let tx_count = tx_db.get_tx_count().await.unwrap();
         assert_eq!(tx_count, 9);
 
-        remove_file(dir).await.unwrap();
+        remove_dir_all(dir).await.unwrap();
     }
 
     #[tokio::test]
@@ -375,6 +375,6 @@ mod tests {
         let tx_status = tx_db.get_status(9).await.unwrap();
         assert_eq!(tx_status, TxStatus::Pending);
 
-        remove_file(dir).await.unwrap();
+        remove_dir_all(dir).await.unwrap();
     }
 }
