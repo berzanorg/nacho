@@ -30,7 +30,7 @@ pub enum RpcMethod {
     GetBurns { address: Address },
 
     /// Requests witnesses required to use the bridge.
-    GetBridgeWitnesses { burn_id: u64 },
+    GetBridgeWitnesses { address: Address, token_id: U256 },
 
     /// Requests to burn tokens.
     BurnTokens {
@@ -68,7 +68,7 @@ pub enum RpcMethod {
         quote_token_id: U256,
         base_token_amount_limit: u64,
         quote_token_amount_limit: u64,
-        liquidity_point_amount: U256,
+        points: U256,
     },
 
     /// Requests to buy the base token of an AMM pool.
@@ -125,7 +125,8 @@ impl ByteConversion<{ RpcMethod::SIZE_IN_BYTES }> for RpcMethod {
             },
 
             7 => RpcMethod::GetBridgeWitnesses {
-                burn_id: u64::from_bytes(bytes[1..9].try_into().unwrap()),
+                address: Address::from_bytes(bytes[1..56].try_into().unwrap()),
+                token_id: U256::from_bytes(bytes[56..88].try_into().unwrap()),
             },
 
             8 => RpcMethod::BurnTokens {
@@ -160,7 +161,7 @@ impl ByteConversion<{ RpcMethod::SIZE_IN_BYTES }> for RpcMethod {
                 quote_token_id: U256::from_bytes(bytes[152..184].try_into().unwrap()),
                 base_token_amount_limit: u64::from_bytes(bytes[184..192].try_into().unwrap()),
                 quote_token_amount_limit: u64::from_bytes(bytes[192..200].try_into().unwrap()),
-                liquidity_point_amount: U256::from_bytes(bytes[200..232].try_into().unwrap()),
+                points: U256::from_bytes(bytes[200..232].try_into().unwrap()),
             },
 
             12 => RpcMethod::BuyTokens {

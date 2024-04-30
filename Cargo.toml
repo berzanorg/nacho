@@ -17,7 +17,7 @@ members = [
     "processes",
     "proofpool",
     "rpc-server",
-    "rollup",
+    "zk-rollup",
     "transactions-db",
     "withdrawals-db",
     "schnorr-signature",

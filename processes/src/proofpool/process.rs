@@ -3,13 +3,13 @@ use tokio::sync::mpsc;
 
 use super::{Processor, Request};
 
-pub fn process(path: &str) -> Processor {
-    let path = path.to_owned();
+pub fn process() -> Processor {
+    let proofpool_path = std::env::var("NACHO_PROOFPOOL_PATH").unwrap();
 
     let (sender, mut receiver) = mpsc::channel::<Request>(1000);
 
     tokio::spawn(async move {
-        let mut proofpool = Proofpool::new(path).await.unwrap();
+        let mut proofpool = Proofpool::new(proofpool_path).await.unwrap();
 
         while let Some(request) = receiver.recv().await {
             match request {

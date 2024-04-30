@@ -14,14 +14,14 @@ use crate::error::JsProcessError;
 /// Spawn a process:
 ///
 /// ```rs
-/// let (stdin, stdout) = nacho_js_process::spawn(&["echo.js"])?;
+/// let (stdin, stdout) = nacho_js_process::spawn("echo.js")?;
 /// ```
 ///
 pub fn spawn(
-    args: &[&str],
+    path: &str,
 ) -> Result<(&'static mut ChildStdin, &'static mut ChildStdout), JsProcessError> {
     let mut process = Command::new("node")
-        .args(args)
+        .arg(path)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())
@@ -43,7 +43,7 @@ pub fn spawn(
 /// Spawn a process:
 ///
 /// ```rs
-/// let (stdin, stdout) = nacho_js_process::spawn(&["greeting.js"])?;
+/// let (stdin, stdout) = nacho_js_process::spawn("greeting.js")?;
 /// ```
 ///
 /// Interact with the process:
@@ -75,7 +75,7 @@ mod tests {
     pub async fn test_echo_js_process() {
         let js_file_path = concat!(env!("CARGO_MANIFEST_DIR"), "/resources/echo.mjs");
 
-        let (stdin, stdout) = spawn(&[js_file_path]).unwrap();
+        let (stdin, stdout) = spawn(js_file_path).unwrap();
 
         // First try:
         let input = [111u8; 5];

@@ -27,18 +27,21 @@ use tokio::net::{TcpListener, ToSocketAddrs};
 ///
 /// Start an RPC server:
 /// ```rs
-/// start_rpc_server("127.0.0.1:2345", rpc_method_handler).await?;
+/// start_rpc_server(rpc_method_handler).await?;
 /// ```
 ///
-pub async fn start_rpc_server<A, F, Fut>(
-    addr: A,
-    rpc_method_handler: F,
-) -> Result<(), std::io::Error>
+pub async fn start_rpc_server<F, Fut>(rpc_method_handler: F) -> Result<(), std::io::Error>
 where
-    A: ToSocketAddrs,
     F: Fn(RpcMethod) -> Fut + Send + Sync + Copy + 'static,
     Fut: Future<Output = RpcResponse> + Send + 'static,
 {
+    let addr = std::env::var("NACHO_RPC_SERVER_PORT").map_err(|_| {
+        std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "NACHO_RPC_SERVER_PORT environment variable is not set",
+        )
+    })?;
+
     let listener = TcpListener::bind(addr).await?;
 
     loop {

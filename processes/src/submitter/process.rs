@@ -2,8 +2,11 @@ use std::time::Duration;
 
 use super::Processor;
 
-pub fn process(path: &str) -> Processor {
-    let (stdin, stdout) = nacho_js_process::spawn(&[path]).unwrap();
+pub fn process() -> Processor {
+    let proof_submitter_process_script_path =
+        std::env::var("NACHO_PROOF_SUBMITTER_PROCESS_SCRIPT_PATH").unwrap();
+
+    let (stdin, stdout) = nacho_js_process::spawn(&proof_submitter_process_script_path).unwrap();
 
     tokio::spawn(async move {
         loop {

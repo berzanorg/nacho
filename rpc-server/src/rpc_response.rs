@@ -10,8 +10,6 @@ type TokenId = U256;
 type TokenAmount = u64;
 /// The alias that represents the type of AMM liquidity points.
 type LiquidityPoints = U256;
-/// The alias that represents the type of burn IDs.
-type BurnId = u64;
 
 /// The enum that represents RPC responses.
 ///
@@ -30,9 +28,9 @@ pub enum RpcResponse {
     /// Represents the AMM liquidites of a user.
     Liquidites(Vec<(TokenId, TokenId, LiquidityPoints)>),
     /// Represents the burns of a user.
-    Burns(Vec<(TokenId, TokenAmount, BurnId)>),
+    Burns(Vec<(TokenId, TokenAmount)>),
     /// Represents the witnesses needed to withdraw assets from the bridge.
-    BridgeWitnesses((SingleBurnWitness, SingleWithdrawalWitness)),
+    BridgeWitnesses(SingleBurnWitness, SingleWithdrawalWitness),
     /// Represents a transaction's ID. Used for the RPC methods that modify the state.
     TxId(u64),
     /// Used for unknown RPC methods.
@@ -111,18 +109,17 @@ impl From<RpcResponse> for Vec<u8> {
                 bytes
             }
             RpcResponse::Burns(burns) => {
-                let mut bytes = Vec::with_capacity(1 + (48 * burns.len()));
+                let mut bytes = Vec::with_capacity(1 + (40 * burns.len()));
                 bytes.push(6);
 
-                for (token_id, token_amount, burn_id) in burns {
+                for (token_id, token_amount) in burns {
                     bytes.extend_from_slice(&token_id.to_bytes());
                     bytes.extend_from_slice(&token_amount.to_bytes());
-                    bytes.extend_from_slice(&burn_id.to_bytes());
                 }
 
                 bytes
             }
-            RpcResponse::BridgeWitnesses((burn_witness, withdrawal_witness)) => {
+            RpcResponse::BridgeWitnesses(burn_witness, withdrawal_witness) => {
                 let mut bytes = Vec::with_capacity(1 + 627 + 594);
                 bytes.push(7);
 

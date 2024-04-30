@@ -3,13 +3,13 @@ use tokio::sync::mpsc;
 
 use super::{Processor, Request};
 
-pub fn process(path: &str) -> Processor {
-    let path = path.to_owned();
+pub fn process() -> Processor {
+    let liquidities_db_path = std::env::var("NACHO_LIQUIDITIES_DB_PATH").unwrap();
 
     let (sender, mut receiver) = mpsc::channel::<Request>(1000);
 
     tokio::spawn(async move {
-        let mut liquidities_db = LiquiditiesDb::new(path).await.unwrap();
+        let mut liquidities_db = LiquiditiesDb::new(liquidities_db_path).await.unwrap();
 
         while let Some(request) = receiver.recv().await {
             match request {

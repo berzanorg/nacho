@@ -11,17 +11,19 @@ use tokio::{
 };
 
 pub fn process(
-    path: &str,
-    transactions: transactions::Processor,
-    proofpool: proofpool::Processor,
     balances: balances::Processor,
-    pools: pools::Processor,
-    liquidities: liquidities::Processor,
     burns: burns::Processor,
+    liquidities: liquidities::Processor,
+    pools: pools::Processor,
+    proofpool: proofpool::Processor,
+    transactions: transactions::Processor,
 ) -> Processor {
+    let proof_generator_process_script_path =
+        std::env::var("NACHO_PROOF_GENERATOR_PROCESS_SCRIPT_PATH").unwrap();
+
     let notify: &Notify = Box::leak(Box::new(Notify::new()));
 
-    let (stdin, stdout) = nacho_js_process::spawn(&[path]).unwrap();
+    let (stdin, stdout) = nacho_js_process::spawn(&proof_generator_process_script_path).unwrap();
 
     tokio::spawn(async move {
         let mut hasher = create_poseidon_hasher();

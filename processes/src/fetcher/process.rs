@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use super::Processor;
-use crate::{burns, executor, mempool, transactions, withdrawals};
+use crate::{burns, executor, generator, mempool, transactions, withdrawals};
 use nacho_data_structures::{
     ByteConversion, Deposit, DepositTokensTransaction, Transaction, Withdrawal,
 };
@@ -12,17 +12,18 @@ use tokio::{
 };
 
 pub fn process(
-    events_db_path: &str,
-    event_fetcher_process_path: &str,
+    burns: burns::Processor,
     executor: executor::Processor,
+    generator: generator::Processor,
     mempool: mempool::Processor,
     transactions: transactions::Processor,
-    burns: burns::Processor,
     withdrawals: withdrawals::Processor,
 ) -> Processor {
-    let (stdin, stdout) = nacho_js_process::spawn(&[event_fetcher_process_path]).unwrap();
+    let event_fetcher_process_script_path =
+        std::env::var("NACHO_EVENT_FETCHER_PROCESS_SCRIPT_PATH").unwrap();
+    let events_db_path = std::env::var("NACHO_EVENTS_DB_PATH").unwrap();
 
-    let events_db_path = events_db_path.to_string();
+    let (stdin, stdout) = nacho_js_process::spawn(&event_fetcher_process_script_path).unwrap();
 
     tokio::spawn(async move {
         let mut events_db = EventsDb::new(events_db_path).await.unwrap();
@@ -55,6 +56,7 @@ pub fn process(
                     }
 
                     executor.keep_executing();
+                    generator.keep_generating();
                 }
                 None => (),
             };

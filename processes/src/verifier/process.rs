@@ -2,10 +2,13 @@ use super::{Processor, Request};
 use nacho_data_structures::ByteConversion;
 use tokio::sync::mpsc;
 
-pub fn process(path: &str) -> Processor {
+pub fn process() -> Processor {
+    let signature_verifier_process_script_path =
+        std::env::var("NACHO_SIGNATURE_VERIFIER_PROCESS_SCRIPT_PATH").unwrap();
+
     let (sender, mut receiver) = mpsc::channel::<Request>(1000);
 
-    let (stdin, stdout) = nacho_js_process::spawn(&[path]).unwrap();
+    let (stdin, stdout) = nacho_js_process::spawn(&signature_verifier_process_script_path).unwrap();
 
     tokio::spawn(async move {
         while let Some(request) = receiver.recv().await {

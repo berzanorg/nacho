@@ -44,6 +44,7 @@ impl TransactionsDb {
             db.set_executed_until(0).await?;
             db.set_proved_until(0).await?;
             db.set_settled_until(0).await?;
+            db.set_merged_until(0).await?;
         }
 
         Ok(db)
@@ -81,6 +82,16 @@ impl TransactionsDb {
 
     pub async fn set_settled_until(&mut self, until_tx_id: u64) -> Result<()> {
         let padding = 24;
+
+        self.file.seek(SeekFrom::Start(padding)).await?;
+        self.file.write_u64(until_tx_id).await?;
+        self.file.flush().await?;
+
+        Ok(())
+    }
+
+    pub async fn set_merged_until(&mut self, until_tx_id: u64) -> Result<()> {
+        let padding = 32;
 
         self.file.seek(SeekFrom::Start(padding)).await?;
         self.file.write_u64(until_tx_id).await?;
@@ -129,11 +140,21 @@ impl TransactionsDb {
         Ok(tx_count)
     }
 
+    pub async fn get_merged_until(&mut self) -> Result<u64> {
+        let padding = 32;
+
+        self.file.seek(SeekFrom::Start(padding)).await?;
+
+        let tx_count = self.file.read_u64().await?;
+
+        Ok(tx_count)
+    }
+
     pub async fn add_new_tx(&mut self) -> Result<u64> {
         let len = self.file.metadata().await?.len();
         let tx_count = self.get_tx_count().await?;
 
-        let padding = 32 + (tx_count / 8);
+        let padding = 40 + (tx_count / 8);
 
         if len < padding + 1 {
             self.write_byte(padding, 0b0000_0000).await?;
@@ -153,7 +174,7 @@ impl TransactionsDb {
             return Err(TransactionsDbError::TxDoesntExist);
         }
 
-        let padding = 32 + (tx_id / 8);
+        let padding = 40 + (tx_id / 8);
 
         let byte = self.read_byte(padding).await?;
 
@@ -175,7 +196,7 @@ impl TransactionsDb {
             return Err(TransactionsDbError::TxDoesntExist);
         }
 
-        let padding = 32 + (tx_id / 8);
+        let padding = 40 + (tx_id / 8);
 
         let byte = self.read_byte(padding).await?;
 
@@ -241,11 +262,13 @@ mod tests {
         let executed_until = tx_db.get_executed_until().await.unwrap();
         let proved_until = tx_db.get_proved_until().await.unwrap();
         let settled_until = tx_db.get_settled_until().await.unwrap();
+        let merged_until = tx_db.get_merged_until().await.unwrap();
 
         assert_eq!(tx_count, 0);
         assert_eq!(executed_until, 0);
         assert_eq!(proved_until, 0);
         assert_eq!(settled_until, 0);
+        assert_eq!(merged_until, 0);
 
         remove_file(dir).await.unwrap();
     }

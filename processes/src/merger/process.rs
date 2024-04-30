@@ -8,10 +8,14 @@ use tokio::{
     time::sleep,
 };
 
-pub fn process(path: &str, transactions: transactions::Processor) -> Processor {
+pub fn process(transactions: transactions::Processor) -> Processor {
+    let proof_merger_process_script_path =
+        std::env::var("NACHO_PROOF_MERGER_PROCESS_SCRIPT_PATH").unwrap();
+
     let (sender, mut receiver) = mpsc::channel::<u32>(1000);
 
-    let (mut stdin, mut stdout) = nacho_js_process::spawn(&[path]).unwrap();
+    let (mut stdin, mut stdout) =
+        nacho_js_process::spawn(&proof_merger_process_script_path).unwrap();
 
     tokio::spawn(async move {
         let sleep = sleep(Duration::from_millis(100));

@@ -1021,24 +1021,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nacho-rollup"
-version = "0.1.0"
-dependencies = [
- "nacho-balances-db",
- "nacho-burns-db",
- "nacho-data-structures",
- "nacho-liquidities-db",
- "nacho-mempool",
- "nacho-pools-db",
- "nacho-processes",
- "nacho-proofpool",
- "nacho-rpc-server",
- "nacho-transactions-db",
- "nacho-withdrawals-db",
- "tokio",
-]
-
-[[package]]
 name = "nacho-rpc-server"
 version = "0.1.0"
 dependencies = [
@@ -1099,6 +1081,24 @@ dependencies = [
  "nacho-static-list",
  "nacho-static-merkle-tree",
  "thiserror",
+ "tokio",
+]
+
+[[package]]
+name = "nacho-zk-rollup"
+version = "0.1.0"
+dependencies = [
+ "nacho-balances-db",
+ "nacho-burns-db",
+ "nacho-data-structures",
+ "nacho-liquidities-db",
+ "nacho-mempool",
+ "nacho-pools-db",
+ "nacho-processes",
+ "nacho-proofpool",
+ "nacho-rpc-server",
+ "nacho-transactions-db",
+ "nacho-withdrawals-db",
  "tokio",
 ]
 

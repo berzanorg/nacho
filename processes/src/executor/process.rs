@@ -10,14 +10,14 @@ use nacho_data_structures::{
 use tokio::sync::Notify;
 
 pub fn process(
-    verifier: verifier::Processor,
-    transactions: transactions::Processor,
-    mempool: mempool::Processor,
-    proofpool: proofpool::Processor,
     balances: balances::Processor,
-    pools: pools::Processor,
-    liquidities: liquidities::Processor,
     burns: burns::Processor,
+    liquidities: liquidities::Processor,
+    mempool: mempool::Processor,
+    pools: pools::Processor,
+    proofpool: proofpool::Processor,
+    transactions: transactions::Processor,
+    verifier: verifier::Processor,
 ) -> Processor {
     let notify: &Notify = Box::leak(Box::new(Notify::new()));
 
