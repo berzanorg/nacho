@@ -5,6 +5,4 @@ use thiserror::Error;
 pub enum DynamicQueueError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
-    #[error("{} doesn't have a parent directory specified", .path)]
-    NoParentDirectorySpecified { path: String },
 }

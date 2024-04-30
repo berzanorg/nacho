@@ -4,7 +4,7 @@ use hyper::{body::Buf, server::conn::http1, service::service_fn};
 use hyper_util::rt::TokioIo;
 use nacho_data_structures::ByteConversion;
 use std::future::Future;
-use tokio::net::{TcpListener, ToSocketAddrs};
+use tokio::net::TcpListener;
 
 /// Starts an RPC Server at the given socket address and uses the given handler function to handle RPC requests.
 ///

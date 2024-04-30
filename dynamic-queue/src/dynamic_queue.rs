@@ -109,27 +109,13 @@ where
     pub async fn new(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
 
-        let parent_dir_path = path
-            .parent()
-            .ok_or(DynamicQueueError::NoParentDirectorySpecified {
-                path: path.to_string_lossy().to_string(),
-            })?
-            .to_string_lossy()
-            .to_string();
-
-        if parent_dir_path.is_empty() {
-            return Err(DynamicQueueError::NoParentDirectorySpecified {
-                path: path.to_string_lossy().to_string(),
-            });
-        }
-
-        create_dir_all(parent_dir_path).await?;
+        create_dir_all(path).await?;
 
         let file = OpenOptions::new()
             .read(true)
             .write(true)
             .create(true)
-            .open(path)
+            .open(path.join("file"))
             .await?;
 
         Ok(Self {
@@ -410,21 +396,6 @@ mod tests {
         let _ = DynamicQueue::<4, T>::new(dir).await?;
 
         Ok(remove_file(dir).await?)
-    }
-
-    #[tokio::test]
-    pub async fn doesnt_create_queue_when_parent_dir_not_given(
-    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
-        let dir = "doesnt_create_queue_when_parent_dir_not_given";
-
-        match DynamicQueue::<4, T>::new(dir).await {
-            Err(DynamicQueueError::NoParentDirectorySpecified { path }) => {
-                assert_eq!(path, dir)
-            }
-            _ => unreachable!(),
-        }
-
-        Ok(())
     }
 
     #[tokio::test]

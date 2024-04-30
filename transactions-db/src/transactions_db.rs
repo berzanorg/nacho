@@ -18,23 +18,13 @@ impl TransactionsDb {
     pub async fn new(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
 
-        let parent_dir_path = path
-            .parent()
-            .ok_or(TransactionsDbError::ParentDirectoryNotSpecified)?
-            .to_string_lossy()
-            .to_string();
-
-        if parent_dir_path.is_empty() {
-            return Err(TransactionsDbError::ParentDirectoryNotSpecified);
-        }
-
-        create_dir_all(parent_dir_path).await?;
+        create_dir_all(path).await?;
 
         let file = OpenOptions::new()
             .read(true)
             .write(true)
             .create(true)
-            .open(path)
+            .open(path.join("file"))
             .await?;
 
         let mut db = Self { file };

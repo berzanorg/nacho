@@ -5,8 +5,6 @@ use thiserror::Error;
 pub enum TransactionsDbError {
     #[error(transparent)]
     Io(#[from] std::io::Error),
-    #[error("Parent directory of the list isn't specified.")]
-    ParentDirectoryNotSpecified,
     #[error("Transaction doesn't exist.")]
     TxDoesntExist,
 }

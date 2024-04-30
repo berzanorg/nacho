@@ -12,11 +12,11 @@ async fn main() {
     let mempool = nacho_processes::mempool::process();
     let pools = nacho_processes::pools::process();
     let proofpool = nacho_processes::proofpool::process();
-    let submitter = nacho_processes::submitter::process();
+    let _submitter = nacho_processes::submitter::process();
     let transactions = nacho_processes::transactions::process();
     let verifier = nacho_processes::verifier::process();
     let withdrawals = nacho_processes::withdrawals::process();
-    let merger = nacho_processes::merger::process(transactions);
+    let _merger = nacho_processes::merger::process(transactions);
     let executor = nacho_processes::executor::process(
         balances,
         burns,
@@ -35,7 +35,7 @@ async fn main() {
         proofpool,
         transactions,
     );
-    let fetcher = nacho_processes::fetcher::process(
+    let _fetcher = nacho_processes::fetcher::process(
         burns,
         executor,
         generator,
