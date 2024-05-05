@@ -1,6 +1,21 @@
 {
   "name": "nacho-token-contract",
-  "version": "0.2.0",
+  "version": "0.3.0",
+  "description": "The token smart contract built for Nacho using o1js.",
+  "author": {
+    "name": "Berzan",
+    "url": "https://berzan.org/",
+    "email": "berzan@tutanota.com"
+  },
+  "keywords": [
+    "nacho",
+    "o1js",
+    "zkapp",
+    "mina",
+    "token-contract",
+    "nacho-token-contract"
+  ],
+  "license": "AGPL-3.0-only",
   "type": "module",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -9,10 +24,11 @@
   ],
   "scripts": {
     "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
-    "build": "rm -rf build/ && tsc"
+    "build": "rm -rf build/ && tsc",
+    "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "o1js": "^0.17.0"
+    "o1js": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
