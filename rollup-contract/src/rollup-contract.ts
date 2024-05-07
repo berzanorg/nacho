@@ -12,7 +12,7 @@ export class RollupContract extends SmartContract {
     }
 
     /** Verifies the given zk proof and updates the state roots if it's valid. */
-    @method settle(zkProof: ZkProof) {
+    @method async settle(zkProof: ZkProof) {
         this.stateRoots.getAndRequireEquals().assertEquals(zkProof.publicInput)
 
         zkProof.verify()
