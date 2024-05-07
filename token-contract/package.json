@@ -1,6 +1,6 @@
 {
   "name": "nacho-token-contract",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "The token smart contract built for Nacho using o1js.",
   "author": {
     "name": "Berzan",
@@ -11,27 +11,41 @@
     "nacho",
     "o1js",
     "zkapp",
+    "zk-app",
     "mina",
     "token-contract",
+    "smart-contract",
     "nacho-token-contract"
   ],
-  "license": "AGPL-3.0-only",
+  "homepage": "https://github.com/berzanorg/nacho/blob/main/token-contract#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/berzanorg/nacho.git",
+    "directory": "token-contract"
+  },
+  "license": "MIT",
   "type": "module",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "build"
+    "build/index.js",
+    "build/index.d.ts",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
-    "build": "rm -rf build/ && tsc",
+    "test": "rimraf build/ && tsc && node --test build/compiled/tests/*.test.js",
+    "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
     "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "o1js": "^1.1.0"
+    "o1js": "^0.17.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.17.0",
+    "rollup-plugin-dts": "^6.1.0",
     "typescript": "^5.3.3"
   }
 }

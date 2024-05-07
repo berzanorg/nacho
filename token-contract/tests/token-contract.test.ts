@@ -1,55 +1,62 @@
-import { describe, it } from "node:test"
-import { AccountUpdate, Mina, UInt64 } from "o1js"
+import { describe, test } from "node:test"
+import { AccountUpdate, Mina, PrivateKey, UInt64 } from "o1js"
 import { TokenContract } from "../src/token-contract.js"
 
 describe("token contract", async () => {
-    const LocalBlockchain = await Mina.LocalBlockchain({ proofsEnabled: false })
+    const LocalBlockchain = Mina.LocalBlockchain({ proofsEnabled: false })
     Mina.setActiveInstance(LocalBlockchain)
 
-    const [userAccount1, userAccount2] = LocalBlockchain.testAccounts
+    const [berzan, john] = LocalBlockchain.testAccounts
 
-    const tokenAccount = Mina.TestPublicKey.random()
-    const token = new TokenContract(tokenAccount)
+    const tokenKeys = (() => {
+        const privateKey = PrivateKey.random()
+
+        return {
+            publicKey: privateKey.toPublicKey(),
+            privateKey,
+        }
+    })()
+    const token = new TokenContract(tokenKeys.publicKey)
 
     await TokenContract.compile()
 
-    it("deploys token contract", async () => {
-        const deployTx = await Mina.transaction(userAccount1, async () => {
+    test("deploys token contract", async () => {
+        const deployTx = await Mina.transaction(berzan.publicKey, async () => {
             token.deploy()
-            AccountUpdate.fundNewAccount(userAccount1)
+            AccountUpdate.fundNewAccount(berzan.publicKey)
         })
 
         await deployTx.prove()
-        await deployTx.sign([userAccount1.key, tokenAccount.key]).send()
+        await deployTx.sign([berzan.privateKey, tokenKeys.privateKey]).send()
     })
 
-    it("mints tokens", async () => {
-        const mintTx = await Mina.transaction(userAccount2, async () => {
-            token.mint(UInt64.MAXINT(), userAccount2)
-            AccountUpdate.fundNewAccount(userAccount2)
+    test("mints tokens", async () => {
+        const mintTx = await Mina.transaction(john.publicKey, async () => {
+            token.mint(john.publicKey, UInt64.MAXINT())
+            AccountUpdate.fundNewAccount(john.publicKey)
         })
 
         await mintTx.prove()
-        await mintTx.sign([userAccount2.key]).send()
+        await mintTx.sign([john.privateKey]).send()
 
-        const user2Balance = Mina.getBalance(userAccount2, token.deriveTokenId())
+        const user2Balance = Mina.getBalance(john.publicKey, token.deriveTokenId())
         user2Balance.assertEquals(UInt64.MAXINT())
     })
 
-    it("transfers tokens", async () => {
-        const mintTx = await Mina.transaction(userAccount2, async () => {
-            AccountUpdate.fundNewAccount(userAccount2)
-            token.transfer(userAccount2, userAccount1, UInt64.from(1000))
+    test("transfers tokens", async () => {
+        const mintTx = await Mina.transaction(john.publicKey, async () => {
+            AccountUpdate.fundNewAccount(john.publicKey)
+            token.transfer(john.publicKey, berzan.publicKey, UInt64.from(1000))
         })
 
-        mintTx.sign([userAccount2.key, userAccount1.key, tokenAccount.key])
+        mintTx.sign([john.privateKey, berzan.privateKey, tokenKeys.privateKey])
         await mintTx.prove()
         await mintTx.send()
 
-        const user1Balance = Mina.getBalance(userAccount1, token.deriveTokenId())
+        const user1Balance = Mina.getBalance(berzan.publicKey, token.deriveTokenId())
         user1Balance.assertEquals(UInt64.from(1000))
 
-        const user2Balance = Mina.getBalance(userAccount2, token.deriveTokenId())
+        const user2Balance = Mina.getBalance(john.publicKey, token.deriveTokenId())
         user2Balance.assertEquals(UInt64.MAXINT().sub(1000))
     })
 })
