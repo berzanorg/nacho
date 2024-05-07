@@ -1,9 +1,9 @@
 import { Bool, Field, Struct } from "o1js"
 
 /**
- * Represents the rollup's state in the most lightweight form.
+ * The provable data structure that represents the layer 2 network's state roots stored in the layer 1 network.
  *
- * Contains the Merkle roots for each tree.
+ * It stores the rollup's state in the most lightweight form and contains the Merkle roots for each tree.
  */
 export class StateRoots extends Struct({
     balances: Field,

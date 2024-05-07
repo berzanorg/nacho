@@ -1,21 +1,47 @@
 {
   "name": "nacho-common-o1js",
-  "version": "0.1.10",
+  "version": "1.0.0",
+  "description": "The common o1js utilities for Nacho.",
+  "author": {
+    "name": "Berzan",
+    "url": "https://berzan.org/",
+    "email": "berzan@tutanota.com"
+  },
+  "keywords": [
+    "nacho",
+    "o1js",
+    "mina",
+    "common-o1js",
+    "nacho-common-o1js"
+  ],
+  "homepage": "https://github.com/berzanorg/nacho/blob/main/common-o1js#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/berzanorg/nacho.git",
+    "directory": "common-o1js"
+  },
+  "license": "MIT",
   "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
-    "build"
+    "build/index.js",
+    "build/index.d.ts",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "test": "rm -rf build/ && tsc && node --test build/*.test.js",
-    "build": "rm -rf build/ && tsc"
+    "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
+    "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "o1js": "^0.17.0"
+    "o1js": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.17.0",
+    "rollup-plugin-dts": "^6.1.0",
     "typescript": "^5.3.3"
   }
 }

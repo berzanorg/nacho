@@ -1,22 +1,24 @@
-export type { Sibling } from "./types.js"
-export { choose, putInOrder, addOnePerMilFee, normalDiv } from "./utils.js"
+export type { Sibling } from "./types"
+export { choose, putInOrder, addOnePerMilFee, normalDiv } from "./utils"
 export {
-    BALANCES_TREE_HEIGHT,
-    BURNS_TREE_HEIGHT,
     DoubleBalanceWitness,
-    LIQUIDITIES_TREE_HEIGHT,
-    POOLS_TREE_HEIGHT,
     SingleBalanceWitness,
     SingleBurnWitness,
     SingleLiquidityWitness,
     SinglePoolWitness,
     SingleWithdrawalWitness,
+} from "./witnesses"
+export { Balance } from "./structs/balance"
+export { Burn } from "./structs/burn"
+export { Deposit } from "./structs/deposit"
+export { Withdrawal } from "./structs/withdrawal"
+export { Liquidity } from "./structs/liquidity"
+export { Pool } from "./structs/pool"
+export { StateRoots } from "./structs/state-roots"
+export {
+    BALANCES_TREE_HEIGHT,
+    BURNS_TREE_HEIGHT,
+    LIQUIDITIES_TREE_HEIGHT,
+    POOLS_TREE_HEIGHT,
     WITHDRAWALS_TREE_HEIGHT,
-} from "./witnesses.js"
-export { Balance } from "./structs/balance.js"
-export { Burn } from "./structs/burn.js"
-export { Deposit } from "./structs/deposit.js"
-export { Withdrawal } from "./structs/withdrawal.js"
-export { Liquidity } from "./structs/liquidity.js"
-export { Pool } from "./structs/pool.js"
-export { StateRoots } from "./structs/state-roots.js"
+} from "./constants"

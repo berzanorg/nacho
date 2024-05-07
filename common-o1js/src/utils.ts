@@ -1,14 +1,11 @@
 import { Bool, Field, Provable, UInt64 } from "o1js"
 
 /**
- * Swaps the order of `x` and `y` if `c` is true.
- * Leaves them in the same order if `c` is false.
+ * Multiplies `x` with `1001` then divides the result with `1000`.
+ * Make sure that `x * 1.001` won't result an error.
  */
-export const putInOrder = (c: Bool, x: Field, y: Field): [Field, Field] => {
-    const m = c.toField().mul(x.sub(y))
-    const a = x.sub(m)
-    const b = y.add(m)
-    return [a, b]
+export const addOnePerMilFee = (x: UInt64): UInt64 => {
+    return UInt64.fromFields([normalDiv(x.value.mul(Field(1001)), Field(1000))])
 }
 
 /**
@@ -30,9 +27,12 @@ export const normalDiv = (x: Field, y: Field): Field => {
 }
 
 /**
- * Multiplies `x` with `1001` then divides the result with `1000`.
- * Make sure that `x * 1.001` won't result an error.
+ * Swaps the order of `x` and `y` if `c` is true.
+ * Leaves them in the same order if `c` is false.
  */
-export const addOnePerMilFee = (x: UInt64): UInt64 => {
-    return UInt64.from(normalDiv(x.value.mul(Field(1001)), Field(1000)))
+export const putInOrder = (c: Bool, x: Field, y: Field): [Field, Field] => {
+    const m = c.toField().mul(x.sub(y))
+    const a = x.sub(m)
+    const b = y.add(m)
+    return [a, b]
 }
