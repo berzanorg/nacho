@@ -9,7 +9,7 @@ import {
 /** The token contract that is used for the bridge. */
 export class TokenContract extends BaseTokenContract {
     /** Mints the given token amount to the given receiver with no checks. */
-    @method mint(to: PublicKey, amount: UInt64) {
+    @method async mint(to: PublicKey, amount: UInt64) {
         this.internal.mint({
             address: to,
             amount,
@@ -17,7 +17,7 @@ export class TokenContract extends BaseTokenContract {
     }
 
     /** Approves the given account updates if the total balance change is zero. */
-    @method approveBase(forest: AccountUpdateForest) {
+    @method async approveBase(forest: AccountUpdateForest) {
         this.checkZeroBalanceChange(forest)
     }
 }

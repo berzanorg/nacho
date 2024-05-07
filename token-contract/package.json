@@ -1,6 +1,6 @@
 {
   "name": "nacho-token-contract",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The token smart contract built for Nacho using o1js.",
   "author": {
     "name": "Berzan",
@@ -39,7 +39,7 @@
     "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "o1js": "^0.17.0"
+    "o1js": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
