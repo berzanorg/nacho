@@ -1,4 +1,4 @@
-import { Bool, Field, PublicKey, SelfProof, Signature, UInt64, ZkProgram } from "o1js"
+import { Field, PublicKey, SelfProof, Signature, UInt64, ZkProgram } from "o1js"
 import {
     DoubleBalanceWitness,
     SingleBalanceWitness,
@@ -21,6 +21,7 @@ export const proofGenerator = ZkProgram({
     name: "proofGenerator",
     publicInput: StateRoots,
     publicOutput: StateRoots,
+    overrideWrapDomain: 2,
     methods: {
         createGenesis: {
             privateInputs: [],

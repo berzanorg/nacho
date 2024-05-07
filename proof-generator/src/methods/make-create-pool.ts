@@ -9,7 +9,7 @@ import {
     StateRoots,
 } from "nacho-common-o1js"
 
-export const makeCreatePool = (
+export const makeCreatePool = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singlePoolWitness: SinglePoolWitness,
@@ -23,7 +23,7 @@ export const makeCreatePool = (
     userBalanceBaseTokenAmount: UInt64,
     userBalanceQuoteTokenAmount: UInt64,
     userSignature: Signature,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 

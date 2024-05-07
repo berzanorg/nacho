@@ -1,4 +1,4 @@
-import { Field, Poseidon, Provable, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
+import { Field, Poseidon, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
 import {
     Balance,
     DoubleBalanceWitness,
@@ -9,7 +9,7 @@ import {
     normalDiv,
 } from "nacho-common-o1js"
 
-export const makeBuyTokens = (
+export const makeBuyTokens = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singlePoolWitness: SinglePoolWitness,
@@ -25,7 +25,7 @@ export const makeBuyTokens = (
     userBaseTokenAmountToSwap: UInt64,
     userQuoteTokenAmountLimitToSwap: UInt64,
     userSignature: Signature,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 
@@ -80,7 +80,7 @@ export const makeBuyTokens = (
     newPoolBaseTokenAmount.equals(UInt64.zero).assertFalse()
 
     // NOTE: The result is always expected to be less than 2^64, `UInt64.from` throws an overflow error if it isn't.
-    const newPoolQuoteTokenAmount = UInt64.from(normalDiv(k, newPoolBaseTokenAmount.value))
+    const newPoolQuoteTokenAmount = UInt64.fromFields([normalDiv(k, newPoolBaseTokenAmount.value)])
 
     // NOTE: The result is always expected to be greater than zero, it throws an underflow error if it isn't.
     const quoteTokenAmountToSwap = newPoolQuoteTokenAmount.sub(poolQuoteTokenAmount)

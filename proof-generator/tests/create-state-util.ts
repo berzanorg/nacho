@@ -1,4 +1,4 @@
-import { Field, MerkleTree, Poseidon, PrivateKey, PublicKey, UInt64 } from "o1js"
+import { Field, MerkleTree, Poseidon, PublicKey, UInt64 } from "o1js"
 import { ZkProof } from "../src/index.js"
 import {
     BALANCES_TREE_HEIGHT,
@@ -12,15 +12,6 @@ import {
     SinglePoolWitness,
     StateRoots,
 } from "nacho-common-o1js"
-
-export const generateKeypair = () => {
-    const privateKey = PrivateKey.random()
-
-    return {
-        privateKey,
-        publicKey: privateKey.toPublicKey(),
-    }
-}
 
 export const createStateUtil = () => {
     const balancesTree = new MerkleTree(BALANCES_TREE_HEIGHT)

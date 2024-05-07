@@ -1,15 +1,15 @@
 import { describe, it } from "node:test"
-import { Bool, Field, Signature, UInt64 } from "o1js"
+import { Field, Mina, Signature, UInt64 } from "o1js"
 import { addOnePerMilFee, normalDiv } from "nacho-common-o1js"
 import { proofGenerator } from "../src/proof-generator.js"
-import { createStateUtil, generateKeypair } from "./utils.js"
+import { createStateUtil } from "./create-state-util.js"
 import assert from "node:assert"
 
 describe("proof generator", async () => {
     await proofGenerator.compile()
 
     const stateUtil = createStateUtil()
-    const john = generateKeypair()
+    const john = Mina.TestPublicKey.random(1)
     const minaTokenId = Field(1)
     const usdcTokenId = Field(2)
 
@@ -30,8 +30,8 @@ describe("proof generator", async () => {
             stateUtil.lastProof,
             stateUtil.getSingleBalanceWitness(0n),
             stateUtil.currentDepositsRoot,
-            stateUtil.getExpectedDepositsRoot(john.publicKey, minaTokenId, tokenAmount),
-            john.publicKey,
+            stateUtil.getExpectedDepositsRoot(john, minaTokenId, tokenAmount),
+            john,
             minaTokenId,
             tokenAmount,
             currentBalance,
@@ -39,8 +39,8 @@ describe("proof generator", async () => {
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
 
-        stateUtil.setBalance(0n, john.publicKey, minaTokenId, tokenAmount)
-        stateUtil.pushDeposit(john.publicKey, minaTokenId, tokenAmount)
+        stateUtil.setBalance(0n, john, minaTokenId, tokenAmount)
+        stateUtil.pushDeposit(john, minaTokenId, tokenAmount)
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
@@ -50,14 +50,14 @@ describe("proof generator", async () => {
         const currentBurn = UInt64.from(0)
         const currentBalance = UInt64.from(45_000_000)
         const amountToBurn = UInt64.from(3_000_000)
-        const userSignature = Signature.create(john.privateKey, [minaTokenId, amountToBurn.value])
+        const userSignature = Signature.create(john.key, [minaTokenId, amountToBurn.value])
 
         const proof = await proofGenerator.makeBurnTokens(
             stateUtil.stateRoots,
             stateUtil.lastProof,
             stateUtil.getSingleBalanceWitness(0n),
             stateUtil.getSingleBurnWitness(0n),
-            john.publicKey,
+            john,
             minaTokenId,
             currentBurn,
             currentBalance,
@@ -67,8 +67,8 @@ describe("proof generator", async () => {
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
 
-        stateUtil.setBalance(0n, john.publicKey, minaTokenId, currentBalance.sub(amountToBurn))
-        stateUtil.setBurn(0n, john.publicKey, minaTokenId, amountToBurn)
+        stateUtil.setBalance(0n, john, minaTokenId, currentBalance.sub(amountToBurn))
+        stateUtil.setBurn(0n, john, minaTokenId, amountToBurn)
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
@@ -83,8 +83,8 @@ describe("proof generator", async () => {
             stateUtil.lastProof,
             stateUtil.getSingleBalanceWitness(1n),
             stateUtil.currentDepositsRoot,
-            stateUtil.getExpectedDepositsRoot(john.publicKey, usdcTokenId, tokenAmount),
-            john.publicKey,
+            stateUtil.getExpectedDepositsRoot(john, usdcTokenId, tokenAmount),
+            john,
             usdcTokenId,
             tokenAmount,
             currentBalance,
@@ -92,8 +92,8 @@ describe("proof generator", async () => {
 
         proof.publicInput.assertEquals(stateUtil.stateRoots)
 
-        stateUtil.setBalance(1n, john.publicKey, usdcTokenId, tokenAmount)
-        stateUtil.pushDeposit(john.publicKey, usdcTokenId, tokenAmount)
+        stateUtil.setBalance(1n, john, usdcTokenId, tokenAmount)
+        stateUtil.pushDeposit(john, usdcTokenId, tokenAmount)
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
@@ -104,7 +104,7 @@ describe("proof generator", async () => {
         const currentUsdcBalance = UInt64.from(100_000_000)
         const initialMinaLiquidity = UInt64.from(32_000_000)
         const initialUsdcLiquidity = UInt64.from(50_000_000)
-        const userSignature = Signature.create(john.privateKey, [
+        const userSignature = Signature.create(john.key, [
             minaTokenId,
             usdcTokenId,
             initialMinaLiquidity.value,
@@ -119,7 +119,7 @@ describe("proof generator", async () => {
             stateUtil.getDoubleBalanceWitness(0n, 1n),
             minaTokenId,
             usdcTokenId,
-            john.publicKey,
+            john,
             initialMinaLiquidity,
             initialUsdcLiquidity,
             currentMinaBalance,
@@ -140,24 +140,14 @@ describe("proof generator", async () => {
 
         stateUtil.setLiquidity(
             0n,
-            john.publicKey,
+            john,
             minaTokenId,
             usdcTokenId,
             initialMinaLiquidity.value.mul(initialUsdcLiquidity.value),
         )
 
-        stateUtil.setBalance(
-            0n,
-            john.publicKey,
-            minaTokenId,
-            currentMinaBalance.sub(initialMinaLiquidity),
-        )
-        stateUtil.setBalance(
-            1n,
-            john.publicKey,
-            usdcTokenId,
-            currentUsdcBalance.sub(initialUsdcLiquidity),
-        )
+        stateUtil.setBalance(0n, john, minaTokenId, currentMinaBalance.sub(initialMinaLiquidity))
+        stateUtil.setBalance(1n, john, usdcTokenId, currentUsdcBalance.sub(initialUsdcLiquidity))
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
@@ -171,7 +161,7 @@ describe("proof generator", async () => {
         const currentLiquidityPoints = currentMinaLiquidity.value.mul(currentUsdcLiquidity.value)
         const baseTokenAmountToProvide = UInt64.from(5_000_000)
         const quoteTokenAmountLimitToProvide = UInt64.from(10_000_000)
-        const userSignature = Signature.create(john.privateKey, [
+        const userSignature = Signature.create(john.key, [
             minaTokenId,
             usdcTokenId,
             baseTokenAmountToProvide.value,
@@ -186,7 +176,7 @@ describe("proof generator", async () => {
             stateUtil.getDoubleBalanceWitness(0n, 1n),
             minaTokenId,
             usdcTokenId,
-            john.publicKey,
+            john,
             currentLiquidityPoints,
             currentMinaBalance,
             currentUsdcBalance,
@@ -205,12 +195,12 @@ describe("proof generator", async () => {
             currentMinaLiquidity.value,
         )
 
-        const quoteTokenAmountToProvide = UInt64.from(
+        const quoteTokenAmountToProvide = UInt64.fromFields([
             normalDiv(
                 baseTokenAmountToProvide.value.mul(currentUsdcLiquidity.value),
                 currentMinaLiquidity.value,
             ),
-        )
+        ])
 
         stateUtil.setPool(
             0n,
@@ -223,7 +213,7 @@ describe("proof generator", async () => {
 
         stateUtil.setLiquidity(
             0n,
-            john.publicKey,
+            john,
             minaTokenId,
             usdcTokenId,
             currentLiquidityPoints.add(liquidityPointsToBeCreated),
@@ -231,14 +221,14 @@ describe("proof generator", async () => {
 
         stateUtil.setBalance(
             0n,
-            john.publicKey,
+            john,
             minaTokenId,
             currentMinaBalance.sub(baseTokenAmountToProvide),
         )
 
         stateUtil.setBalance(
             1n,
-            john.publicKey,
+            john,
             usdcTokenId,
             currentUsdcBalance.sub(quoteTokenAmountToProvide),
         )
@@ -256,7 +246,7 @@ describe("proof generator", async () => {
         const baseTokenAmountLimitToProvide = UInt64.from(5_000_000)
         const quoteTokenAmountLimitToProvide = UInt64.from(7_812_500)
         const liquidityPointsToRemove = Field(250_000_000_000_000n)
-        const userSignature = Signature.create(john.privateKey, [
+        const userSignature = Signature.create(john.key, [
             minaTokenId,
             usdcTokenId,
             baseTokenAmountLimitToProvide.value,
@@ -272,7 +262,7 @@ describe("proof generator", async () => {
             stateUtil.getDoubleBalanceWitness(0n, 1n),
             minaTokenId,
             usdcTokenId,
-            john.publicKey,
+            john,
             currentLiquidityPoints,
             currentMinaBalance,
             currentUsdcBalance,
@@ -302,10 +292,10 @@ describe("proof generator", async () => {
             newLiquidityPoints,
         )
 
-        stateUtil.setLiquidity(0n, john.publicKey, minaTokenId, usdcTokenId, newLiquidityPoints)
+        stateUtil.setLiquidity(0n, john, minaTokenId, usdcTokenId, newLiquidityPoints)
 
-        stateUtil.setBalance(0n, john.publicKey, minaTokenId, newMinaBalance)
-        stateUtil.setBalance(1n, john.publicKey, usdcTokenId, newUsdcBalance)
+        stateUtil.setBalance(0n, john, minaTokenId, newMinaBalance)
+        stateUtil.setBalance(1n, john, usdcTokenId, newUsdcBalance)
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)
@@ -319,7 +309,7 @@ describe("proof generator", async () => {
         const currentLiquidityPoints = currentMinaLiquidity.value.mul(currentUsdcLiquidity.value)
         const baseTokenAmountToSwap = UInt64.from(1_000_000)
         const quoteTokenAmountLimitToSwap = UInt64.from(2_000_000)
-        const userSignature = Signature.create(john.privateKey, [
+        const userSignature = Signature.create(john.key, [
             minaTokenId,
             usdcTokenId,
             baseTokenAmountToSwap.value,
@@ -331,7 +321,7 @@ describe("proof generator", async () => {
             stateUtil.lastProof,
             stateUtil.getSinglePoolWitness(0n),
             stateUtil.getDoubleBalanceWitness(0n, 1n),
-            john.publicKey,
+            john,
             minaTokenId,
             usdcTokenId,
             currentMinaBalance,
@@ -352,7 +342,7 @@ describe("proof generator", async () => {
 
         newMinaLiquidity.equals(UInt64.zero).assertFalse()
 
-        const newUsdcLiquidity = UInt64.from(normalDiv(k, newMinaLiquidity.value))
+        const newUsdcLiquidity = UInt64.fromFields([normalDiv(k, newMinaLiquidity.value)])
 
         const usdcAmountToSwap = newUsdcLiquidity.sub(currentUsdcLiquidity)
 
@@ -367,16 +357,11 @@ describe("proof generator", async () => {
             currentLiquidityPoints,
         )
 
-        stateUtil.setBalance(
-            0n,
-            john.publicKey,
-            minaTokenId,
-            currentMinaBalance.add(baseTokenAmountToSwap),
-        )
+        stateUtil.setBalance(0n, john, minaTokenId, currentMinaBalance.add(baseTokenAmountToSwap))
 
         stateUtil.setBalance(
             1n,
-            john.publicKey,
+            john,
             usdcTokenId,
             currentUsdcBalance.sub(quoteTokenAmountToSwapPlusFee),
         )
@@ -393,7 +378,7 @@ describe("proof generator", async () => {
         const currentLiquidityPoints = Field(1600000000000000n)
         const baseTokenAmountLimitToSwap = UInt64.from(1_000_000)
         const quoteTokenAmountToSwap = UInt64.from(1_614_515)
-        const userSignature = Signature.create(john.privateKey, [
+        const userSignature = Signature.create(john.key, [
             minaTokenId,
             usdcTokenId,
             baseTokenAmountLimitToSwap.value,
@@ -405,7 +390,7 @@ describe("proof generator", async () => {
             stateUtil.lastProof,
             stateUtil.getSinglePoolWitness(0n),
             stateUtil.getDoubleBalanceWitness(0n, 1n),
-            john.publicKey,
+            john,
             minaTokenId,
             usdcTokenId,
             currentMinaBalance,
@@ -424,7 +409,7 @@ describe("proof generator", async () => {
 
         const newUsdcLiquidity = currentUsdcLiquidity.sub(quoteTokenAmountToSwap)
 
-        const newMinaLiquidity = UInt64.from(normalDiv(k, newUsdcLiquidity.value))
+        const newMinaLiquidity = UInt64.fromFields([normalDiv(k, newUsdcLiquidity.value)])
 
         const baseTokenAmountToSwap = newMinaLiquidity.sub(currentMinaLiquidity)
 
@@ -441,17 +426,12 @@ describe("proof generator", async () => {
 
         stateUtil.setBalance(
             0n,
-            john.publicKey,
+            john,
             minaTokenId,
             currentMinaBalance.sub(baseTokenAmountToSwapPlusFee),
         )
 
-        stateUtil.setBalance(
-            1n,
-            john.publicKey,
-            usdcTokenId,
-            currentUsdcBalance.add(quoteTokenAmountToSwap),
-        )
+        stateUtil.setBalance(1n, john, usdcTokenId, currentUsdcBalance.add(quoteTokenAmountToSwap))
 
         proof.publicOutput.assertEquals(stateUtil.stateRoots)
         stateUtil.pushProof(proof)

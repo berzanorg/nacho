@@ -1,7 +1,7 @@
 import { Bool, Field, Poseidon, PublicKey, SelfProof, UInt64 } from "o1js"
 import { Balance, Deposit, SingleBalanceWitness, StateRoots, choose } from "nacho-common-o1js"
 
-export const depositTokens = (
+export const depositTokens = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singleBalanceWitness: SingleBalanceWitness,
@@ -11,7 +11,7 @@ export const depositTokens = (
     tokenId: Field,
     userDepositTokenAmount: UInt64,
     userBalanceTokenAmount: UInt64,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 

@@ -1,4 +1,4 @@
-import { Bool, Field, Poseidon, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
+import { Field, Poseidon, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
 import {
     Balance,
     Burn,
@@ -8,7 +8,7 @@ import {
     choose,
 } from "nacho-common-o1js"
 
-export const makeBurnTokens = (
+export const makeBurnTokens = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singleBalanceWitness: SingleBalanceWitness,
@@ -19,7 +19,7 @@ export const makeBurnTokens = (
     userBalanceTokenAmount: UInt64,
     amountToBurn: UInt64,
     userSignature: Signature,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 

@@ -1,4 +1,4 @@
-import { Field, Poseidon, Provable, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
+import { Field, Poseidon, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
 import {
     Balance,
     DoubleBalanceWitness,
@@ -10,7 +10,7 @@ import {
     normalDiv,
 } from "nacho-common-o1js"
 
-export const makeRemoveLiquidity = (
+export const makeRemoveLiquidity = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singlePoolWitness: SinglePoolWitness,
@@ -29,7 +29,7 @@ export const makeRemoveLiquidity = (
     userBaseTokenAmountLimitToRemove: UInt64,
     userQuoteTokenAmountLimitToRemove: UInt64,
     userSignature: Signature,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 
@@ -94,22 +94,22 @@ export const makeRemoveLiquidity = (
     // the total liquidity points in a pool is always less than 2^128 and can never be equal to zero.
     // Plus the base token amount in the pool is never equal to zero.
     // And `UInt64.from` checks overflows.
-    const baseTokenAmountToRemove = UInt64.from(
+    const baseTokenAmountToRemove = UInt64.fromFields([
         normalDiv(
             poolBaseTokenAmount.value.mul(userLiquidityPointsToRemove),
             poolTotalLiquidityPoints,
         ),
-    )
+    ])
     // NOTE: We don't have to check overflow because the quote token amount in a pool is always less than 2^64,
     // the total liquidity points in a pool is always less than 2^128 and can never be equal to zero.
     // Plus the base token amount in the pool is never equal to zero.
     // And `UInt64.from` checks overflows.
-    const quoteTokenAmountToRemove = UInt64.from(
+    const quoteTokenAmountToRemove = UInt64.fromFields([
         normalDiv(
             poolQuoteTokenAmount.value.mul(userLiquidityPointsToRemove),
             poolTotalLiquidityPoints,
         ),
-    )
+    ])
 
     baseTokenAmountToRemove.assertGreaterThanOrEqual(userBaseTokenAmountLimitToRemove)
     quoteTokenAmountToRemove.assertLessThanOrEqual(userQuoteTokenAmountLimitToRemove)

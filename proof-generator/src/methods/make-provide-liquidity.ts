@@ -1,4 +1,4 @@
-import { Bool, Field, Poseidon, Provable, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
+import { Bool, Field, Poseidon, PublicKey, SelfProof, Signature, UInt64 } from "o1js"
 import {
     Balance,
     DoubleBalanceWitness,
@@ -11,7 +11,7 @@ import {
     normalDiv,
 } from "nacho-common-o1js"
 
-export const makeProvideLiquidity = (
+export const makeProvideLiquidity = async (
     stateRoots: StateRoots,
     earlierProof: SelfProof<StateRoots, StateRoots>,
     singlePoolWitness: SinglePoolWitness,
@@ -29,7 +29,7 @@ export const makeProvideLiquidity = (
     userBaseTokenAmountToProvide: UInt64,
     userQuoteTokenAmountLimitToProvide: UInt64,
     userSignature: Signature,
-): StateRoots => {
+): Promise<StateRoots> => {
     stateRoots.assertEquals(earlierProof.publicOutput)
     earlierProof.verify()
 
@@ -111,12 +111,12 @@ export const makeProvideLiquidity = (
     // and the target can store up to 2^254.
     // Plus the base token amount in the pool is never equal to zero.
     // And `UInt64.from` checks overflows.
-    const quoteTokenAmountToProvide = UInt64.from(
+    const quoteTokenAmountToProvide = UInt64.fromFields([
         normalDiv(
             userBaseTokenAmountToProvide.value.mul(poolQuoteTokenAmount.value),
             poolBaseTokenAmount.value,
         ),
-    )
+    ])
 
     quoteTokenAmountToProvide.assertLessThanOrEqual(userQuoteTokenAmountLimitToProvide)
 
