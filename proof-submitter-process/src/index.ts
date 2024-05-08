@@ -6,26 +6,32 @@ import { readMergedProofFromDisk } from "./utils"
 
 const proofsPath = process.env.NACHO_PROOFS_PATH
 const privateKeyAsBase58 = process.env.NACHO_SUBMITTER_PRIVATE_KEY
-const minaNodeUrl = process.env.NACHO_MINA_NODE_URL
+const minaGraphqlUrl = process.env.NACHO_MINA_GRAPHQL_URL
+const minaArchiveUrl = process.env.NACHO_MINA_ARCHIVE_URL
 const rollupContractAddress = process.env.NACHO_ROLLUP_CONTRACT_ADDRESS
 
 if (
     proofsPath === undefined ||
     privateKeyAsBase58 === undefined ||
-    minaNodeUrl === undefined ||
+    minaGraphqlUrl === undefined ||
+    minaArchiveUrl === undefined ||
     rollupContractAddress === undefined
 ) {
     process.exit(1)
 }
 
+Mina.setActiveInstance(
+    Mina.Network({
+        mina: minaGraphqlUrl,
+        archive: minaArchiveUrl,
+    }),
+)
+
 const txSender = PrivateKey.fromBase58(privateKeyAsBase58)
-
-Mina.setActiveInstance(Mina.Network(minaNodeUrl))
-
 const rollupContractPublicKey = PublicKey.fromBase58(rollupContractAddress)
+const rollupContract = new RollupContract(rollupContractPublicKey)
 
 await RollupContract.compile()
-const rollupContract = new RollupContract(rollupContractPublicKey)
 
 stdout.write(new Uint8Array(new ArrayBuffer(1)))
 

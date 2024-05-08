@@ -7,8 +7,8 @@ export const submitMergedProof = async (
     rollupContract: RollupContract,
     txSender: PrivateKey,
 ) => {
-    const tx = await Mina.transaction(txSender.toPublicKey(), () => {
-        rollupContract.settle(mergedProof)
+    const tx = await Mina.transaction(txSender.toPublicKey(), async () => {
+        await rollupContract.settle(mergedProof)
     })
 
     tx.sign([txSender])
