@@ -1,21 +1,48 @@
 {
     "name": "nacho-signature-verifier-process",
-    "version": "0.1.0",
+    "version": "1.0.0",
+    "description": "The signature verifier process built for Nacho using o1js.",
+    "author": {
+        "name": "Berzan",
+        "url": "https://berzan.org/",
+        "email": "berzan@tutanota.com"
+    },
+    "keywords": [
+        "nacho",
+        "o1js",
+        "zkapp",
+        "zk-app",
+        "mina",
+        "signature-verifier",
+        "signature-verifier-process",
+        "nacho-signature-verifier-process"
+    ],
+    "homepage": "https://github.com/berzanorg/nacho/blob/main/signature-verifier-process#readme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/berzanorg/nacho.git",
+        "directory": "signature-verifier-process"
+    },
+    "license": "MIT",
     "type": "module",
+    "main": "build/index.mjs",
     "files": [
-        "build"
+        "build/index.mjs",
+        "README.md",
+        "LICENSE"
     ],
     "scripts": {
-        "build": "rimraf build/ && tsc && rollup --config"
+        "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
+        "prepublishOnly": "npm ci && npm run build"
     },
     "dependencies": {
-        "o1js": "^0.17.0"
+        "o1js": "^1.1.0"
     },
     "devDependencies": {
         "@types/node": "^20.11.24",
-        "@rollup/plugin-typescript": "^11.1.6",
         "rimraf": "^5.0.5",
         "rollup": "^4.17.0",
+        "rollup-plugin-dts": "^6.1.0",
         "typescript": "^5.3.3"
     }
 }
