@@ -5,21 +5,28 @@ import { BridgeContract } from "nacho-bridge-contract"
 import { Mina, PublicKey } from "o1js"
 import { unparseError, unparseOutput } from "./output"
 
-const minaNodeUrl = process.env.NACHO_MINA_NODE_URL
+const minaGraphqlUrl = process.env.NACHO_MINA_GRAPHQL_URL
+const minaArchiveUrl = process.env.NACHO_MINA_ARCHIVE_URL
 const bridgeContractAddress = process.env.NACHO_BRIDGE_CONTRACT_ADDRESS
 
-if (minaNodeUrl === undefined || bridgeContractAddress === undefined) {
+if (
+    minaGraphqlUrl === undefined ||
+    minaArchiveUrl === undefined ||
+    bridgeContractAddress === undefined
+) {
     process.exit(1)
 }
 
-Mina.setActiveInstance(Mina.Network(minaNodeUrl))
+Mina.setActiveInstance(
+    Mina.Network({
+        mina: minaGraphqlUrl,
+        archive: minaArchiveUrl,
+    }),
+)
 
 const bridgeContractPublicKey = PublicKey.fromBase58(bridgeContractAddress)
 
-await BridgeContract.compile()
 const bridgeContract = new BridgeContract(bridgeContractPublicKey)
-
-stdout.write(new Uint8Array(new ArrayBuffer(1)))
 
 stdin.on("data", async (chunk) => {
     try {
