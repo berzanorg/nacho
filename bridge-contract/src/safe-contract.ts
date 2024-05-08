@@ -5,7 +5,7 @@ import { BridgeContract } from "./bridge-contract.js"
 import { TokenContract } from "nacho-token-contract"
 
 export class SafeContract extends SmartContract {
-    @method checkAndSubBalance(
+    @method async checkAndSubBalance(
         singleWithdrawalWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         tokenContractPublicKey: PublicKey,
@@ -27,7 +27,7 @@ export class SafeContract extends SmartContract {
         const tokenId = tokenContract.deriveTokenId()
 
         const burn = new Burn({
-            burner: this.sender,
+            burner: this.sender.getAndRequireSignature(),
             tokenId,
             tokenAmount: totalBurnAmount,
         })

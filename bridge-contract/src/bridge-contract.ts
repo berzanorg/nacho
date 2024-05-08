@@ -32,7 +32,6 @@ export class BridgeContract extends SmartContract {
         withdrawn: Withdrawal,
     }
 
-    @state(Field) actionState = State<Field>()
     @state(Field) depositsMerkleListRoot = State<Field>()
     @state(Field) withdrawalsMerkleTreeRoot = State<Field>()
     @state(PublicKey) rollupContractPublicKey = State<PublicKey>()
@@ -51,7 +50,6 @@ export class BridgeContract extends SmartContract {
             setPermissions: Permissions.proof(),
         })
 
-        this.actionState.set(Reducer.initialActionState)
         this.depositsMerkleListRoot.set(Field(0))
         this.withdrawalsMerkleTreeRoot.set(
             Field(25436453236035485996795240493313170211557120058262356001829805101279552630634n),
@@ -59,19 +57,19 @@ export class BridgeContract extends SmartContract {
         this.rollupContractPublicKey.set(PublicKey.empty())
     }
 
-    @method initRollupContractAddress(address: PublicKey) {
+    @method async initRollupContractAddress(address: PublicKey) {
         this.rollupContractPublicKey.getAndRequireEquals().assertEquals(PublicKey.empty())
 
         this.rollupContractPublicKey.set(address)
     }
 
-    @method addDeposit(tokenContractAddress: PublicKey, amount: UInt64) {
+    @method async addDeposit(tokenContractAddress: PublicKey, amount: UInt64) {
         const tokenContract = new TokenContract(tokenContractAddress)
 
-        tokenContract.transfer(this.sender, this.address, amount)
+        await tokenContract.transfer(this.sender.getAndRequireSignature(), this.address, amount)
 
         const deposit = new Deposit({
-            depositor: this.sender,
+            depositor: this.sender.getAndRequireSignature(),
             tokenId: tokenContract.deriveTokenId(),
             tokenAmount: amount,
         })
@@ -81,8 +79,8 @@ export class BridgeContract extends SmartContract {
         this.emitEvent("deposited", deposit)
     }
 
-    @method addMinaDeposit(amount: UInt64) {
-        const au = AccountUpdate.createSigned(this.sender)
+    @method async addMinaDeposit(amount: UInt64) {
+        const au = AccountUpdate.createSigned(this.sender.getAndRequireSignature())
 
         au.send({
             to: this.address,
@@ -90,7 +88,7 @@ export class BridgeContract extends SmartContract {
         })
 
         const deposit = new Deposit({
-            depositor: this.sender,
+            depositor: this.sender.getAndRequireSignature(),
             tokenId: Field(1), // Mina's Token ID.
             tokenAmount: amount,
         })
@@ -100,27 +98,22 @@ export class BridgeContract extends SmartContract {
         this.emitEvent("deposited", deposit)
     }
 
-    @method applyDeposits() {
-        const actionState = this.actionState.getAndRequireEquals()
+    @method async applyDeposits() {
         const depositsMerkleListRoot = this.depositsMerkleListRoot.getAndRequireEquals()
+        const actions = this.reducer.getActions()
+        this.account.actionState.requireEquals(actions.hash)
 
-        const pendingActions = this.reducer.getActions({
-            fromActionState: actionState,
-        })
+        const newDepositsMerkleListRoot = this.reducer.reduce(
+            actions,
+            Field,
+            (state: Field, action: Field) => Poseidon.hash([state, action]),
+            depositsMerkleListRoot,
+        )
 
-        const { state: newDepositsMerkleListRoot, actionState: newActionState } =
-            this.reducer.reduce(
-                pendingActions,
-                Field,
-                (state: Field, action: Field) => Poseidon.hash([state, action]),
-                { state: depositsMerkleListRoot, actionState },
-            )
-
-        this.actionState.set(newActionState)
         this.depositsMerkleListRoot.set(newDepositsMerkleListRoot)
     }
 
-    @method withdrawTokens(
+    @method async withdrawTokens(
         singleWithdrawalWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         tokenContractPublicKey: PublicKey,
@@ -131,7 +124,7 @@ export class BridgeContract extends SmartContract {
         const tokenId = tokenContract.deriveTokenId()
         const safeContract = new SafeContract(this.address, tokenId)
 
-        safeContract.checkAndSubBalance(
+        await safeContract.checkAndSubBalance(
             singleWithdrawalWitness,
             singleBurnWitness,
             tokenContractPublicKey,
@@ -141,26 +134,30 @@ export class BridgeContract extends SmartContract {
 
         const amount = totalBurnAmount.sub(totalWithdrawAmount)
 
-        // NOTE: We don't have to check if this.sender is accurate because `SafeContract.checkAndSubBalance` already requires it to construct correct roots.
-        tokenContract.transfer(safeContract.self, this.sender, amount)
+        // NOTE: We don't have to check if this.sender.getAndRequireSignature() is accurate because `SafeContract.checkAndSubBalance` already requires it to construct correct roots.
+        await tokenContract.transfer(safeContract.self, this.sender.getUnconstrained(), amount)
 
         this.withdrawalsMerkleTreeRoot.set(
             singleWithdrawalWitness.calculateRoot(
-                Poseidon.hash([...this.sender.toFields(), tokenId, amount.value]),
+                Poseidon.hash([
+                    ...this.sender.getUnconstrained().toFields(),
+                    tokenId,
+                    amount.value,
+                ]),
             ),
         )
 
         this.emitEvent(
             "withdrawn",
             new Withdrawal({
-                withdrawer: this.sender,
+                withdrawer: this.sender.getAndRequireSignature(),
                 tokenId,
                 tokenAmount: totalBurnAmount,
             }),
         )
     }
 
-    @method withdrawMina(
+    @method async withdrawMina(
         singleWithdrawalWitness: SingleWithdrawalWitness,
         singleBurnWitness: SingleBurnWitness,
         totalWithdrawAmount: UInt64,
@@ -174,17 +171,15 @@ export class BridgeContract extends SmartContract {
         // NOTE: We require that both burn and withdraw leaves point to the same index.
         singleWithdrawalWitness.calculateIndex().assertEquals(singleBurnWitness.calculateIndex())
 
-        const bridgeContract = new BridgeContract(this.address)
-        const withdrawalsMerkleTreeRoot =
-            bridgeContract.withdrawalsMerkleTreeRoot.getAndRequireEquals()
-        const rollupContractPublicKey = bridgeContract.rollupContractPublicKey.getAndRequireEquals()
+        const withdrawalsMerkleTreeRoot = this.withdrawalsMerkleTreeRoot.getAndRequireEquals()
+        const rollupContractPublicKey = this.rollupContractPublicKey.getAndRequireEquals()
 
         const rollupContract = new RollupContract(rollupContractPublicKey)
 
         const stateRoots = rollupContract.stateRoots.getAndRequireEquals()
 
         const burn = new Burn({
-            burner: this.sender,
+            burner: this.sender.getAndRequireSignature(),
             tokenId,
             tokenAmount: totalBurnAmount,
         })
@@ -200,20 +195,24 @@ export class BridgeContract extends SmartContract {
         withdrawalsMerkleTreeRoot.assertEquals(singleWithdrawalWitness.calculateRoot(withdrawHash))
 
         this.send({
-            to: this.sender,
+            to: this.sender.getAndRequireSignature(),
             amount,
         })
 
         this.withdrawalsMerkleTreeRoot.set(
             singleWithdrawalWitness.calculateRoot(
-                Poseidon.hash([...this.sender.toFields(), tokenId, amount.value]),
+                Poseidon.hash([
+                    ...this.sender.getAndRequireSignature().toFields(),
+                    tokenId,
+                    amount.value,
+                ]),
             ),
         )
 
         this.emitEvent(
             "withdrawn",
             new Withdrawal({
-                withdrawer: this.sender,
+                withdrawer: this.sender.getAndRequireSignature(),
                 tokenId,
                 tokenAmount: totalBurnAmount,
             }),

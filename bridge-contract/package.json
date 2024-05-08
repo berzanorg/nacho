@@ -1,25 +1,55 @@
 {
   "name": "nacho-bridge-contract",
-  "version": "0.1.10",
+  "version": "1.0.0",
+  "description": "The bridge smart contract built for Nacho using o1js.",
+  "author": {
+    "name": "Berzan",
+    "url": "https://berzan.org/",
+    "email": "berzan@tutanota.com"
+  },
+  "keywords": [
+    "nacho",
+    "o1js",
+    "zkapp",
+    "zk-app",
+    "mina",
+    "bridge-contract",
+    "smart-contract",
+    "nacho-bridge-contract"
+  ],
+  "homepage": "https://github.com/berzanorg/nacho/blob/main/bridge-contract#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/berzanorg/nacho.git",
+    "directory": "bridge-contract"
+  },
+  "license": "MIT",
   "type": "module",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "build"
+    "build/index.js",
+    "build/index.d.ts",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "test": "rm -rf build/ && tsc && node --test build/tests/*.test.js",
-    "build": "rm -rf build/ && tsc"
+    "test": "rimraf build/ && tsc && node --test build/compiled/tests/*.test.js",
+    "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
+    "prepublishOnly": "npm ci && npm run build"
   },
   "dependencies": {
-    "nacho-common-o1js": "^0.1.10",
-    "nacho-proof-generator": "^0.1.10",
-    "nacho-rollup-contract": "^0.1.10",
-    "nacho-token-contract": "^0.2.0",
-    "o1js": "^0.17.0"
+    "o1js": "^1.1.0",
+    "nacho-common-o1js": "^1.0.0",
+    "nacho-proof-generator": "^1.0.0",
+    "nacho-rollup-contract": "^1.0.0",
+    "nacho-token-contract": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.17.0",
+    "rollup-plugin-dts": "^6.1.0",
     "typescript": "^5.3.3"
   }
 }
