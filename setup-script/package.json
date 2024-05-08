@@ -1,0 +1,52 @@
+{
+    "name": "nacho-setup-script",
+    "version": "1.0.0",
+    "description": "The setup script for the smart contracts of Nacho.",
+    "author": {
+        "name": "Berzan",
+        "url": "https://berzan.org/",
+        "email": "berzan@tutanota.com"
+    },
+    "keywords": [
+        "nacho",
+        "o1js",
+        "zkapp",
+        "zk-app",
+        "mina",
+        "setup-script",
+        "nacho-setup-script"
+    ],
+    "homepage": "https://github.com/berzanorg/nacho/blob/main/setup-script#readme",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/berzanorg/nacho.git",
+        "directory": "setup-script"
+    },
+    "license": "MIT",
+    "type": "module",
+    "main": "build/index.mjs",
+    "files": [
+        "build/index.mjs",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
+        "prepublishOnly": "npm ci && npm run build"
+    },
+    "dependencies": {
+        "nacho-common-o1js": "^1.0.0",
+        "nacho-token-contract": "^2.0.0",
+        "nacho-rollup-contract": "^1.0.0",
+        "nacho-bridge-contract": "^1.0.0",
+        "nacho-proof-generator": "^1.0.0",
+        "o1js": "^1.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.24",
+        "rimraf": "^5.0.5",
+        "rollup": "^4.17.0",
+        "rollup-plugin-dts": "^6.1.0",
+        "typescript": "^5.3.3"
+    }
+}
