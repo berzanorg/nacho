@@ -10,6 +10,10 @@ pub fn process() -> Processor {
 
     tokio::spawn(async move {
         loop {
+            println!("submitter process started");
+
+            nacho_js_process::wait(stdout).await.unwrap();
+            println!("proof submitter process compiled");
             tokio::time::sleep(Duration::from_secs(60 * 10)).await;
 
             let input = [0u8; 1];

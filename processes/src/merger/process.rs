@@ -18,8 +18,11 @@ pub fn process(transactions: transactions::Processor) -> Processor {
         nacho_js_process::spawn(&proof_merger_process_script_path).unwrap();
 
     tokio::spawn(async move {
+        nacho_js_process::wait(stdout).await.unwrap();
+
         let sleep = sleep(Duration::from_millis(100));
         tokio::pin!(sleep);
+
         loop {
             tokio::select! {
                 _ = &mut sleep => {

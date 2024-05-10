@@ -26,6 +26,7 @@ pub fn process(
     let (stdin, stdout) = nacho_js_process::spawn(&proof_generator_process_script_path).unwrap();
 
     tokio::spawn(async move {
+        nacho_js_process::wait(stdout).await.unwrap();
         let mut hasher = create_poseidon_hasher();
 
         loop {

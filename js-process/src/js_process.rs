@@ -67,6 +67,24 @@ pub async fn interact(
     Ok(())
 }
 
+/// Waits for the JS process to write a single byte to its standard output stream.
+///
+/// # Examples
+///
+/// Wait for a process:
+///
+/// ```rs
+/// nacho_js_process::wait(stdout).await?
+/// ```
+///
+pub async fn wait(stdout: &mut ChildStdout) -> Result<(), JsProcessError> {
+    let mut buf = [0u8; 1];
+
+    stdout.read_exact(&mut buf).await?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
