@@ -3,7 +3,10 @@ use http_body_util::BodyExt;
 use hyper::{body::Buf, server::conn::http1, service::service_fn};
 use hyper_util::rt::TokioIo;
 use nacho_data_structures::ByteConversion;
-use std::future::Future;
+use std::{
+    future::Future,
+    net::{Ipv4Addr, SocketAddrV4},
+};
 use tokio::net::TcpListener;
 
 /// Starts an RPC Server at the given socket address and uses the given handler function to handle RPC requests.
@@ -35,14 +38,17 @@ where
     F: Fn(RpcMethod) -> Fut + Send + Sync + Copy + 'static,
     Fut: Future<Output = RpcResponse> + Send + 'static,
 {
-    let addr = std::env::var("NACHO_RPC_SERVER_PORT").map_err(|_| {
-        std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "NACHO_RPC_SERVER_PORT environment variable is not set",
-        )
-    })?;
+    let port = std::env::var("NACHO_RPC_SERVER_PORT")
+        .map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "NACHO_RPC_SERVER_PORT environment variable is not set",
+            )
+        })?
+        .parse()
+        .unwrap();
 
-    let listener = TcpListener::bind(addr).await?;
+    let listener = TcpListener::bind(SocketAddrV4::new(Ipv4Addr::LOCALHOST, port)).await?;
 
     loop {
         let (socket, _) = listener.accept().await?;
