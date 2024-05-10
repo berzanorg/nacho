@@ -67,7 +67,7 @@ This package also provides a function to create a state utility for tests.
 
         Generates a proof by removing liquidity from an AMM pool on a user's behalf.
 
-    -   [`makeBuyTokens(stateRoots,earlierProof,singlePoolWitness,doubleBalanceWitness,userAddress,baseTokenId,quoteTokenId,userBalanceBaseTokenAmount,userBalanceQuoteTokenAmount,poolBaseTokenAmount,poolQuoteTokenAmount,poolTotalLiquidityPoints,userBaseTokenAmountToSwap,userQuoteTokenAmountLimitToSwap,userSignature)`](https://github.com/berzanorg/nacho/blob/main/proof-generator/src/methods/make-buy-tokens.ts):
+    -   [`makeBuyTokens(stateRoots, earlierProof, singlePoolWitness, doubleBalanceWitness, userAddress, baseTokenId, quoteTokenId, userBalanceBaseTokenAmount, userBalanceQuoteTokenAmount, poolBaseTokenAmount, poolQuoteTokenAmount, poolTotalLiquidityPoints, userBaseTokenAmountToSwap, userQuoteTokenAmountLimitToSwap, userSignature)`](https://github.com/berzanorg/nacho/blob/main/proof-generator/src/methods/make-buy-tokens.ts):
 
         Generates a proof by buying a token on a user's behalf.
 
