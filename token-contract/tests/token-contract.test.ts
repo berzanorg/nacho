@@ -15,7 +15,7 @@ describe("token contract", async () => {
 
     test("deploys token contract", async () => {
         const deployTx = await Mina.transaction(berzan, async () => {
-            token.deploy()
+            await token.deploy()
             AccountUpdate.fundNewAccount(berzan)
         })
 
@@ -25,7 +25,7 @@ describe("token contract", async () => {
 
     test("mints", async () => {
         const mintTx = await Mina.transaction(john, async () => {
-            token.mint(john, UInt64.MAXINT())
+            await token.mint(john, UInt64.MAXINT())
             AccountUpdate.fundNewAccount(john)
         })
 
@@ -39,7 +39,7 @@ describe("token contract", async () => {
     test("transfers", async () => {
         const mintTx = await Mina.transaction(john, async () => {
             AccountUpdate.fundNewAccount(john)
-            token.transfer(john, berzan, UInt64.from(1000))
+            await token.transfer(john, berzan, UInt64.from(1000))
         })
 
         mintTx.sign([john.key, berzan.key, tokenTestPublicKey.key])
