@@ -13,5 +13,5 @@
         "useDefineForClassFields": false,
         "outDir": "build/compiled"
     },
-    "include": ["src"]
+    "include": ["src", "tests"]
 }

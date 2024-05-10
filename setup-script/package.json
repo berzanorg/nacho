@@ -1,6 +1,6 @@
 {
     "name": "nacho-setup-script",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "description": "The setup script for the smart contracts of Nacho.",
     "author": {
         "name": "Berzan",
@@ -31,6 +31,7 @@
         "LICENSE"
     ],
     "scripts": {
+        "test": "rimraf build/ && tsc && node --test build/compiled/tests/*.test.js",
         "build": "rimraf build/ && tsc && rollup --config && rimraf build/compiled",
         "prepublishOnly": "npm ci && npm run build"
     },

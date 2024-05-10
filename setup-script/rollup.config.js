@@ -1,5 +1,5 @@
 export default {
-    input: "build/compiled/index.js",
+    input: "build/compiled/src/index.js",
     output: {
         file: "build/index.mjs",
         format: "es",
