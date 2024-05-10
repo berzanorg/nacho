@@ -1,6 +1,6 @@
 use crate::{ByteConversion, U256};
 
-/// The data structure that represents the state roots stored in the layer 1 network.
+/// The data structure that represents the layer 2 network's state roots stored in the layer 1 network.
 ///
 /// - The `balances` property represents the Merkle root of Balances DB.
 /// - The `liquidities` property represents the Merkle root of Liquidities DB.
